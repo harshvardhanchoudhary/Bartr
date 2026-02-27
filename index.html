@@ -3,580 +3,1388 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>BARTR — Demo</title>
+    <title>BARTR — Social + Marketplace Demo</title>
     <style>
-      :root { color-scheme: light; --bg:#fff; --fg:#111; --muted:#666; --bd:#eee; --chip:#f4f4f5; }
-      * { box-sizing: border-box; }
-      body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--fg); }
-      a { color: inherit; text-decoration: none; }
-      header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--bd); z-index: 20; }
-      .wrap { max-width: 1080px; margin: 0 auto; padding: 14px 16px; }
-      .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-      .between { justify-content: space-between; }
-      .brand { font-weight: 900; letter-spacing: .4px; }
-      .pill { font-size: 12px; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 999px; background: #fff; }
-      .chip { font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--chip); border: 1px solid var(--bd); }
-      .muted { color: var(--muted); }
-      .small { font-size: 12px; }
-      .card { border: 1px solid var(--bd); border-radius: 14px; padding: 12px; background: #fff; }
-      .btn { padding: 10px 12px; border: 1px solid #ddd; background: #fafafa; border-radius: 10px; cursor: pointer; }
-      .btn.primary { background: #111; color: #fff; border-color: #111; }
-      .btn.ghost { background: #fff; }
-      input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; }
-      textarea { min-height: 90px; }
-      .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-      @media (min-width: 980px) { .grid { grid-template-columns: 1.25fr .75fr; } }
-      .tabs a { padding: 7px 10px; border-radius: 10px; }
-      .tabs a.active { background: #111; color: #fff; }
-      .divider { height: 1px; background: var(--bd); margin: 10px 0; }
-      .hidden { display: none; }
-      .feedItem { cursor: pointer; }
-      .feedItem:hover { background: #fafafa; }
-      .kv { display: grid; grid-template-columns: 150px 1fr; gap: 8px; }
-      .two { display:grid; grid-template-columns: 1fr; gap: 10px; }
-      @media (min-width: 720px){ .two{ grid-template-columns: 1fr 1fr; } }
-      .msg { padding: 10px; border: 1px solid var(--bd); border-radius: 12px; background: #fff; }
-      .msg.you { background: #fafafa; }
-      .right { margin-left: auto; }
-      .tagRow { display:flex; gap:8px; flex-wrap: wrap; }
-      .warn { background:#fff7ed; border:1px solid #fed7aa; }
-      .ok { background:#f0fdf4; border:1px solid #bbf7d0; }
+      :root{
+        --bg:#0b0f19;
+        --panel:#0f1629;
+        --panel2:#121b33;
+        --card:#0f172a;
+        --stroke:rgba(255,255,255,.08);
+        --stroke2:rgba(255,255,255,.12);
+        --text:#e8eefc;
+        --muted:rgba(232,238,252,.68);
+        --muted2:rgba(232,238,252,.48);
+        --brand:#7c3aed;
+        --brand2:#22c55e;
+        --warn:#f59e0b;
+        --danger:#ef4444;
+        --shadow: 0 10px 30px rgba(0,0,0,.45);
+        --radius:16px;
+        --radius2:22px;
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        background:
+          radial-gradient(1100px 700px at 10% -10%, rgba(124,58,237,.25), transparent 55%),
+          radial-gradient(900px 650px at 90% 0%, rgba(34,197,94,.18), transparent 55%),
+          radial-gradient(900px 650px at 50% 115%, rgba(245,158,11,.12), transparent 55%),
+          var(--bg);
+        color:var(--text);
+      }
+      a{color:inherit; text-decoration:none}
+      .wrap{max-width:1100px; margin:0 auto; padding:16px;}
+      .appbar{
+        position:sticky; top:0; z-index:30;
+        backdrop-filter: blur(12px);
+        background: linear-gradient(to bottom, rgba(11,15,25,.92), rgba(11,15,25,.72));
+        border-bottom:1px solid var(--stroke);
+      }
+      .appbarInner{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+      .brand{display:flex; align-items:center; gap:10px;}
+      .logo{
+        width:34px; height:34px; border-radius:12px;
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%),
+                    linear-gradient(135deg, var(--brand), #2563eb);
+        box-shadow: 0 10px 25px rgba(124,58,237,.35);
+      }
+      .brandText{display:flex; flex-direction:column; line-height:1.05}
+      .brandText strong{letter-spacing:.6px}
+      .brandText span{font-size:12px; color:var(--muted)}
+      .topActions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+      .pill{
+        font-size:12px;
+        padding:6px 10px;
+        border:1px solid var(--stroke);
+        border-radius:999px;
+        background: rgba(255,255,255,.03);
+        color:var(--muted);
+      }
+      .pill.good{border-color: rgba(34,197,94,.35); color: rgba(214,255,231,.9); background: rgba(34,197,94,.08)}
+      .pill.brand{border-color: rgba(124,58,237,.38); color: rgba(236,224,255,.95); background: rgba(124,58,237,.12)}
+      .pill.warn{border-color: rgba(245,158,11,.35); color: rgba(255,238,204,.95); background: rgba(245,158,11,.10)}
+      .btn{
+        border:1px solid var(--stroke2);
+        background: rgba(255,255,255,.04);
+        color: var(--text);
+        padding:10px 12px;
+        border-radius: 14px;
+        cursor:pointer;
+        box-shadow: 0 0 0 rgba(0,0,0,0);
+        transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      }
+      .btn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
+      .btn:active{transform: translateY(1px)}
+      .btn.primary{
+        background: linear-gradient(135deg, rgba(124,58,237,.95), rgba(37,99,235,.85));
+        border-color: rgba(124,58,237,.6);
+      }
+      .btn.success{
+        background: linear-gradient(135deg, rgba(34,197,94,.90), rgba(16,185,129,.75));
+        border-color: rgba(34,197,94,.55);
+      }
+      .btn.danger{
+        background: linear-gradient(135deg, rgba(239,68,68,.92), rgba(244,63,94,.78));
+        border-color: rgba(239,68,68,.55);
+      }
+      .btn.ghost{background: transparent;}
+      .grid{
+        display:grid;
+        grid-template-columns: 1fr;
+        gap:14px;
+      }
+      @media(min-width:980px){
+        .grid{grid-template-columns: 1.35fr .65fr;}
+      }
+      .card{
+        border:1px solid var(--stroke);
+        border-radius: var(--radius2);
+        background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+        box-shadow: var(--shadow);
+        overflow:hidden;
+      }
+      .cardPad{padding:14px;}
+      .muted{color:var(--muted)}
+      .muted2{color:var(--muted2)}
+      .small{font-size:12px}
+      .hrow{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+      .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+      .divider{height:1px; background: var(--stroke); margin:12px 0}
+      .tabs{
+        display:flex; gap:8px; flex-wrap:wrap;
+        padding:8px; border-radius: 999px;
+        border:1px solid var(--stroke);
+        background: rgba(255,255,255,.03);
+      }
+      .tab{
+        padding:8px 12px; border-radius: 999px;
+        border:1px solid transparent;
+        color: var(--muted);
+        cursor:pointer;
+        user-select:none;
+      }
+      .tab.active{
+        background: rgba(255,255,255,.06);
+        border-color: rgba(255,255,255,.14);
+        color: var(--text);
+      }
+      .chip{
+        font-size:12px; padding:6px 10px; border-radius:999px;
+        border:1px solid var(--stroke);
+        background: rgba(255,255,255,.03);
+        color: var(--muted);
+      }
+      .chip.b{border-color: rgba(124,58,237,.35); color: rgba(236,224,255,.95); background: rgba(124,58,237,.10)}
+      .chip.g{border-color: rgba(34,197,94,.32); color: rgba(214,255,231,.95); background: rgba(34,197,94,.08)}
+      .chip.w{border-color: rgba(245,158,11,.32); color: rgba(255,238,204,.95); background: rgba(245,158,11,.08)}
+      .avatar{
+        width:40px; height:40px; border-radius: 999px;
+        border:1px solid var(--stroke2);
+        background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 50%),
+                    linear-gradient(135deg, rgba(124,58,237,.9), rgba(34,197,94,.7));
+      }
+      .avatar.sm{width:34px; height:34px}
+      .avatar.xs{width:28px; height:28px}
+      .kpi{
+        display:grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap:10px;
+      }
+      @media(max-width:720px){
+        .kpi{grid-template-columns: repeat(2, 1fr);}
+      }
+      .kpi .box{
+        padding:12px;
+        border:1px solid var(--stroke);
+        border-radius: var(--radius);
+        background: rgba(255,255,255,.03);
+      }
+      .kpi .box strong{display:block; font-size:18px}
+      .kpi .box span{font-size:12px; color:var(--muted)}
+      .media{
+        height:240px;
+        border-top:1px solid var(--stroke);
+        border-bottom:1px solid var(--stroke);
+        background:
+          radial-gradient(800px 300px at 30% 30%, rgba(124,58,237,.25), transparent 60%),
+          radial-gradient(650px 260px at 70% 40%, rgba(34,197,94,.18), transparent 60%),
+          linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+        display:flex; align-items:center; justify-content:center;
+        color: rgba(232,238,252,.75);
+        font-weight:700;
+        letter-spacing:.4px;
+      }
+      .composer textarea{min-height:84px}
+      input,textarea,select{
+        width:100%;
+        padding:11px 12px;
+        border-radius: 14px;
+        border:1px solid var(--stroke2);
+        background: rgba(0,0,0,.16);
+        color: var(--text);
+        outline:none;
+      }
+      input::placeholder, textarea::placeholder{color: rgba(232,238,252,.35)}
+      .rightColSticky{position:sticky; top:92px}
+      .listGrid{
+        display:grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap:12px;
+      }
+      @media(min-width:980px){
+        .listGrid{grid-template-columns: repeat(2, 1fr);}
+      }
+      @media(max-width:520px){
+        .listGrid{grid-template-columns: 1fr;}
+      }
+      .listCard{
+        border:1px solid var(--stroke);
+        border-radius: var(--radius2);
+        overflow:hidden;
+        background: rgba(255,255,255,.03);
+        cursor:pointer;
+        transition: transform .08s ease, border-color .12s ease, background .12s ease;
+      }
+      .listCard:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05)}
+      .listThumb{
+        height:140px;
+        background:
+          radial-gradient(650px 240px at 20% 30%, rgba(37,99,235,.20), transparent 60%),
+          radial-gradient(620px 230px at 80% 40%, rgba(124,58,237,.22), transparent 60%),
+          linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+        border-bottom:1px solid var(--stroke);
+        display:flex; align-items:flex-end; padding:12px;
+        color: rgba(232,238,252,.88);
+        font-weight:800;
+      }
+      .listBody{padding:12px}
+      .listBody .title{font-weight:800; margin-bottom:6px}
+      .listBody .meta{display:flex; gap:8px; flex-wrap:wrap}
+      .bottomNav{
+        position: sticky;
+        bottom: 0;
+        z-index: 40;
+        border-top:1px solid var(--stroke);
+        backdrop-filter: blur(12px);
+        background: linear-gradient(to top, rgba(11,15,25,.95), rgba(11,15,25,.75));
+      }
+      .bottomNav .navInner{
+        max-width:1100px; margin:0 auto; padding:10px 16px;
+        display:grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap:10px;
+      }
+      .navBtn{
+        display:flex; flex-direction:column; align-items:center; gap:6px;
+        padding:10px 8px;
+        border-radius: 16px;
+        border:1px solid transparent;
+        color: var(--muted);
+        cursor:pointer;
+        user-select:none;
+      }
+      .navBtn.active{
+        color: var(--text);
+        background: rgba(255,255,255,.05);
+        border-color: rgba(255,255,255,.12);
+      }
+      .icon{
+        width:20px; height:20px; display:inline-block;
+        opacity:.95;
+      }
+      .drawerOverlay{
+        position:fixed; inset:0; background: rgba(0,0,0,.55);
+        display:none; z-index: 60;
+      }
+      .drawer{
+        position:fixed; right:0; top:0; height:100%; width:min(520px, 92vw);
+        background: linear-gradient(180deg, rgba(18,27,51,.98), rgba(15,22,41,.98));
+        border-left:1px solid var(--stroke);
+        box-shadow: var(--shadow);
+        transform: translateX(104%);
+        transition: transform .18s ease;
+        z-index: 70;
+        display:flex; flex-direction:column;
+      }
+      .drawerHeader{
+        padding:14px;
+        border-bottom: 1px solid var(--stroke);
+        display:flex; align-items:center; justify-content:space-between; gap:10px;
+      }
+      .drawerBody{padding:14px; overflow:auto}
+      .drawerOverlay.show{display:block}
+      .drawer.show{transform: translateX(0)}
+      .offerCard{
+        border:1px solid var(--stroke);
+        border-radius: var(--radius2);
+        background: rgba(255,255,255,.03);
+        padding:12px;
+      }
+      .threadList .t{
+        padding:12px;
+        border:1px solid var(--stroke);
+        border-radius: var(--radius2);
+        background: rgba(255,255,255,.03);
+        cursor:pointer;
+      }
+      .threadList .t:hover{background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14)}
+      .msg{
+        max-width: 88%;
+        padding:10px 12px;
+        border:1px solid var(--stroke);
+        border-radius: 16px;
+        background: rgba(255,255,255,.03);
+      }
+      .msg.you{margin-left:auto; background: rgba(255,255,255,.06)}
+      .toast{
+        position:fixed; left:50%; transform: translateX(-50%);
+        bottom:92px; z-index: 80;
+        padding:10px 12px;
+        border-radius: 999px;
+        border:1px solid var(--stroke2);
+        background: rgba(18,27,51,.92);
+        box-shadow: var(--shadow);
+        color: var(--text);
+        display:none;
+      }
+      .toast.show{display:block}
+      .sectionTitle{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
     </style>
   </head>
   <body>
-    <header>
-      <div class="wrap row between">
-        <div class="row">
-          <div class="brand">BARTR</div>
-          <span class="pill">Demo Mode</span>
-          <span class="chip muted">Trade-first • Cash top-up intent only (off-platform)</span>
+    <div class="appbar">
+      <div class="wrap appbarInner">
+        <div class="brand">
+          <div class="logo"></div>
+          <div class="brandText">
+            <strong>BARTR</strong>
+            <span>Social + Marketplace • Demo</span>
+          </div>
         </div>
-        <nav class="tabs row">
-          <a href="#feed" id="tab-feed" class="active">Feed</a>
-          <a href="#listing" id="tab-listing">Listing</a>
-          <a href="#inbox" id="tab-inbox">Inbox</a>
-          <a href="#profile" id="tab-profile">Profile</a>
-        </nav>
-      </div>
-    </header>
-
-    <main class="wrap">
-      <div class="card warn">
-        <div><strong>Demo-only</strong></div>
-        <div class="muted small">
-          This is the UI + flows (feed → listing → offer → chat → accept → complete) using mock data.
-          Later we swap to the real Next.js + Supabase build for real accounts, listings, offers, and the public trade ledger.
+        <div class="topActions">
+          <span class="pill brand">Trade-first</span>
+          <span class="pill good">Public ledger</span>
+          <span class="pill warn">Cash top-up intent only</span>
+          <button class="btn" id="openHelp">How this demo works</button>
         </div>
       </div>
+    </div>
 
-      <!-- FEED -->
-      <section id="view-feed" class="grid">
+    <main class="wrap" id="appRoot">
+      <!-- SOCIAL -->
+      <section id="view-social" class="grid">
         <div>
-          <div class="row between" style="margin-top:8px;">
-            <h2 style="margin:0;">Feed</h2>
+          <div class="sectionTitle" style="margin-top:6px;">
             <div class="row">
-              <span class="chip">UK</span>
-              <span class="chip">Tech</span>
-              <span class="chip">Books</span>
-              <span class="chip">Vintage</span>
+              <h2 style="margin:0;">Social</h2>
+              <span class="chip b">Accepted patterns</span>
+              <span class="chip g">Trade wins</span>
+              <span class="chip w">Looking-for</span>
+            </div>
+            <div class="tabs" role="tablist" aria-label="Social filters">
+              <div class="tab active" data-social-filter="all">For You</div>
+              <div class="tab" data-social-filter="accepted">Accepted</div>
+              <div class="tab" data-social-filter="wins">Trade wins</div>
+              <div class="tab" data-social-filter="lf">Looking-for</div>
             </div>
           </div>
-          <div class="muted">Social proof: completed/accepted trades teach “what gets accepted”.</div>
-          <div id="feed" style="margin-top:10px;"></div>
+
+          <div class="card composer" style="margin-top:10px;">
+            <div class="cardPad">
+              <div class="row">
+                <div class="avatar sm"></div>
+                <div style="flex:1;">
+                  <div class="row between" style="align-items:flex-start;">
+                    <div>
+                      <div><strong>@me</strong> <span class="muted small">• Bronze</span></div>
+                      <div class="muted small">Post a trade win, a “looking for”, or share what got accepted.</div>
+                    </div>
+                    <span class="chip">Demo composer</span>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:10px;">
+                <textarea id="postText" placeholder="Example: ‘Book set + £10 top-up got accepted for headphones.’"></textarea>
+              </div>
+              <div class="row" style="margin-top:10px;">
+                <select id="postType">
+                  <option value="accepted">Accepted pattern</option>
+                  <option value="wins">Trade win</option>
+                  <option value="lf">Looking for</option>
+                </select>
+                <button class="btn primary" id="postBtn">Post</button>
+                <span class="muted small" id="postHint">Posts are mock; real build writes feed_events.</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="socialFeed" style="margin-top:12px;"></div>
         </div>
 
-        <div>
-          <h2 style="margin:10px 0;">Offer Builder</h2>
+        <aside class="rightColSticky">
           <div class="card">
-            <div class="row between">
-              <div>
-                <div><strong>Build an offer</strong></div>
-                <div class="muted small">Select your items + optional cash top-up (off-platform only).</div>
+            <div class="cardPad">
+              <div class="row between">
+                <div>
+                  <div><strong>Discover traders</strong></div>
+                  <div class="muted small">Taste profiles + public ledger → trust.</div>
+                </div>
+                <span class="pill good">Transparency</span>
               </div>
-              <span class="pill" id="matchScore">Match: 82%</span>
+              <div class="divider"></div>
+
+              <div class="row" style="justify-content:space-between;">
+                <div class="row">
+                  <div class="avatar xs"></div>
+                  <div>
+                    <div><strong>@demo_trader</strong> <span class="muted small">• Silver</span></div>
+                    <div class="muted small">Tech • Books • Vintage</div>
+                  </div>
+                </div>
+                <button class="btn" id="goProfile">View profile</button>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row between">
+                <div>
+                  <div><strong>What gets accepted</strong></div>
+                  <div class="muted small">Patterns drive conversion.</div>
+                </div>
+                <span class="chip b">Guide</span>
+              </div>
+              <div style="margin-top:10px; display:grid; gap:10px;">
+                <div class="offerCard">
+                  <div class="row between">
+                    <strong class="small">Pattern</strong>
+                    <span class="chip">Tech</span>
+                  </div>
+                  <div class="muted small" style="margin-top:6px;">Books + small top-up closes value gaps.</div>
+                </div>
+                <div class="offerCard">
+                  <div class="row between">
+                    <strong class="small">Pattern</strong>
+                    <span class="chip">Vintage</span>
+                  </div>
+                  <div class="muted small" style="margin-top:6px;">Bundle two mid-value items to match one high-value.</div>
+                </div>
+                <div class="offerCard">
+                  <div class="row between">
+                    <strong class="small">Pattern</strong>
+                    <span class="chip">Collectibles</span>
+                  </div>
+                  <div class="muted small" style="margin-top:6px;">Condition photos + clear wants increase acceptance.</div>
+                </div>
+              </div>
             </div>
-
-            <div class="divider"></div>
-
-            <label class="muted small">Target listing</label>
-            <select id="targetSelect"></select>
-
-            <div class="two" style="margin-top:10px;">
-              <div>
-                <label class="muted small">Your offered item #1</label>
-                <select id="offerItem1"></select>
-              </div>
-              <div>
-                <label class="muted small">Your offered item #2 (optional)</label>
-                <select id="offerItem2"></select>
-              </div>
-            </div>
-
-            <div class="two" style="margin-top:10px;">
-              <div>
-                <label class="muted small">Cash top-up (optional)</label>
-                <input id="cashTopUp" placeholder="e.g. 10" inputmode="decimal" />
-                <div class="muted small">We don’t process payments. This records intent only.</div>
-              </div>
-              <div>
-                <label class="muted small">Currency</label>
-                <select id="cashCurrency">
-                  <option>GBP</option><option>USD</option><option>EUR</option><option>AUD</option>
-                </select>
-              </div>
-            </div>
-
-            <label class="muted small" style="margin-top:10px; display:block;">Message</label>
-            <textarea id="offerMessage" placeholder="Meetup preference, timing, any notes..."></textarea>
-
-            <div class="row" style="margin-top:10px;">
-              <button class="btn primary" id="sendOfferBtn">Send Offer</button>
-              <button class="btn" id="resetDemoBtn">Reset Demo</button>
-            </div>
-
-            <div id="offerStatus" class="card ok hidden" style="margin-top:10px;"></div>
           </div>
 
           <div class="card" style="margin-top:12px;">
-            <div class="row between">
-              <div>
-                <div><strong>Trust signals</strong></div>
-                <div class="muted small">Public ledger + reliability metrics (demo values).</div>
+            <div class="cardPad">
+              <div class="row between">
+                <div>
+                  <div><strong>Your trust</strong></div>
+                  <div class="muted small">Gamify reliability, not spam.</div>
+                </div>
+                <span class="pill">Bronze</span>
               </div>
-              <span class="pill">Tier: Silver</span>
-            </div>
-            <div class="divider"></div>
-            <div class="kv small">
-              <div class="muted">Trade history</div><div>Public ledger</div>
-              <div class="muted">Completion rate</div><div>94%</div>
-              <div class="muted">Response time</div><div>&lt; 2 hours</div>
-              <div class="muted">Disputes</div><div>0</div>
+              <div class="divider"></div>
+              <div class="kpi">
+                <div class="box"><strong>94%</strong><span>Completion</span></div>
+                <div class="box"><strong>&lt;2h</strong><span>Response</span></div>
+                <div class="box"><strong>0</strong><span>Disputes</span></div>
+                <div class="box"><strong>12</strong><span>Trades</span></div>
+              </div>
+              <div class="divider"></div>
+              <div class="muted small">In real build: computed from trade_events + reputation_events.</div>
             </div>
           </div>
-        </div>
+        </aside>
       </section>
 
-      <!-- LISTING -->
-      <section id="view-listing" class="hidden">
-        <div class="row between" style="margin-top:8px;">
-          <h2 style="margin:0;">Listing</h2>
-          <button class="btn" id="backToFeedBtn">← Back to Feed</button>
+      <!-- MARKET -->
+      <section id="view-market" class="hidden">
+        <div class="row between" style="margin-top:6px;">
+          <div class="row">
+            <h2 style="margin:0;">Marketplace</h2>
+            <span class="chip">Trade</span>
+            <span class="chip w">Cash top-up intent</span>
+            <span class="chip g">No escrow</span>
+          </div>
+          <div class="row" style="min-width:min(520px, 100%);">
+            <input id="marketSearch" placeholder="Search listings (demo) e.g. headphones, books, jacket..." />
+            <button class="btn" id="marketFiltersBtn">Filters</button>
+          </div>
         </div>
-        <div id="listingCard" style="margin-top:10px;"></div>
+
+        <div class="grid" style="margin-top:12px;">
+          <div>
+            <div class="card">
+              <div class="cardPad">
+                <div class="row between">
+                  <div class="row">
+                    <span class="chip b" id="activeFilterChip">For You</span>
+                    <span class="chip" id="countChip">0 listings</span>
+                  </div>
+                  <button class="btn primary" id="newListingBtn">List item (demo)</button>
+                </div>
+                <div class="divider"></div>
+                <div class="listGrid" id="marketGrid"></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="rightColSticky">
+            <div class="card">
+              <div class="cardPad">
+                <div class="row between">
+                  <div>
+                    <div><strong>Match insights</strong></div>
+                    <div class="muted small">Explainable match, not magic.</div>
+                  </div>
+                  <span class="pill brand" id="matchPill">Match: 82%</span>
+                </div>
+                <div class="divider"></div>
+                <div style="display:grid; gap:10px;">
+                  <div class="offerCard">
+                    <div class="row between">
+                      <strong class="small">Why this matches</strong>
+                      <span class="chip">Signals</span>
+                    </div>
+                    <div class="muted small" style="margin-top:6px;">
+                      Wishlist overlap + category fit + recent acceptance patterns + trader reliability.
+                    </div>
+                  </div>
+                  <div class="offerCard">
+                    <div class="row between">
+                      <strong class="small">Suggested offer</strong>
+                      <span class="chip g">Builder</span>
+                    </div>
+                    <div class="muted small" style="margin-top:6px;">
+                      1–2 items + optional small top-up intent to close gaps.
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                      <button class="btn primary" id="openOfferBuilderBtn">Make offer</button>
+                      <button class="btn" id="openListingDrawerBtn">View details</button>
+                    </div>
+                  </div>
+                  <div class="offerCard">
+                    <div class="row between">
+                      <strong class="small">Safety</strong>
+                      <span class="chip w">Reputation</span>
+                    </div>
+                    <div class="muted small" style="margin-top:6px;">
+                      Public ledger + completion rate. Disputes affect tier.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
       </section>
 
       <!-- INBOX -->
       <section id="view-inbox" class="hidden">
-        <div class="row between" style="margin-top:8px;">
-          <h2 style="margin:0;">Inbox</h2>
-          <button class="btn" id="backToFeedBtn2">← Back to Feed</button>
+        <div class="row between" style="margin-top:6px;">
+          <div class="row">
+            <h2 style="margin:0;">Inbox</h2>
+            <span class="chip">Offer cards</span>
+            <span class="chip g">Accept → Complete</span>
+          </div>
+          <button class="btn" id="newThreadBtn">New thread (demo)</button>
         </div>
 
-        <div class="grid" style="margin-top:10px;">
-          <div>
-            <div class="card">
+        <div class="grid" style="margin-top:12px;">
+          <div class="card">
+            <div class="cardPad">
               <div class="row between">
                 <div>
-                  <div><strong>Conversation</strong></div>
-                  <div class="muted small" id="convMeta"></div>
+                  <div><strong>Threads</strong></div>
+                  <div class="muted small">Each offer lives inside a conversation.</div>
                 </div>
-                <span class="pill" id="tradeStatePill">State: none</span>
+                <span class="pill" id="threadCount">0</span>
               </div>
               <div class="divider"></div>
-              <div id="messages"></div>
-
-              <div class="divider"></div>
-              <label class="muted small">Send a message</label>
-              <textarea id="chatInput" placeholder="Type..."></textarea>
-              <div class="row" style="margin-top:10px;">
-                <button class="btn primary" id="sendMsgBtn">Send</button>
-              </div>
+              <div class="threadList" id="threadList" style="display:grid; gap:10px;"></div>
             </div>
           </div>
 
-          <div>
-            <div class="card">
-              <div><strong>Offer card</strong></div>
-              <div class="muted small">Structured offer + actions (accept/complete). No escrow.</div>
-              <div class="divider"></div>
-              <div id="offerCard"></div>
-              <div class="divider"></div>
-              <div class="row">
-                <button class="btn primary" id="acceptOfferBtn">Accept</button>
-                <button class="btn" id="completeTradeBtn">Complete trade</button>
-              </div>
-              <div class="muted small" style="margin-top:8px;">
-                In real build: accept triggers item locking + trade record + feed event; completion updates ledger.
-              </div>
+          <aside class="card" id="threadPane">
+            <div class="cardPad">
+              <div class="muted">Select a thread to view.</div>
             </div>
-
-            <div class="card" style="margin-top:12px;">
-              <div><strong>Public ledger preview</strong></div>
-              <div class="muted small">What everyone can see when trade completes.</div>
-              <div class="divider"></div>
-              <pre id="ledgerPreview" style="margin:0; white-space:pre-wrap;"></pre>
-            </div>
-          </div>
+          </aside>
         </div>
       </section>
 
       <!-- PROFILE -->
       <section id="view-profile" class="hidden">
-        <div class="row between" style="margin-top:8px;">
-          <h2 style="margin:0;">Profile</h2>
-          <button class="btn" id="backToFeedBtn3">← Back to Feed</button>
+        <div class="row between" style="margin-top:6px;">
+          <div class="row">
+            <h2 style="margin:0;">Profile</h2>
+            <span class="chip b">Social identity</span>
+            <span class="chip">Marketplace presence</span>
+          </div>
+          <button class="btn" id="editProfileBtn">Edit (demo)</button>
         </div>
 
-        <div class="card" style="margin-top:10px;">
-          <div class="row between">
-            <div>
-              <div><strong>@demo_trader</strong></div>
-              <div class="muted small">Taste: Tech • Books • Vintage</div>
+        <div class="card" style="margin-top:12px;">
+          <div class="cardPad">
+            <div class="row between">
+              <div class="row">
+                <div class="avatar"></div>
+                <div>
+                  <div class="row">
+                    <strong style="font-size:18px;">@demo_trader</strong>
+                    <span class="pill good">Silver</span>
+                    <span class="chip">UK</span>
+                  </div>
+                  <div class="muted">Tech • Books • Vintage • “Fast replies, clean trades.”</div>
+                  <div class="row" style="margin-top:8px;">
+                    <span class="chip b">Wants: camera gear</span>
+                    <span class="chip">vinyl</span>
+                    <span class="chip">sneakers</span>
+                    <span class="chip g">bundle offers welcome</span>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <button class="btn" id="followBtn">Follow</button>
+                <button class="btn primary" id="messageBtn">Message</button>
+              </div>
             </div>
-            <div class="row">
-              <span class="pill">Silver</span>
-              <button class="btn" id="followBtn">Follow</button>
+
+            <div class="divider"></div>
+
+            <div class="kpi">
+              <div class="box"><strong id="kTrades">12</strong><span>Trades</span></div>
+              <div class="box"><strong id="kCompletion">94%</strong><span>Completion</span></div>
+              <div class="box"><strong id="kResponse">&lt;2h</strong><span>Response</span></div>
+              <div class="box"><strong id="kDisputes">0</strong><span>Disputes</span></div>
             </div>
-          </div>
 
-          <div class="divider"></div>
+            <div class="divider"></div>
 
-          <div class="row between">
-            <div><strong>Public Trade Ledger</strong></div>
-            <span class="chip">Transparency-first</span>
-          </div>
-          <div class="muted small">This is the “blockchain-ish” transparency without blockchain: append-only events.</div>
-
-          <div class="divider"></div>
-          <ul id="ledgerList" class="small" style="margin:0; padding-left:18px;"></ul>
-
-          <div class="divider"></div>
-          <div class="row between">
-            <div>
-              <div><strong>Trade Up (optional)</strong></div>
-              <div class="muted small">Not the whole platform — a layer. (We’ll decide later.)</div>
+            <div class="tabs" role="tablist" aria-label="Profile tabs">
+              <div class="tab active" data-profile-tab="ledger">Ledger</div>
+              <div class="tab" data-profile-tab="posts">Posts</div>
+              <div class="tab" data-profile-tab="listings">Listings</div>
             </div>
-            <span class="pill">Progress: 3 steps</span>
+
+            <div id="profileLedger" style="margin-top:12px;"></div>
+            <div id="profilePosts" class="hidden" style="margin-top:12px;"></div>
+            <div id="profileListings" class="hidden" style="margin-top:12px;"></div>
           </div>
-          <div class="muted small">Example: £10 → £25 → £50 → £120</div>
         </div>
       </section>
     </main>
 
+    <div class="bottomNav">
+      <div class="navInner">
+        <div class="navBtn active" data-nav="social">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8Z" stroke="currentColor" stroke-width="2"/><path d="M8 14h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="small">Social</div>
+        </div>
+        <div class="navBtn" data-nav="market">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16l-1 14H5L4 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 7a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="small">Market</div>
+        </div>
+        <div class="navBtn" data-nav="inbox">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H4V4Z" stroke="currentColor" stroke-width="2"/><path d="M4 16l4 4h8l4-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 10h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="small">Inbox</div>
+        </div>
+        <div class="navBtn" data-nav="profile">
+          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.8-3.4 5-5 8-5s6.2 1.6 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="small">Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="drawerOverlay" id="overlay"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawerHeader">
+        <div>
+          <strong id="drawerTitle">Details</strong>
+          <div class="muted small" id="drawerSubtitle"></div>
+        </div>
+        <button class="btn ghost" id="closeDrawer">Close</button>
+      </div>
+      <div class="drawerBody" id="drawerBody"></div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
     <script>
-      // ---- Demo data ----
-      const users = {
-        me: { id: "u_me", handle: "@me", tier: "Bronze" },
-        other: { id: "u_oth", handle: "@demo_trader", tier: "Silver" }
+      // ---- demo state + data ----
+      const state = {
+        nav: "social",
+        socialFilter: "all",
+        profileTab: "ledger",
+        followed: false,
+        selectedListingId: "l_headphones",
+        threads: [],
+        activeThreadId: null,
+        offerDraft: null
       };
+
+      const me = { id:"u_me", handle:"@me", tier:"Bronze", taste:["Tech","Books","Vintage"] };
+      const demoTrader = { id:"u_demo", handle:"@demo_trader", tier:"Silver", taste:["Tech","Books","Vintage"], stats:{trades:12, completion:"94%", response:"<2h", disputes:0} };
+
+      const myInventory = [
+        { id:"inv_books", title:"Modern Sci-Fi Classics (box set)", category:"Books", condition:"Like new", value:"25–50" },
+        { id:"inv_keyboard", title:"Mechanical keyboard", category:"Tech", condition:"Good", value:"50–100" },
+        { id:"inv_jacket", title:"Vintage denim jacket", category:"Vintage", condition:"Good", value:"25–50" }
+      ];
 
       const listings = [
-        { id:"l_headphones", owner: users.other.id, title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", proof:"Accepted: Book set + £10 top-up" },
-        { id:"l_books", owner: users.me.id, title:"Modern Sci-Fi Classics box set", category:"Books", condition:"Like new", value:"25–50", wants:"Headphones, keyboard, tech", proof:"High match potential" },
-        { id:"l_keyboard", owner: users.me.id, title:"Mechanical keyboard", category:"Tech", condition:"Good", value:"50–100", wants:"Headphones, sneakers", proof:"Often accepted in tech trades" },
-        { id:"l_jacket", owner: users.me.id, title:"Vintage denim jacket", category:"Vintage", condition:"Good", value:"25–50", wants:"Books, records", proof:"Pairs well with books/vinyl traders" }
+        { id:"l_headphones", owner: demoTrader, title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", proof:"Books + small top-up often accepted", location:"London", match:82 },
+        { id:"l_camera", owner: demoTrader, title:"Fujifilm lens (prime)", category:"Tech", condition:"Good", value:"100–250", wants:"Lens trades, audio gear", proof:"Bundle offers welcomed", location:"Bristol", match:73 },
+        { id:"l_vinyl", owner: demoTrader, title:"Vinyl bundle (20 records)", category:"Collectibles", condition:"Good", value:"25–50", wants:"Jackets, books", proof:"Condition photos matter", location:"Manchester", match:69 },
+        { id:"l_sneakers", owner: demoTrader, title:"Sneakers (size 10)", category:"Fashion", condition:"Like new", value:"50–100", wants:"Tech, vintage", proof:"Fast movers in fashion", location:"Leeds", match:76 },
+        { id:"l_bookshelf", owner: demoTrader, title:"Wood bookshelf", category:"Home", condition:"Good", value:"25–50", wants:"Home swaps", proof:"Local meetup ideal", location:"London", match:64 }
       ];
 
-      const feed = [
-        { id:"e1", type:"trade_completed", when:"Just now", listingId:"l_headphones", payload:{ got:"Headphones (50–100)", gave:"Books (25–50) + £10 top-up", note:"Completed trade teaches: small top-ups close gaps" } },
-        { id:"e2", type:"offer_accepted", when:"12m ago", listingId:"l_headphones", payload:{ pattern:"Books + small top-up", note:"Accepted offers show patterns" } },
-        { id:"e3", type:"listing_created", when:"26m ago", listingId:"l_headphones", payload:{ note:"New listing trending in Tech" } }
+      const seedSocial = [
+        { id:"p1", type:"accepted", user: demoTrader, time:"2h", text:"Accepted: book set + £10 top-up for headphones. Small top-ups close value gaps.", tags:["Accepted pattern","Tech","Top-up"], listingId:"l_headphones", likes:128, comments:14 },
+        { id:"p2", type:"wins", user: demoTrader, time:"6h", text:"Trade win: jacket + keyboard → lens. Bundling mid-value items works.", tags:["Trade win","Bundle"], listingId:"l_camera", likes:92, comments:9 },
+        { id:"p3", type:"lf", user: demoTrader, time:"1d", text:"Looking for: camera gear. Trading: vinyl + books. Open to offers.", tags:["Looking-for","Camera"], listingId:"l_vinyl", likes:55, comments:22 }
       ];
 
-      let state = {
-        selectedListingId: "l_headphones",
-        offer: null,
-        tradeState: "none", // none | offered | accepted | completed
-        messages: [
-          { from: users.other.handle, text:"Hey — what do you have to trade for the headphones?", at: new Date(Date.now()-1000*60*8) },
-          { from: users.me.handle, text:"I’ve got a sci-fi box set + could do a small top-up.", at: new Date(Date.now()-1000*60*6) }
-        ],
-        ledger: [
-          "Trade completed: Books (10–25) → Headphones (50–100)",
-          "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up",
-          "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
-        ],
-        followed: false
+      let social = [...seedSocial];
+      let publicLedger = [
+        "Trade completed: Books (10–25) → Headphones (50–100)",
+        "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up intent",
+        "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
+      ];
+
+      // ---- helpers ----
+      const $ = (id) => document.getElementById(id);
+      const el = (html) => {
+        const t = document.createElement("template");
+        t.innerHTML = html.trim();
+        return t.content.firstChild;
+      };
+      const showToast = (msg) => {
+        const t = $("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 1600);
       };
 
-      // ---- Helpers ----
-      const byId = (id) => document.getElementById(id);
-      const getListing = (id) => listings.find(l => l.id === id);
-
-      function setTab(hash) {
-        const h = hash || "#feed";
-        ["feed","listing","inbox","profile"].forEach(t => {
-          byId(`tab-${t}`).classList.toggle("active", h === `#${t}` || (t==="feed" && h==="#"));
-        });
-        byId("view-feed").classList.toggle("hidden", h !== "#feed" && h !== "#");
-        byId("view-listing").classList.toggle("hidden", h !== "#listing");
-        byId("view-inbox").classList.toggle("hidden", h !== "#inbox");
-        byId("view-profile").classList.toggle("hidden", h !== "#profile");
+      function setNav(nav){
+        state.nav = nav;
+        document.querySelectorAll(".navBtn").forEach(n => n.classList.toggle("active", n.dataset.nav === nav));
+        $("view-social").classList.toggle("hidden", nav !== "social");
+        $("view-market").classList.toggle("hidden", nav !== "market");
+        $("view-inbox").classList.toggle("hidden", nav !== "inbox");
+        $("view-profile").classList.toggle("hidden", nav !== "profile");
+        if(nav === "market") renderMarket();
+        if(nav === "social") renderSocial();
+        if(nav === "inbox") renderInbox();
+        if(nav === "profile") renderProfile();
+        window.scrollTo({top:0, behavior:"smooth"});
       }
 
-      function renderFeed() {
-        const el = byId("feed");
-        el.innerHTML = "";
-        feed.forEach(e => {
-          const l = getListing(e.listingId);
-          const div = document.createElement("div");
-          div.className = "card feedItem";
-          div.onclick = () => openListing(l.id);
-          div.innerHTML = `
-            <div class="row">
-              <strong>${e.type.replaceAll("_"," ")}</strong>
-              <span class="muted small">${e.when}</span>
-              <span class="pill">${l.category}</span>
-              <span class="pill">${l.value}</span>
-            </div>
-            <div style="margin-top:8px;"><strong>${l.title}</strong></div>
-            <div class="muted small">${(e.payload.note || e.payload.pattern || "")}</div>
-          `;
-          el.appendChild(div);
-        });
+      function openDrawer(title, subtitle, bodyHtml){
+        $("drawerTitle").textContent = title;
+        $("drawerSubtitle").textContent = subtitle || "";
+        $("drawerBody").innerHTML = bodyHtml;
+        $("overlay").classList.add("show");
+        $("drawer").classList.add("show");
+      }
+      function closeDrawer(){
+        $("overlay").classList.remove("show");
+        $("drawer").classList.remove("show");
       }
 
-      function renderListingCard(listingId) {
-        const l = getListing(listingId);
-        const mine = l.owner === users.me.id;
-        byId("listingCard").innerHTML = `
-          <div class="card">
-            <div class="row between">
-              <div>
+      // ---- SOCIAL ----
+      function socialCard(p){
+        const badge = p.type === "accepted" ? "chip b" : (p.type === "wins" ? "chip g" : "chip w");
+        const listing = listings.find(l => l.id === p.listingId);
+        return `
+          <div class="card" style="margin-top:12px;">
+            <div class="cardPad">
+              <div class="hrow">
                 <div class="row">
-                  <h3 style="margin:0;">${l.title}</h3>
-                  <span class="pill">${l.category}</span>
-                  <span class="pill">${l.value}</span>
-                  <span class="pill">${l.condition}</span>
+                  <div class="avatar sm"></div>
+                  <div>
+                    <div><strong>${p.user.handle}</strong> <span class="muted small">• ${p.user.tier} • ${p.time}</span></div>
+                    <div class="muted small">${p.user.taste.join(" • ")}</div>
+                  </div>
                 </div>
-                <div class="muted small">Owner: ${mine ? users.me.handle : users.other.handle} • Trust: ${mine ? users.me.tier : users.other.tier}</div>
+                <span class="${badge}">${p.type === "accepted" ? "Accepted pattern" : (p.type==="wins" ? "Trade win" : "Looking for")}</span>
               </div>
-              <button class="btn primary" ${mine ? "disabled" : ""} onclick="location.hash='#feed'">Offer builder →</button>
+
+              <div style="margin-top:10px; font-size:15px; line-height:1.45;">${escapeHtml(p.text)}</div>
+
+              <div class="divider"></div>
+              <div class="row" style="justify-content:space-between;">
+                <div class="row" style="gap:8px; flex-wrap:wrap;">
+                  ${p.tags.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join("")}
+                </div>
+                <button class="btn" onclick="window.__openListing('${p.listingId}')">View related listing</button>
+              </div>
             </div>
 
-            <div class="divider"></div>
-
-            <div class="kv small">
-              <div class="muted">Wants</div><div>${l.wants}</div>
-              <div class="muted">Social proof</div><div>${l.proof}</div>
-              <div class="muted">Trade style</div><div>Trade + optional cash top-up intent (off-platform)</div>
+            <div class="media">
+              ${listing ? escapeHtml(listing.title) : "Trade media"}
             </div>
 
-            <div class="divider"></div>
-
-            <div class="tagRow">
-              <span class="chip">Match indicators</span>
-              <span class="chip">Taste tags</span>
-              <span class="chip">Completion-rate weighted</span>
-              <span class="chip">No escrow</span>
+            <div class="cardPad">
+              <div class="row between">
+                <div class="row">
+                  <button class="btn" onclick="window.__likePost('${p.id}')">♥ ${p.likes}</button>
+                  <button class="btn" onclick="window.__commentPost('${p.id}')">💬 ${p.comments}</button>
+                  <button class="btn" onclick="window.__repostPost('${p.id}')">↻ Repost</button>
+                </div>
+                <span class="muted small">Public ledger builds trust • no escrow</span>
+              </div>
             </div>
           </div>
         `;
       }
 
-      function openListing(listingId) {
+      function renderSocial(){
+        // tabs
+        document.querySelectorAll("[data-social-filter]").forEach(t => {
+          t.classList.toggle("active", t.dataset.socialFilter === state.socialFilter);
+        });
+
+        const list = state.socialFilter === "all"
+          ? social
+          : social.filter(p => p.type === state.socialFilter);
+
+        $("socialFeed").innerHTML = list.map(socialCard).join("");
+      }
+
+      function addPost(){
+        const text = $("postText").value.trim();
+        if(!text){ showToast("Write something first"); return; }
+        const type = $("postType").value;
+        const id = "p_" + Math.random().toString(16).slice(2);
+        const listingId = state.selectedListingId || "l_headphones";
+        const tags = type==="accepted" ? ["Accepted pattern","Top-up"]
+                    : type==="wins" ? ["Trade win","Bundle"]
+                    : ["Looking-for","Open offers"];
+        social.unshift({ id, type, user: me, time:"now", text, tags, listingId, likes:0, comments:0 });
+        $("postText").value = "";
+        showToast("Posted (demo)");
+        renderSocial();
+      }
+
+      // ---- MARKET ----
+      function marketCard(l){
+        return `
+          <div class="listCard" onclick="window.__openListing('${l.id}')">
+            <div class="listThumb">
+              <div>
+                <div class="small muted2">${escapeHtml(l.category)} • ${escapeHtml(l.location)}</div>
+                <div>${escapeHtml(l.value)}</div>
+              </div>
+            </div>
+            <div class="listBody">
+              <div class="title">${escapeHtml(l.title)}</div>
+              <div class="meta">
+                <span class="chip">${escapeHtml(l.condition)}</span>
+                <span class="chip b">Match ${l.match}%</span>
+                <span class="chip">${escapeHtml(l.owner.handle)}</span>
+              </div>
+              <div class="muted small" style="margin-top:8px;">Wants: ${escapeHtml(l.wants)}</div>
+            </div>
+          </div>
+        `;
+      }
+
+      function renderMarket(){
+        const q = $("marketSearch").value.trim().toLowerCase();
+        const filtered = listings.filter(l => !q || (l.title.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) || l.wants.toLowerCase().includes(q)));
+        $("marketGrid").innerHTML = filtered.map(marketCard).join("");
+        $("countChip").textContent = `${filtered.length} listings`;
+        const active = listings.find(x => x.id === state.selectedListingId) || listings[0];
+        $("matchPill").textContent = `Match: ${active.match}%`;
+      }
+
+      function listingDetailsHtml(l){
+        return `
+          <div class="card" style="box-shadow:none; background:rgba(255,255,255,.02); border-color: var(--stroke);">
+            <div class="cardPad">
+              <div class="row between">
+                <div>
+                  <div class="row">
+                    <strong style="font-size:18px;">${escapeHtml(l.title)}</strong>
+                    <span class="chip">${escapeHtml(l.category)}</span>
+                    <span class="chip">${escapeHtml(l.value)}</span>
+                  </div>
+                  <div class="muted small">Owner: ${escapeHtml(l.owner.handle)} • Tier: ${escapeHtml(l.owner.tier)} • ${escapeHtml(l.location)}</div>
+                </div>
+                <span class="pill brand">Match ${l.match}%</span>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row" style="flex-wrap:wrap;">
+                <span class="chip">${escapeHtml(l.condition)}</span>
+                <span class="chip b">Social proof</span>
+                <span class="chip g">Public ledger</span>
+                <span class="chip w">Top-up intent allowed</span>
+              </div>
+
+              <div style="margin-top:12px;" class="muted">
+                <strong class="small" style="color:var(--text);">Wants</strong>
+                <div style="margin-top:6px;">${escapeHtml(l.wants)}</div>
+              </div>
+
+              <div style="margin-top:12px;" class="muted">
+                <strong class="small" style="color:var(--text);">Why offers get accepted</strong>
+                <div style="margin-top:6px;">${escapeHtml(l.proof)}</div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="row">
+                <button class="btn primary" onclick="window.__openOffer('${l.id}')">Make offer</button>
+                <button class="btn" onclick="window.__goProfile()">View trader profile</button>
+              </div>
+              <div class="muted small" style="margin-top:10px;">
+                Cash top-up is off-platform; BARTR stores intent only (no payment processing).
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function openListing(listingId){
         state.selectedListingId = listingId;
-        renderListingCard(listingId);
-        location.hash = "#listing";
-        syncOfferBuilder();
+        const l = listings.find(x => x.id === listingId);
+        if(!l) return;
+        openDrawer("Listing details", `${l.category} • ${l.value} • ${l.location}`, listingDetailsHtml(l));
       }
 
-      function syncOfferBuilder() {
-        const target = getListing(state.selectedListingId);
-        const match = target.category === "Tech" ? 82 : 71;
-        byId("matchScore").textContent = `Match: ${match}%`;
+      // ---- OFFER BUILDER (drawer) ----
+      function offerBuilderHtml(targetId){
+        const target = listings.find(l => l.id === targetId) || listings[0];
+        const opts = myInventory.map(i => `<option value="${i.id}">${escapeHtml(i.title)} (${i.value})</option>`).join("");
+        return `
+          <div class="offerCard">
+            <div class="row between">
+              <div>
+                <div><strong>Offer builder</strong></div>
+                <div class="muted small">Trade + optional cash top-up intent (off-platform).</div>
+              </div>
+              <span class="pill brand">Match ${target.match}%</span>
+            </div>
+            <div class="divider"></div>
+
+            <div class="muted small">Target</div>
+            <div style="margin-top:6px;"><strong>${escapeHtml(target.title)}</strong> <span class="muted small">(${target.value})</span></div>
+
+            <div class="divider"></div>
+
+            <div class="muted small">Your items</div>
+            <div style="margin-top:6px; display:grid; gap:10px;">
+              <select id="offerItemA">
+                <option value="">Select item #1</option>
+                ${opts}
+              </select>
+              <select id="offerItemB">
+                <option value="">(optional) item #2</option>
+                ${opts}
+              </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="gap:10px;">
+              <div style="flex:1;">
+                <div class="muted small">Cash top-up (optional)</div>
+                <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
+              </div>
+              <div style="width:140px;">
+                <div class="muted small">Currency</div>
+                <select id="offerCurrency">
+                  <option>GBP</option><option>EUR</option><option>USD</option><option>AUD</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div class="muted small">Message</div>
+              <textarea id="offerMsg" placeholder="Meetup preference, timing, notes..."></textarea>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="sendOffer">Send offer</button>
+              <button class="btn" id="previewOffer">Preview</button>
+            </div>
+
+            <div id="offerPreview" class="muted small" style="margin-top:10px;"></div>
+          </div>
+        `;
       }
 
-      function populateOfferBuilder() {
-        const targetSel = byId("targetSelect");
-        targetSel.innerHTML = "";
-        listings.filter(l => l.owner !== users.me.id).forEach(l => {
-          const opt = document.createElement("option");
-          opt.value = l.id;
-          opt.textContent = `${l.title} (${l.value})`;
-          targetSel.appendChild(opt);
-        });
-        targetSel.value = state.selectedListingId;
+      function openOffer(targetId){
+        const target = listings.find(l => l.id === targetId);
+        openDrawer("Make an offer", `Target: ${target.title}`, offerBuilderHtml(targetId));
+        setTimeout(() => {
+          const send = $("sendOffer");
+          const prev = $("previewOffer");
+          if(send) send.onclick = () => sendOffer(targetId);
+          if(prev) prev.onclick = () => previewOffer(targetId);
+        }, 0);
+      }
 
-        const my = listings.filter(l => l.owner === users.me.id);
-        const fill = (selId) => {
-          const s = byId(selId);
-          s.innerHTML = "";
-          const empty = document.createElement("option");
-          empty.value = "";
-          empty.textContent = selId === "offerItem2" ? "(none)" : "Select an item";
-          s.appendChild(empty);
-          my.forEach(l => {
-            const opt = document.createElement("option");
-            opt.value = l.id;
-            opt.textContent = `${l.title} (${l.value})`;
-            s.appendChild(opt);
-          });
+      function previewOffer(targetId){
+        const a = $("offerItemA")?.value || "";
+        const b = $("offerItemB")?.value || "";
+        const cash = $("offerCash")?.value?.trim() || "";
+        const cur = $("offerCurrency")?.value || "GBP";
+        const msg = $("offerMsg")?.value?.trim() || "";
+        const items = [a,b].filter(Boolean).map(id => myInventory.find(x => x.id === id)?.title).filter(Boolean);
+        $("offerPreview").textContent = `Offering: ${items.join(" + ") || "(none)"}${cash ? ` + ${cash} ${cur} top-up intent` : ""}${msg ? ` — "${msg}"` : ""}`;
+      }
+
+      function ensureThreadWithDemoTrader(){
+        let t = state.threads.find(x => x.peerId === demoTrader.id);
+        if(!t){
+          t = {
+            id: "t_" + Math.random().toString(16).slice(2),
+            peerId: demoTrader.id,
+            peerHandle: demoTrader.handle,
+            peerTier: demoTrader.tier,
+            state: "none", // none | offered | accepted | completed
+            targetListingId: state.selectedListingId,
+            messages: [
+              { from: demoTrader.handle, text:"Hey — what are you thinking for this?", at: new Date(Date.now()-1000*60*12) }
+            ],
+            offer: null
+          };
+          state.threads.unshift(t);
+        }
+        state.activeThreadId = t.id;
+        return t;
+      }
+
+      function sendOffer(targetId){
+        const a = $("offerItemA")?.value || "";
+        if(!a){ showToast("Pick at least one item"); return; }
+        const b = $("offerItemB")?.value || "";
+        const cash = $("offerCash")?.value?.trim() || "";
+        const cur = $("offerCurrency")?.value || "GBP";
+        const msg = $("offerMsg")?.value?.trim() || "";
+
+        const items = [a,b].filter(Boolean).map(id => myInventory.find(x => x.id === id));
+        const target = listings.find(l => l.id === targetId);
+
+        const t = ensureThreadWithDemoTrader();
+        t.targetListingId = targetId;
+        t.offer = {
+          items: items.map(i => ({ title: i.title, value: i.value })),
+          cash: cash ? { amount: cash, currency: cur } : null,
+          message: msg
         };
-        fill("offerItem1");
-        fill("offerItem2");
+        t.state = "offered";
+        t.messages.push({ from: me.handle, text: `Offer: ${items.map(i=>i.title).join(" + ")}${cash?` + ${cash} ${cur} top-up intent`: ""}. ${msg?msg:""}`, at: new Date() });
 
-        byId("targetSelect").onchange = (e) => {
-          state.selectedListingId = e.target.value;
-          syncOfferBuilder();
-        };
+        closeDrawer();
+        showToast("Offer sent (demo)");
+        setNav("inbox");
       }
 
-      function renderInbox() {
-        const target = getListing(state.selectedListingId);
-        byId("convMeta").textContent = `You ↔ ${users.other.handle} • Target: ${target.title}`;
-        byId("tradeStatePill").textContent = `State: ${state.tradeState}`;
-
-        // messages
-        const m = byId("messages");
-        m.innerHTML = "";
-        state.messages.forEach(msg => {
-          const div = document.createElement("div");
-          div.className = "msg " + (msg.from === users.me.handle ? "you" : "");
-          div.style.maxWidth = "85%";
-          if (msg.from === users.me.handle) div.classList.add("right");
-          div.innerHTML = `
-            <div class="muted small">${msg.from} • ${msg.at.toLocaleTimeString()}</div>
-            <div>${msg.text}</div>
-          `;
-          m.appendChild(div);
-        });
-
-        // offer card
-        const oc = byId("offerCard");
-        if (!state.offer) {
-          oc.innerHTML = `<div class="muted small">No offer yet. Send one from the Offer Builder on Feed.</div>`;
+      // ---- INBOX ----
+      function renderInbox(){
+        $("threadCount").textContent = `${state.threads.length} threads`;
+        const list = $("threadList");
+        list.innerHTML = "";
+        if(state.threads.length === 0){
+          list.appendChild(el(`<div class="muted">No threads yet. Make an offer from Marketplace.</div>`));
         } else {
-          const offer = state.offer;
-          oc.innerHTML = `
-            <div class="kv small">
-              <div class="muted">Offering</div><div>${offer.items.join(" + ")}</div>
-              <div class="muted">Top-up</div><div>${offer.cash ? `${offer.cash} ${offer.currency} (off-platform)` : "none"}</div>
-              <div class="muted">Message</div><div>${offer.message || "(none)"}</div>
+          state.threads.forEach(t => {
+            const active = t.id === state.activeThreadId;
+            list.appendChild(el(`
+              <div class="t" style="${active ? "border-color: rgba(124,58,237,.38); background: rgba(124,58,237,.08)" : ""}" onclick="window.__openThread('${t.id}')">
+                <div class="row between">
+                  <div class="row">
+                    <div class="avatar xs"></div>
+                    <div>
+                      <div><strong>${escapeHtml(t.peerHandle)}</strong> <span class="muted small">• ${escapeHtml(t.peerTier)}</span></div>
+                      <div class="muted small">State: ${t.state}</div>
+                    </div>
+                  </div>
+                  <span class="chip">${t.offer ? "Offer attached" : "Chat"}</span>
+                </div>
+              </div>
+            `));
+          });
+        }
+        renderThreadPane();
+      }
+
+      function offerCardHtml(thread){
+        if(!thread.offer) return `<div class="muted">No offer attached yet.</div>`;
+        const target = listings.find(l => l.id === thread.targetListingId);
+        const items = thread.offer.items.map(i => `<span class="chip">${escapeHtml(i.title)} (${escapeHtml(i.value)})</span>`).join("");
+        const cash = thread.offer.cash ? `${thread.offer.cash.amount} ${thread.offer.cash.currency} top-up intent (off-platform)` : "none";
+        return `
+          <div class="offerCard">
+            <div class="row between">
+              <div>
+                <div><strong>Offer card</strong></div>
+                <div class="muted small">Target: ${escapeHtml(target?.title || "—")}</div>
+              </div>
+              <span class="pill brand">State: ${thread.state}</span>
+            </div>
+            <div class="divider"></div>
+            <div class="muted small">Offering</div>
+            <div class="row" style="margin-top:6px;">${items}</div>
+            <div style="margin-top:10px;" class="muted small"><strong style="color:var(--text);">Top-up</strong>: ${escapeHtml(cash)}</div>
+            ${thread.offer.message ? `<div style="margin-top:10px;" class="muted small"><strong style="color:var(--text);">Message</strong>: ${escapeHtml(thread.offer.message)}</div>` : ""}
+            <div class="divider"></div>
+            <div class="row">
+              <button class="btn primary" id="acceptBtn" ${thread.state !== "offered" ? "disabled" : ""}>Accept</button>
+              <button class="btn success" id="completeBtn" ${thread.state !== "accepted" ? "disabled" : ""}>Complete</button>
+              <button class="btn" id="viewTargetBtn">View listing</button>
+            </div>
+            <div class="muted small" style="margin-top:10px;">
+              Real build: accept → lock items + create trade record + feed event. complete → ledger + reputation.
+            </div>
+          </div>
+        `;
+      }
+
+      function renderThreadPane(){
+        const pane = $("threadPane");
+        const thread = state.threads.find(t => t.id === state.activeThreadId);
+        if(!thread){
+          pane.innerHTML = `<div class="cardPad"><div class="muted">Select a thread to view.</div></div>`;
+          return;
+        }
+        const target = listings.find(l => l.id === thread.targetListingId) || listings[0];
+
+        pane.innerHTML = `
+          <div class="cardPad">
+            <div class="row between">
+              <div class="row">
+                <div class="avatar sm"></div>
+                <div>
+                  <div><strong>${escapeHtml(thread.peerHandle)}</strong> <span class="muted small">• ${escapeHtml(thread.peerTier)}</span></div>
+                  <div class="muted small">Target: ${escapeHtml(target.title)}</div>
+                </div>
+              </div>
+              <span class="pill">${thread.state}</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div style="display:grid; gap:10px;" id="msgList">
+              ${thread.messages.map(m => `
+                <div class="msg ${m.from === me.handle ? "you" : ""}">
+                  <div class="muted small">${escapeHtml(m.from)} • ${new Date(m.at).toLocaleTimeString()}</div>
+                  <div style="margin-top:6px;">${escapeHtml(m.text)}</div>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="gap:10px;">
+              <textarea id="msgInput" placeholder="Message..."></textarea>
+            </div>
+            <div class="row" style="margin-top:10px;">
+              <button class="btn" id="sendMsg">Send</button>
+              <button class="btn primary" id="makeOfferFromChat">Offer</button>
+            </div>
+
+            <div class="divider"></div>
+            ${offerCardHtml(thread)}
+
+            <div class="divider"></div>
+
+            <div class="offerCard">
+              <div class="row between">
+                <strong class="small">Public ledger preview</strong>
+                <span class="chip">Public</span>
+              </div>
+              <pre class="muted small" style="white-space:pre-wrap; margin:10px 0 0 0;">${escapeHtml(JSON.stringify({
+                visibility:"public",
+                event: thread.state === "completed" ? "trade_completed" : "pending",
+                target_listing: target.title,
+                offer: thread.offer,
+                timestamp: new Date().toISOString()
+              }, null, 2))}</pre>
+            </div>
+          </div>
+        `;
+
+        setTimeout(() => {
+          $("sendMsg").onclick = () => {
+            const txt = $("msgInput").value.trim();
+            if(!txt) return;
+            thread.messages.push({ from: me.handle, text: txt, at: new Date() });
+            renderThreadPane();
+          };
+          $("makeOfferFromChat").onclick = () => openOffer(thread.targetListingId);
+          const acc = $("acceptBtn");
+          const comp = $("completeBtn");
+          const view = $("viewTargetBtn");
+          if(view) view.onclick = () => openListing(thread.targetListingId);
+
+          if(acc) acc.onclick = () => {
+            thread.state = "accepted";
+            thread.messages.push({ from: thread.peerHandle, text:"Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
+            social.unshift({ id:"p_acc_"+Math.random().toString(16).slice(2), type:"accepted", user: demoTrader, time:"now", text:"Accepted an offer — items locked (in real build).", tags:["Accepted pattern","Trust"], listingId: thread.targetListingId, likes:0, comments:0 });
+            showToast("Offer accepted (demo)");
+            renderInbox();
+          };
+
+          if(comp) comp.onclick = () => {
+            thread.state = "completed";
+            thread.messages.push({ from: thread.peerHandle, text:"Trade completed. ⭐ Rated 5/5.", at: new Date() });
+            const target = listings.find(l => l.id === thread.targetListingId);
+            const cash = thread.offer?.cash ? ` + ${thread.offer.cash.amount} ${thread.offer.cash.currency} top-up intent` : "";
+            const offerStr = thread.offer?.items?.map(i => `${i.title} (${i.value})`).join(" + ") || "(none)";
+            publicLedger.unshift(`Trade completed: ${offerStr} → ${target.title}${cash}`);
+            social.unshift({ id:"p_done_"+Math.random().toString(16).slice(2), type:"wins", user: demoTrader, time:"now", text:`Trade completed: ${offerStr} → ${target.title}${cash}.`, tags:["Trade win","Ledger"], listingId: thread.targetListingId, likes:0, comments:0 });
+            showToast("Trade completed (demo)");
+            renderInbox();
+          };
+        }, 0);
+      }
+
+      function openThread(id){
+        state.activeThreadId = id;
+        renderInbox();
+      }
+
+      // ---- PROFILE ----
+      function renderProfile(){
+        // follow button
+        $("followBtn").textContent = state.followed ? "Following" : "Follow";
+
+        // profile tabs
+        document.querySelectorAll("[data-profile-tab]").forEach(t => {
+          t.classList.toggle("active", t.dataset.profileTab === state.profileTab);
+        });
+
+        $("profileLedger").classList.toggle("hidden", state.profileTab !== "ledger");
+        $("profilePosts").classList.toggle("hidden", state.profileTab !== "posts");
+        $("profileListings").classList.toggle("hidden", state.profileTab !== "listings");
+
+        // ledger
+        if(state.profileTab === "ledger"){
+          $("profileLedger").innerHTML = `
+            <div class="offerCard">
+              <div class="row between">
+                <div>
+                  <div><strong>Public trade ledger</strong></div>
+                  <div class="muted small">Append-only trade events (blockchain-ish transparency without blockchain).</div>
+                </div>
+                <span class="chip b">Public</span>
+              </div>
+              <div class="divider"></div>
+              <ul class="muted" style="margin:0; padding-left:18px;">
+                ${publicLedger.slice(0,10).map(x => `<li style="margin:8px 0;">${escapeHtml(x)}</li>`).join("")}
+              </ul>
             </div>
           `;
         }
 
-        // ledger preview
-        byId("ledgerPreview").textContent = JSON.stringify({
-          visibility: "public",
-          event: state.tradeState === "completed" ? "trade_completed" : "pending",
-          target_listing: target.title,
-          offer: state.offer,
-          timestamp: new Date().toISOString()
-        }, null, 2);
+        // posts
+        if(state.profileTab === "posts"){
+          const mine = social.filter(p => p.user.handle === demoTrader.handle).slice(0,8);
+          $("profilePosts").innerHTML = mine.length
+            ? mine.map(p => `<div class="offerCard" style="margin-top:10px;">
+                <div class="row between">
+                  <strong class="small">${p.type === "accepted" ? "Accepted pattern" : (p.type==="wins" ? "Trade win" : "Looking-for")}</strong>
+                  <span class="chip">${escapeHtml(p.time)}</span>
+                </div>
+                <div class="muted" style="margin-top:8px;">${escapeHtml(p.text)}</div>
+                <div class="row" style="margin-top:10px;">${p.tags.map(t => `<span class="chip">${escapeHtml(t)}</span>`).join("")}</div>
+              </div>`).join("")
+            : `<div class="muted">No posts yet.</div>`;
+        }
 
-        // button states
-        byId("acceptOfferBtn").disabled = !state.offer || state.tradeState !== "offered";
-        byId("completeTradeBtn").disabled = !state.offer || state.tradeState !== "accepted";
+        // listings
+        if(state.profileTab === "listings"){
+          const theirs = listings.slice(0,6);
+          $("profileListings").innerHTML = `
+            <div class="listGrid">
+              ${theirs.map(marketCard).join("")}
+            </div>
+          `;
+        }
       }
 
-      function renderProfile() {
-        const ul = byId("ledgerList");
-        ul.innerHTML = "";
-        state.ledger.forEach(line => {
-          const li = document.createElement("li");
-          li.textContent = line;
-          ul.appendChild(li);
-        });
-        byId("followBtn").textContent = state.followed ? "Following" : "Follow";
+      // ---- misc + safety ----
+      function escapeHtml(s){
+        return String(s)
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
       }
 
-      // ---- Actions ----
-      byId("sendOfferBtn").onclick = () => {
-        const targetId = byId("targetSelect").value;
-        state.selectedListingId = targetId;
-        const t = getListing(targetId);
+      // ---- event wiring ----
+      document.querySelectorAll(".navBtn").forEach(n => n.onclick = () => setNav(n.dataset.nav));
 
-        const i1 = byId("offerItem1").value;
-        const i2 = byId("offerItem2").value;
-        if (!i1) { alert("Pick at least one item."); return; }
-        const items = [getListing(i1).title];
-        if (i2) items.push(getListing(i2).title);
-
-        const cash = byId("cashTopUp").value.trim();
-        const currency = byId("cashCurrency").value;
-        const message = byId("offerMessage").value.trim();
-
-        state.offer = { target: t.title, items, cash: cash || null, currency, message };
-        state.tradeState = "offered";
-
-        byId("offerStatus").classList.remove("hidden");
-        byId("offerStatus").innerHTML = `
-          <div><strong>Offer sent (demo)</strong></div>
-          <div class="muted small">Now open Inbox → accept → complete to see the public ledger event.</div>
-        `;
-        location.hash = "#inbox";
-        renderInbox();
-      };
-
-      byId("sendMsgBtn").onclick = () => {
-        const txt = byId("chatInput").value.trim();
-        if (!txt) return;
-        state.messages.push({ from: users.me.handle, text: txt, at: new Date() });
-        byId("chatInput").value = "";
-        renderInbox();
-      };
-
-      byId("acceptOfferBtn").onclick = () => {
-        state.tradeState = "accepted";
-        state.messages.push({ from: users.other.handle, text: "Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
-        renderInbox();
-        // also add feed proof
-        feed.unshift({ id:"e_new_accept", type:"offer_accepted", when:"Just now", listingId: state.selectedListingId, payload:{ note:"Offer accepted (demo). Items would lock in real build." }});
-        renderFeed();
-      };
-
-      byId("completeTradeBtn").onclick = () => {
-        state.tradeState = "completed";
-        state.messages.push({ from: users.other.handle, text: "Trade marked completed. ⭐", at: new Date() });
-        // public ledger add
-        const offer = state.offer;
-        state.ledger.unshift(`Trade completed: ${offer.items.join(" + ")} → ${offer.target}${offer.cash ? ` + ${offer.cash} ${offer.currency} top-up` : ""}`);
-        // feed event
-        feed.unshift({ id:"e_new_done", type:"trade_completed", when:"Just now", listingId: state.selectedListingId, payload:{ note:"Completed trade appears on public ledger." }});
-        renderInbox();
-        renderProfile();
-        renderFeed();
-      };
-
-      byId("followBtn").onclick = () => {
-        state.followed = !state.followed;
-        renderProfile();
-      };
-
-      byId("resetDemoBtn").onclick = () => {
-        state.offer = null;
-        state.tradeState = "none";
-        byId("offerStatus").classList.add("hidden");
-        byId("cashTopUp").value = "";
-        byId("offerMessage").value = "";
-        byId("offerItem1").value = "";
-        byId("offerItem2").value = "";
-        alert("Demo reset.");
-        renderInbox();
-      };
-
-      ["backToFeedBtn","backToFeedBtn2","backToFeedBtn3"].forEach(id => {
-        const el = byId(id);
-        if (el) el.onclick = () => (location.hash = "#feed");
+      // social tabs
+      document.querySelectorAll("[data-social-filter]").forEach(t => t.onclick = () => {
+        state.socialFilter = t.dataset.socialFilter;
+        renderSocial();
       });
 
-      window.addEventListener("hashchange", () => {
-        const h = location.hash || "#feed";
-        setTab(h);
-        if (h === "#listing") renderListingCard(state.selectedListingId);
-        if (h === "#inbox") renderInbox();
-        if (h === "#profile") renderProfile();
+      // profile tabs
+      document.querySelectorAll("[data-profile-tab]").forEach(t => t.onclick = () => {
+        state.profileTab = t.dataset.profileTab;
+        renderProfile();
       });
+
+      $("postBtn").onclick = addPost;
+      $("openHelp").onclick = () => openDrawer(
+        "How this demo works",
+        "Social + Marketplace + Inbox",
+        `
+          <div class="offerCard">
+            <div class="muted">
+              <strong style="color:var(--text);">What’s real here</strong>
+              <ul style="margin-top:10px; padding-left:18px;">
+                <li>Separate Social feed + Marketplace.</li>
+                <li>Offer builder with optional cash top-up intent (off-platform only).</li>
+                <li>Inbox threads with offer cards + accept/complete states.</li>
+                <li>Public ledger updates after completion.</li>
+              </ul>
+              <div class="divider"></div>
+              <div class="muted small">
+                Next: replace demo state with Next.js + Supabase tables/RLS/RPCs you already set up.
+              </div>
+            </div>
+          </div>
+        `
+      );
+
+      $("overlay").onclick = closeDrawer;
+      $("closeDrawer").onclick = closeDrawer;
+
+      $("goProfile").onclick = () => setNav("profile");
+      $("messageBtn").onclick = () => { ensureThreadWithDemoTrader(); setNav("inbox"); };
+      $("followBtn").onclick = () => { state.followed = !state.followed; $("followBtn").textContent = state.followed ? "Following" : "Follow"; showToast(state.followed ? "Followed" : "Unfollowed"); };
+      $("marketFiltersBtn").onclick = () => openDrawer("Filters (demo)", "Marketplace", `
+        <div class="offerCard">
+          <div class="muted">
+            <strong style="color:var(--text);">Demo filters</strong>
+            <div class="divider"></div>
+            <div class="row">
+              <span class="chip">Category</span><span class="chip">Value band</span><span class="chip">Location</span><span class="chip">Trust tier</span>
+            </div>
+            <div class="divider"></div>
+            <div class="muted small">In real build: query Postgres + search index; personalize with follow graph + wishlist.</div>
+          </div>
+        </div>
+      `);
+
+      $("openOfferBuilderBtn").onclick = () => openOffer(state.selectedListingId);
+      $("openListingDrawerBtn").onclick = () => openListing(state.selectedListingId);
+      $("newListingBtn").onclick = () => showToast("Listing creation is in Next.js build (demo).");
+      $("newThreadBtn").onclick = () => { ensureThreadWithDemoTrader(); renderInbox(); showToast("Thread created (demo)"); };
+      $("editProfileBtn").onclick = () => showToast("Edit profile is in Next.js build (demo).");
+
+      $("marketSearch").addEventListener("input", () => renderMarket());
+
+      // globals for onclick string handlers
+      window.__openListing = (id) => {
+        state.selectedListingId = id;
+        openListing(id);
+        // keep match pill updated
+        const l = listings.find(x => x.id === id) || listings[0];
+        $("matchPill").textContent = `Match: ${l.match}%`;
+      };
+      window.__openOffer = (id) => openOffer(id);
+      window.__openThread = (id) => openThread(id);
+      window.__goProfile = () => setNav("profile");
+      window.__likePost = (id) => {
+        const p = social.find(x => x.id === id); if(!p) return;
+        p.likes += 1; renderSocial();
+      };
+      window.__commentPost = (id) => {
+        const p = social.find(x => x.id === id); if(!p) return;
+        p.comments += 1; showToast("Commented (demo)"); renderSocial();
+      };
+      window.__repostPost = (id) => {
+        const p = social.find(x => x.id === id); if(!p) return;
+        social.unshift({ ...p, id: "rp_" + Math.random().toString(16).slice(2), time:"now", likes:0, comments:0, text: "Repost: " + p.text });
+        showToast("Reposted (demo)");
+        renderSocial();
+      };
 
       // init
-      populateOfferBuilder();
-      renderFeed();
+      renderSocial();
+      renderMarket();
       renderProfile();
-      openListing(state.selectedListingId);
-      location.hash = "#feed";
-      window.dispatchEvent(new Event("hashchange"));
+      setNav("social");
     </script>
   </body>
 </html>
