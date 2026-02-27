@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BARTR Demo</title>
+    <style>
+      :root { color-scheme: light; }
+      body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background: #fff; color: #111; }
+      header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px; }
+      .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .brand { font-weight: 800; letter-spacing: 0.2px; }
+      .nav a { text-decoration: none; color: #222; padding: 6px 10px; border-radius: 10px; }
+      .nav a.active { background: #111; color: #fff; }
+      .muted { color: #666; }
+      .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 860px) { .grid { grid-template-columns: 1.2fr 0.8fr; } }
+      .card { border: 1px solid #eee; border-radius: 14px; padding: 12px; background: #fff; }
+      button { padding: 10px 12px; border: 1px solid #ddd; background: #fafafa; border-radius: 10px; cursor: pointer; }
+      button.primary { background: #111; color: #fff; border-color: #111; }
+      input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; }
+      .pill { font-size: 12px; padding: 4px 8px; border: 1px solid #eee; border-radius: 999px; }
+      .feedItem { cursor: pointer; }
+      .feedItem:hover { background: #fafafa; }
+      .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; }
+      .hidden { display: none; }
+      .divider { height: 1px; background: #eee; margin: 10px 0; }
+      .offerBox { display: grid; gap: 10px; }
+      .small { font-size: 12px; }
+      a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap row" style="justify-content: space-between;">
+        <div class="row">
+          <div class="brand">BARTR</div>
+          <span class="pill muted">Demo Mode</span>
+        </div>
+        <nav class="nav row">
+          <a href="#feed" id="tab-feed" class="active">Feed</a>
+          <a href="#listing" id="tab-listing">Listing</a>
+          <a href="#profile" id="tab-profile">Profile</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <div class="card">
+        <div><strong>What this is</strong></div>
+        <div class="muted small">
+          This is a static UI demo so you can see the interface on iPad. It uses mock data only.
+          Later we’ll replace this with the real Next.js + Supabase app.
+        </div>
+      </div>
+
+      <section id="view-feed" class="grid">
+        <div>
+          <h2 style="margin: 10px 0;">Feed</h2>
+          <div class="muted">Tap a card to preview “what gets accepted”.</div>
+
+          <div id="feed"></div>
+        </div>
+
+        <div>
+          <h2 style="margin: 10px 0;">Quick actions</h2>
+          <div class="card offerBox">
+            <div><strong>Make an offer (mock)</strong></div>
+            <div class="muted small">Cash top-up is off-platform. We store the intent only.</div>
+            <label class="muted small">Offer item</label>
+            <select id="offerItem">
+              <option>Modern Sci-Fi Classics box set (25–50)</option>
+              <option>Mechanical keyboard (50–100)</option>
+              <option>Vintage denim jacket (25–50)</option>
+            </select>
+            <label class="muted small">Cash top-up (optional)</label>
+            <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
+            <label class="muted small">Message</label>
+            <textarea id="offerMsg" placeholder="e.g. can meet Sat in town centre"></textarea>
+            <button class="primary" id="sendOffer">Send offer</button>
+            <div id="offerStatus" class="muted small"></div>
+          </div>
+
+          <div class="card">
+            <div><strong>Trust signals (mock)</strong></div>
+            <div class="divider"></div>
+            <div class="kv small">
+              <div class="muted">Trade history</div><div>Public ledger</div>
+              <div class="muted">Completion rate</div><div>94%</div>
+              <div class="muted">Response time</div><div>&lt; 2 hours</div>
+              <div class="muted">Tier</div><div>Silver</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-listing" class="hidden">
+        <h2 style="margin: 10px 0;">Listing</h2>
+        <div id="listingCard"></div>
+        <button id="backToFeed">← Back</button>
+      </section>
+
+      <section id="view-profile" class="hidden">
+        <h2 style="margin: 10px 0;">Profile</h2>
+        <div class="card">
+          <div class="row" style="justify-content: space-between;">
+            <div>
+              <div><strong>@demo_trader</strong></div>
+              <div class="muted small">Taste: Tech • Books • Vintage</div>
+            </div>
+            <span class="pill">Silver</span>
+          </div>
+          <div class="divider"></div>
+          <div><strong>Public trade ledger (mock)</strong></div>
+          <ul class="small">
+            <li>Trade completed: Books (10–25) → Headphones (50–100)</li>
+            <li>Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up</li>
+            <li>Trade completed: Vinyl (10–25) → Sneakers (50–100)</li>
+          </ul>
+          <div class="muted small">Later this will be real data from Supabase.</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const demoFeed = [
+        {
+          id: "e1",
+          type: "trade_completed",
+          when: "Just now",
+          listing: {
+            id: "l1",
+            title: "Sony WH-1000XM3 Headphones",
+            category: "Tech",
+            condition: "Good",
+            value: "50–100",
+            wants: "Books, camera gear, vinyl",
+            note: "Accepted: Book set + £10 top-up"
+          }
+        },
+        {
+          id: "e2",
+          type: "listing_created",
+          when: "15m ago",
+          listing: {
+            id: "l2",
+            title: "Modern Sci-Fi Classics box set",
+            category: "Books",
+            condition: "Like new",
+            value: "25–50",
+            wants: "Headphones, keyboard, tech",
+            note: "High match potential"
+          }
+        }
+      ];
+
+      const elFeed = document.getElementById("feed");
+      const viewFeed = document.getElementById("view-feed");
+      const viewListing = document.getElementById("view-listing");
+      const viewProfile = document.getElementById("view-profile");
+      const listingCard = document.getElementById("listingCard");
+
+      function setActiveTab(hash) {
+        document.getElementById("tab-feed").classList.toggle("active", hash === "#feed" || !hash);
+        document.getElementById("tab-listing").classList.toggle("active", hash === "#listing");
+        document.getElementById("tab-profile").classList.toggle("active", hash === "#profile");
+      }
+
+      function show(section) {
+        viewFeed.classList.toggle("hidden", section !== "feed");
+        viewListing.classList.toggle("hidden", section !== "listing");
+        viewProfile.classList.toggle("hidden", section !== "profile");
+      }
+
+      function renderFeed() {
+        elFeed.innerHTML = "";
+        demoFeed.forEach((e) => {
+          const div = document.createElement("div");
+          div.className = "card feedItem";
+          div.onclick = () => openListing(e.listing);
+          div.innerHTML = `
+            <div class="row">
+              <strong>${e.type.replaceAll("_"," ")}</strong>
+              <span class="muted small">${e.when}</span>
+              <span class="pill">${e.listing.category}</span>
+              <span class="pill">${e.listing.value}</span>
+            </div>
+            <div style="margin-top:8px;"><strong>${e.listing.title}</strong></div>
+            <div class="muted small">${e.listing.note}</div>
+          `;
+          elFeed.appendChild(div);
+        });
+      }
+
+      function openListing(listing) {
+        listingCard.innerHTML = `
+          <div class="card">
+            <div class="row">
+              <h3 style="margin:0;">${listing.title}</h3>
+              <span class="pill">${listing.category}</span>
+              <span class="pill">${listing.value}</span>
+              <span class="pill">${listing.condition}</span>
+            </div>
+            <div class="divider"></div>
+            <div class="kv small">
+              <div class="muted">Wants</div><div>${listing.wants}</div>
+              <div class="muted">Social proof</div><div>${listing.note}</div>
+            </div>
+            <div class="divider"></div>
+            <div class="muted small">Next.js version will let you actually offer items, message, accept, and complete trades.</div>
+          </div>
+        `;
+        location.hash = "#listing";
+      }
+
+      document.getElementById("backToFeed").onclick = () => (location.hash = "#feed");
+
+      document.getElementById("sendOffer").onclick = () => {
+        const item = document.getElementById("offerItem").value;
+        const cash = document.getElementById("offerCash").value.trim();
+        const msg = document.getElementById("offerMsg").value.trim();
+        document.getElementById("offerStatus").textContent =
+          `Mock offer sent: ${item}${cash ? " + £" + cash : ""}${msg ? " — " + msg : ""}`;
+      };
+
+      window.addEventListener("hashchange", () => {
+        const h = location.hash || "#feed";
+        setActiveTab(h);
+        if (h === "#profile") show("profile");
+        else if (h === "#listing") show("listing");
+        else show("feed");
+      });
+
+      renderFeed();
+      window.dispatchEvent(new Event("hashchange"));
+    </script>
+  </body>
+</html>
