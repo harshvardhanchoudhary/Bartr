@@ -3,236 +3,579 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>BARTR Demo</title>
+    <title>BARTR — Demo</title>
     <style>
-      :root { color-scheme: light; }
-      body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background: #fff; color: #111; }
-      header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid #eee; }
-      .wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px; }
-      .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-      .brand { font-weight: 800; letter-spacing: 0.2px; }
-      .nav a { text-decoration: none; color: #222; padding: 6px 10px; border-radius: 10px; }
-      .nav a.active { background: #111; color: #fff; }
-      .muted { color: #666; }
-      .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
-      @media (min-width: 860px) { .grid { grid-template-columns: 1.2fr 0.8fr; } }
-      .card { border: 1px solid #eee; border-radius: 14px; padding: 12px; background: #fff; }
-      button { padding: 10px 12px; border: 1px solid #ddd; background: #fafafa; border-radius: 10px; cursor: pointer; }
-      button.primary { background: #111; color: #fff; border-color: #111; }
+      :root { color-scheme: light; --bg:#fff; --fg:#111; --muted:#666; --bd:#eee; --chip:#f4f4f5; }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--fg); }
+      a { color: inherit; text-decoration: none; }
+      header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--bd); z-index: 20; }
+      .wrap { max-width: 1080px; margin: 0 auto; padding: 14px 16px; }
+      .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .between { justify-content: space-between; }
+      .brand { font-weight: 900; letter-spacing: .4px; }
+      .pill { font-size: 12px; padding: 4px 10px; border: 1px solid var(--bd); border-radius: 999px; background: #fff; }
+      .chip { font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--chip); border: 1px solid var(--bd); }
+      .muted { color: var(--muted); }
+      .small { font-size: 12px; }
+      .card { border: 1px solid var(--bd); border-radius: 14px; padding: 12px; background: #fff; }
+      .btn { padding: 10px 12px; border: 1px solid #ddd; background: #fafafa; border-radius: 10px; cursor: pointer; }
+      .btn.primary { background: #111; color: #fff; border-color: #111; }
+      .btn.ghost { background: #fff; }
       input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; }
-      .pill { font-size: 12px; padding: 4px 8px; border: 1px solid #eee; border-radius: 999px; }
+      textarea { min-height: 90px; }
+      .grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+      @media (min-width: 980px) { .grid { grid-template-columns: 1.25fr .75fr; } }
+      .tabs a { padding: 7px 10px; border-radius: 10px; }
+      .tabs a.active { background: #111; color: #fff; }
+      .divider { height: 1px; background: var(--bd); margin: 10px 0; }
+      .hidden { display: none; }
       .feedItem { cursor: pointer; }
       .feedItem:hover { background: #fafafa; }
-      .kv { display: grid; grid-template-columns: 140px 1fr; gap: 8px; }
-      .hidden { display: none; }
-      .divider { height: 1px; background: #eee; margin: 10px 0; }
-      .offerBox { display: grid; gap: 10px; }
-      .small { font-size: 12px; }
-      a { color: inherit; }
+      .kv { display: grid; grid-template-columns: 150px 1fr; gap: 8px; }
+      .two { display:grid; grid-template-columns: 1fr; gap: 10px; }
+      @media (min-width: 720px){ .two{ grid-template-columns: 1fr 1fr; } }
+      .msg { padding: 10px; border: 1px solid var(--bd); border-radius: 12px; background: #fff; }
+      .msg.you { background: #fafafa; }
+      .right { margin-left: auto; }
+      .tagRow { display:flex; gap:8px; flex-wrap: wrap; }
+      .warn { background:#fff7ed; border:1px solid #fed7aa; }
+      .ok { background:#f0fdf4; border:1px solid #bbf7d0; }
     </style>
   </head>
   <body>
     <header>
-      <div class="wrap row" style="justify-content: space-between;">
+      <div class="wrap row between">
         <div class="row">
           <div class="brand">BARTR</div>
-          <span class="pill muted">Demo Mode</span>
+          <span class="pill">Demo Mode</span>
+          <span class="chip muted">Trade-first • Cash top-up intent only (off-platform)</span>
         </div>
-        <nav class="nav row">
+        <nav class="tabs row">
           <a href="#feed" id="tab-feed" class="active">Feed</a>
           <a href="#listing" id="tab-listing">Listing</a>
+          <a href="#inbox" id="tab-inbox">Inbox</a>
           <a href="#profile" id="tab-profile">Profile</a>
         </nav>
       </div>
     </header>
 
     <main class="wrap">
-      <div class="card">
-        <div><strong>What this is</strong></div>
+      <div class="card warn">
+        <div><strong>Demo-only</strong></div>
         <div class="muted small">
-          This is a static UI demo so you can see the interface on iPad. It uses mock data only.
-          Later we’ll replace this with the real Next.js + Supabase app.
+          This is the UI + flows (feed → listing → offer → chat → accept → complete) using mock data.
+          Later we swap to the real Next.js + Supabase build for real accounts, listings, offers, and the public trade ledger.
         </div>
       </div>
 
+      <!-- FEED -->
       <section id="view-feed" class="grid">
         <div>
-          <h2 style="margin: 10px 0;">Feed</h2>
-          <div class="muted">Tap a card to preview “what gets accepted”.</div>
-
-          <div id="feed"></div>
+          <div class="row between" style="margin-top:8px;">
+            <h2 style="margin:0;">Feed</h2>
+            <div class="row">
+              <span class="chip">UK</span>
+              <span class="chip">Tech</span>
+              <span class="chip">Books</span>
+              <span class="chip">Vintage</span>
+            </div>
+          </div>
+          <div class="muted">Social proof: completed/accepted trades teach “what gets accepted”.</div>
+          <div id="feed" style="margin-top:10px;"></div>
         </div>
 
         <div>
-          <h2 style="margin: 10px 0;">Quick actions</h2>
-          <div class="card offerBox">
-            <div><strong>Make an offer (mock)</strong></div>
-            <div class="muted small">Cash top-up is off-platform. We store the intent only.</div>
-            <label class="muted small">Offer item</label>
-            <select id="offerItem">
-              <option>Modern Sci-Fi Classics box set (25–50)</option>
-              <option>Mechanical keyboard (50–100)</option>
-              <option>Vintage denim jacket (25–50)</option>
-            </select>
-            <label class="muted small">Cash top-up (optional)</label>
-            <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
-            <label class="muted small">Message</label>
-            <textarea id="offerMsg" placeholder="e.g. can meet Sat in town centre"></textarea>
-            <button class="primary" id="sendOffer">Send offer</button>
-            <div id="offerStatus" class="muted small"></div>
+          <h2 style="margin:10px 0;">Offer Builder</h2>
+          <div class="card">
+            <div class="row between">
+              <div>
+                <div><strong>Build an offer</strong></div>
+                <div class="muted small">Select your items + optional cash top-up (off-platform only).</div>
+              </div>
+              <span class="pill" id="matchScore">Match: 82%</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <label class="muted small">Target listing</label>
+            <select id="targetSelect"></select>
+
+            <div class="two" style="margin-top:10px;">
+              <div>
+                <label class="muted small">Your offered item #1</label>
+                <select id="offerItem1"></select>
+              </div>
+              <div>
+                <label class="muted small">Your offered item #2 (optional)</label>
+                <select id="offerItem2"></select>
+              </div>
+            </div>
+
+            <div class="two" style="margin-top:10px;">
+              <div>
+                <label class="muted small">Cash top-up (optional)</label>
+                <input id="cashTopUp" placeholder="e.g. 10" inputmode="decimal" />
+                <div class="muted small">We don’t process payments. This records intent only.</div>
+              </div>
+              <div>
+                <label class="muted small">Currency</label>
+                <select id="cashCurrency">
+                  <option>GBP</option><option>USD</option><option>EUR</option><option>AUD</option>
+                </select>
+              </div>
+            </div>
+
+            <label class="muted small" style="margin-top:10px; display:block;">Message</label>
+            <textarea id="offerMessage" placeholder="Meetup preference, timing, any notes..."></textarea>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="sendOfferBtn">Send Offer</button>
+              <button class="btn" id="resetDemoBtn">Reset Demo</button>
+            </div>
+
+            <div id="offerStatus" class="card ok hidden" style="margin-top:10px;"></div>
           </div>
 
-          <div class="card">
-            <div><strong>Trust signals (mock)</strong></div>
+          <div class="card" style="margin-top:12px;">
+            <div class="row between">
+              <div>
+                <div><strong>Trust signals</strong></div>
+                <div class="muted small">Public ledger + reliability metrics (demo values).</div>
+              </div>
+              <span class="pill">Tier: Silver</span>
+            </div>
             <div class="divider"></div>
             <div class="kv small">
               <div class="muted">Trade history</div><div>Public ledger</div>
               <div class="muted">Completion rate</div><div>94%</div>
               <div class="muted">Response time</div><div>&lt; 2 hours</div>
-              <div class="muted">Tier</div><div>Silver</div>
+              <div class="muted">Disputes</div><div>0</div>
             </div>
           </div>
         </div>
       </section>
 
+      <!-- LISTING -->
       <section id="view-listing" class="hidden">
-        <h2 style="margin: 10px 0;">Listing</h2>
-        <div id="listingCard"></div>
-        <button id="backToFeed">← Back</button>
+        <div class="row between" style="margin-top:8px;">
+          <h2 style="margin:0;">Listing</h2>
+          <button class="btn" id="backToFeedBtn">← Back to Feed</button>
+        </div>
+        <div id="listingCard" style="margin-top:10px;"></div>
       </section>
 
+      <!-- INBOX -->
+      <section id="view-inbox" class="hidden">
+        <div class="row between" style="margin-top:8px;">
+          <h2 style="margin:0;">Inbox</h2>
+          <button class="btn" id="backToFeedBtn2">← Back to Feed</button>
+        </div>
+
+        <div class="grid" style="margin-top:10px;">
+          <div>
+            <div class="card">
+              <div class="row between">
+                <div>
+                  <div><strong>Conversation</strong></div>
+                  <div class="muted small" id="convMeta"></div>
+                </div>
+                <span class="pill" id="tradeStatePill">State: none</span>
+              </div>
+              <div class="divider"></div>
+              <div id="messages"></div>
+
+              <div class="divider"></div>
+              <label class="muted small">Send a message</label>
+              <textarea id="chatInput" placeholder="Type..."></textarea>
+              <div class="row" style="margin-top:10px;">
+                <button class="btn primary" id="sendMsgBtn">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card">
+              <div><strong>Offer card</strong></div>
+              <div class="muted small">Structured offer + actions (accept/complete). No escrow.</div>
+              <div class="divider"></div>
+              <div id="offerCard"></div>
+              <div class="divider"></div>
+              <div class="row">
+                <button class="btn primary" id="acceptOfferBtn">Accept</button>
+                <button class="btn" id="completeTradeBtn">Complete trade</button>
+              </div>
+              <div class="muted small" style="margin-top:8px;">
+                In real build: accept triggers item locking + trade record + feed event; completion updates ledger.
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:12px;">
+              <div><strong>Public ledger preview</strong></div>
+              <div class="muted small">What everyone can see when trade completes.</div>
+              <div class="divider"></div>
+              <pre id="ledgerPreview" style="margin:0; white-space:pre-wrap;"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROFILE -->
       <section id="view-profile" class="hidden">
-        <h2 style="margin: 10px 0;">Profile</h2>
-        <div class="card">
-          <div class="row" style="justify-content: space-between;">
+        <div class="row between" style="margin-top:8px;">
+          <h2 style="margin:0;">Profile</h2>
+          <button class="btn" id="backToFeedBtn3">← Back to Feed</button>
+        </div>
+
+        <div class="card" style="margin-top:10px;">
+          <div class="row between">
             <div>
               <div><strong>@demo_trader</strong></div>
               <div class="muted small">Taste: Tech • Books • Vintage</div>
             </div>
-            <span class="pill">Silver</span>
+            <div class="row">
+              <span class="pill">Silver</span>
+              <button class="btn" id="followBtn">Follow</button>
+            </div>
           </div>
+
           <div class="divider"></div>
-          <div><strong>Public trade ledger (mock)</strong></div>
-          <ul class="small">
-            <li>Trade completed: Books (10–25) → Headphones (50–100)</li>
-            <li>Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up</li>
-            <li>Trade completed: Vinyl (10–25) → Sneakers (50–100)</li>
-          </ul>
-          <div class="muted small">Later this will be real data from Supabase.</div>
+
+          <div class="row between">
+            <div><strong>Public Trade Ledger</strong></div>
+            <span class="chip">Transparency-first</span>
+          </div>
+          <div class="muted small">This is the “blockchain-ish” transparency without blockchain: append-only events.</div>
+
+          <div class="divider"></div>
+          <ul id="ledgerList" class="small" style="margin:0; padding-left:18px;"></ul>
+
+          <div class="divider"></div>
+          <div class="row between">
+            <div>
+              <div><strong>Trade Up (optional)</strong></div>
+              <div class="muted small">Not the whole platform — a layer. (We’ll decide later.)</div>
+            </div>
+            <span class="pill">Progress: 3 steps</span>
+          </div>
+          <div class="muted small">Example: £10 → £25 → £50 → £120</div>
         </div>
       </section>
     </main>
 
     <script>
-      const demoFeed = [
-        {
-          id: "e1",
-          type: "trade_completed",
-          when: "Just now",
-          listing: {
-            id: "l1",
-            title: "Sony WH-1000XM3 Headphones",
-            category: "Tech",
-            condition: "Good",
-            value: "50–100",
-            wants: "Books, camera gear, vinyl",
-            note: "Accepted: Book set + £10 top-up"
-          }
-        },
-        {
-          id: "e2",
-          type: "listing_created",
-          when: "15m ago",
-          listing: {
-            id: "l2",
-            title: "Modern Sci-Fi Classics box set",
-            category: "Books",
-            condition: "Like new",
-            value: "25–50",
-            wants: "Headphones, keyboard, tech",
-            note: "High match potential"
-          }
-        }
+      // ---- Demo data ----
+      const users = {
+        me: { id: "u_me", handle: "@me", tier: "Bronze" },
+        other: { id: "u_oth", handle: "@demo_trader", tier: "Silver" }
+      };
+
+      const listings = [
+        { id:"l_headphones", owner: users.other.id, title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", proof:"Accepted: Book set + £10 top-up" },
+        { id:"l_books", owner: users.me.id, title:"Modern Sci-Fi Classics box set", category:"Books", condition:"Like new", value:"25–50", wants:"Headphones, keyboard, tech", proof:"High match potential" },
+        { id:"l_keyboard", owner: users.me.id, title:"Mechanical keyboard", category:"Tech", condition:"Good", value:"50–100", wants:"Headphones, sneakers", proof:"Often accepted in tech trades" },
+        { id:"l_jacket", owner: users.me.id, title:"Vintage denim jacket", category:"Vintage", condition:"Good", value:"25–50", wants:"Books, records", proof:"Pairs well with books/vinyl traders" }
       ];
 
-      const elFeed = document.getElementById("feed");
-      const viewFeed = document.getElementById("view-feed");
-      const viewListing = document.getElementById("view-listing");
-      const viewProfile = document.getElementById("view-profile");
-      const listingCard = document.getElementById("listingCard");
+      const feed = [
+        { id:"e1", type:"trade_completed", when:"Just now", listingId:"l_headphones", payload:{ got:"Headphones (50–100)", gave:"Books (25–50) + £10 top-up", note:"Completed trade teaches: small top-ups close gaps" } },
+        { id:"e2", type:"offer_accepted", when:"12m ago", listingId:"l_headphones", payload:{ pattern:"Books + small top-up", note:"Accepted offers show patterns" } },
+        { id:"e3", type:"listing_created", when:"26m ago", listingId:"l_headphones", payload:{ note:"New listing trending in Tech" } }
+      ];
 
-      function setActiveTab(hash) {
-        document.getElementById("tab-feed").classList.toggle("active", hash === "#feed" || !hash);
-        document.getElementById("tab-listing").classList.toggle("active", hash === "#listing");
-        document.getElementById("tab-profile").classList.toggle("active", hash === "#profile");
-      }
+      let state = {
+        selectedListingId: "l_headphones",
+        offer: null,
+        tradeState: "none", // none | offered | accepted | completed
+        messages: [
+          { from: users.other.handle, text:"Hey — what do you have to trade for the headphones?", at: new Date(Date.now()-1000*60*8) },
+          { from: users.me.handle, text:"I’ve got a sci-fi box set + could do a small top-up.", at: new Date(Date.now()-1000*60*6) }
+        ],
+        ledger: [
+          "Trade completed: Books (10–25) → Headphones (50–100)",
+          "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up",
+          "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
+        ],
+        followed: false
+      };
 
-      function show(section) {
-        viewFeed.classList.toggle("hidden", section !== "feed");
-        viewListing.classList.toggle("hidden", section !== "listing");
-        viewProfile.classList.toggle("hidden", section !== "profile");
+      // ---- Helpers ----
+      const byId = (id) => document.getElementById(id);
+      const getListing = (id) => listings.find(l => l.id === id);
+
+      function setTab(hash) {
+        const h = hash || "#feed";
+        ["feed","listing","inbox","profile"].forEach(t => {
+          byId(`tab-${t}`).classList.toggle("active", h === `#${t}` || (t==="feed" && h==="#"));
+        });
+        byId("view-feed").classList.toggle("hidden", h !== "#feed" && h !== "#");
+        byId("view-listing").classList.toggle("hidden", h !== "#listing");
+        byId("view-inbox").classList.toggle("hidden", h !== "#inbox");
+        byId("view-profile").classList.toggle("hidden", h !== "#profile");
       }
 
       function renderFeed() {
-        elFeed.innerHTML = "";
-        demoFeed.forEach((e) => {
+        const el = byId("feed");
+        el.innerHTML = "";
+        feed.forEach(e => {
+          const l = getListing(e.listingId);
           const div = document.createElement("div");
           div.className = "card feedItem";
-          div.onclick = () => openListing(e.listing);
+          div.onclick = () => openListing(l.id);
           div.innerHTML = `
             <div class="row">
               <strong>${e.type.replaceAll("_"," ")}</strong>
               <span class="muted small">${e.when}</span>
-              <span class="pill">${e.listing.category}</span>
-              <span class="pill">${e.listing.value}</span>
+              <span class="pill">${l.category}</span>
+              <span class="pill">${l.value}</span>
             </div>
-            <div style="margin-top:8px;"><strong>${e.listing.title}</strong></div>
-            <div class="muted small">${e.listing.note}</div>
+            <div style="margin-top:8px;"><strong>${l.title}</strong></div>
+            <div class="muted small">${(e.payload.note || e.payload.pattern || "")}</div>
           `;
-          elFeed.appendChild(div);
+          el.appendChild(div);
         });
       }
 
-      function openListing(listing) {
-        listingCard.innerHTML = `
+      function renderListingCard(listingId) {
+        const l = getListing(listingId);
+        const mine = l.owner === users.me.id;
+        byId("listingCard").innerHTML = `
           <div class="card">
-            <div class="row">
-              <h3 style="margin:0;">${listing.title}</h3>
-              <span class="pill">${listing.category}</span>
-              <span class="pill">${listing.value}</span>
-              <span class="pill">${listing.condition}</span>
+            <div class="row between">
+              <div>
+                <div class="row">
+                  <h3 style="margin:0;">${l.title}</h3>
+                  <span class="pill">${l.category}</span>
+                  <span class="pill">${l.value}</span>
+                  <span class="pill">${l.condition}</span>
+                </div>
+                <div class="muted small">Owner: ${mine ? users.me.handle : users.other.handle} • Trust: ${mine ? users.me.tier : users.other.tier}</div>
+              </div>
+              <button class="btn primary" ${mine ? "disabled" : ""} onclick="location.hash='#feed'">Offer builder →</button>
             </div>
+
             <div class="divider"></div>
+
             <div class="kv small">
-              <div class="muted">Wants</div><div>${listing.wants}</div>
-              <div class="muted">Social proof</div><div>${listing.note}</div>
+              <div class="muted">Wants</div><div>${l.wants}</div>
+              <div class="muted">Social proof</div><div>${l.proof}</div>
+              <div class="muted">Trade style</div><div>Trade + optional cash top-up intent (off-platform)</div>
             </div>
+
             <div class="divider"></div>
-            <div class="muted small">Next.js version will let you actually offer items, message, accept, and complete trades.</div>
+
+            <div class="tagRow">
+              <span class="chip">Match indicators</span>
+              <span class="chip">Taste tags</span>
+              <span class="chip">Completion-rate weighted</span>
+              <span class="chip">No escrow</span>
+            </div>
           </div>
         `;
-        location.hash = "#listing";
       }
 
-      document.getElementById("backToFeed").onclick = () => (location.hash = "#feed");
+      function openListing(listingId) {
+        state.selectedListingId = listingId;
+        renderListingCard(listingId);
+        location.hash = "#listing";
+        syncOfferBuilder();
+      }
 
-      document.getElementById("sendOffer").onclick = () => {
-        const item = document.getElementById("offerItem").value;
-        const cash = document.getElementById("offerCash").value.trim();
-        const msg = document.getElementById("offerMsg").value.trim();
-        document.getElementById("offerStatus").textContent =
-          `Mock offer sent: ${item}${cash ? " + £" + cash : ""}${msg ? " — " + msg : ""}`;
+      function syncOfferBuilder() {
+        const target = getListing(state.selectedListingId);
+        const match = target.category === "Tech" ? 82 : 71;
+        byId("matchScore").textContent = `Match: ${match}%`;
+      }
+
+      function populateOfferBuilder() {
+        const targetSel = byId("targetSelect");
+        targetSel.innerHTML = "";
+        listings.filter(l => l.owner !== users.me.id).forEach(l => {
+          const opt = document.createElement("option");
+          opt.value = l.id;
+          opt.textContent = `${l.title} (${l.value})`;
+          targetSel.appendChild(opt);
+        });
+        targetSel.value = state.selectedListingId;
+
+        const my = listings.filter(l => l.owner === users.me.id);
+        const fill = (selId) => {
+          const s = byId(selId);
+          s.innerHTML = "";
+          const empty = document.createElement("option");
+          empty.value = "";
+          empty.textContent = selId === "offerItem2" ? "(none)" : "Select an item";
+          s.appendChild(empty);
+          my.forEach(l => {
+            const opt = document.createElement("option");
+            opt.value = l.id;
+            opt.textContent = `${l.title} (${l.value})`;
+            s.appendChild(opt);
+          });
+        };
+        fill("offerItem1");
+        fill("offerItem2");
+
+        byId("targetSelect").onchange = (e) => {
+          state.selectedListingId = e.target.value;
+          syncOfferBuilder();
+        };
+      }
+
+      function renderInbox() {
+        const target = getListing(state.selectedListingId);
+        byId("convMeta").textContent = `You ↔ ${users.other.handle} • Target: ${target.title}`;
+        byId("tradeStatePill").textContent = `State: ${state.tradeState}`;
+
+        // messages
+        const m = byId("messages");
+        m.innerHTML = "";
+        state.messages.forEach(msg => {
+          const div = document.createElement("div");
+          div.className = "msg " + (msg.from === users.me.handle ? "you" : "");
+          div.style.maxWidth = "85%";
+          if (msg.from === users.me.handle) div.classList.add("right");
+          div.innerHTML = `
+            <div class="muted small">${msg.from} • ${msg.at.toLocaleTimeString()}</div>
+            <div>${msg.text}</div>
+          `;
+          m.appendChild(div);
+        });
+
+        // offer card
+        const oc = byId("offerCard");
+        if (!state.offer) {
+          oc.innerHTML = `<div class="muted small">No offer yet. Send one from the Offer Builder on Feed.</div>`;
+        } else {
+          const offer = state.offer;
+          oc.innerHTML = `
+            <div class="kv small">
+              <div class="muted">Offering</div><div>${offer.items.join(" + ")}</div>
+              <div class="muted">Top-up</div><div>${offer.cash ? `${offer.cash} ${offer.currency} (off-platform)` : "none"}</div>
+              <div class="muted">Message</div><div>${offer.message || "(none)"}</div>
+            </div>
+          `;
+        }
+
+        // ledger preview
+        byId("ledgerPreview").textContent = JSON.stringify({
+          visibility: "public",
+          event: state.tradeState === "completed" ? "trade_completed" : "pending",
+          target_listing: target.title,
+          offer: state.offer,
+          timestamp: new Date().toISOString()
+        }, null, 2);
+
+        // button states
+        byId("acceptOfferBtn").disabled = !state.offer || state.tradeState !== "offered";
+        byId("completeTradeBtn").disabled = !state.offer || state.tradeState !== "accepted";
+      }
+
+      function renderProfile() {
+        const ul = byId("ledgerList");
+        ul.innerHTML = "";
+        state.ledger.forEach(line => {
+          const li = document.createElement("li");
+          li.textContent = line;
+          ul.appendChild(li);
+        });
+        byId("followBtn").textContent = state.followed ? "Following" : "Follow";
+      }
+
+      // ---- Actions ----
+      byId("sendOfferBtn").onclick = () => {
+        const targetId = byId("targetSelect").value;
+        state.selectedListingId = targetId;
+        const t = getListing(targetId);
+
+        const i1 = byId("offerItem1").value;
+        const i2 = byId("offerItem2").value;
+        if (!i1) { alert("Pick at least one item."); return; }
+        const items = [getListing(i1).title];
+        if (i2) items.push(getListing(i2).title);
+
+        const cash = byId("cashTopUp").value.trim();
+        const currency = byId("cashCurrency").value;
+        const message = byId("offerMessage").value.trim();
+
+        state.offer = { target: t.title, items, cash: cash || null, currency, message };
+        state.tradeState = "offered";
+
+        byId("offerStatus").classList.remove("hidden");
+        byId("offerStatus").innerHTML = `
+          <div><strong>Offer sent (demo)</strong></div>
+          <div class="muted small">Now open Inbox → accept → complete to see the public ledger event.</div>
+        `;
+        location.hash = "#inbox";
+        renderInbox();
       };
+
+      byId("sendMsgBtn").onclick = () => {
+        const txt = byId("chatInput").value.trim();
+        if (!txt) return;
+        state.messages.push({ from: users.me.handle, text: txt, at: new Date() });
+        byId("chatInput").value = "";
+        renderInbox();
+      };
+
+      byId("acceptOfferBtn").onclick = () => {
+        state.tradeState = "accepted";
+        state.messages.push({ from: users.other.handle, text: "Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
+        renderInbox();
+        // also add feed proof
+        feed.unshift({ id:"e_new_accept", type:"offer_accepted", when:"Just now", listingId: state.selectedListingId, payload:{ note:"Offer accepted (demo). Items would lock in real build." }});
+        renderFeed();
+      };
+
+      byId("completeTradeBtn").onclick = () => {
+        state.tradeState = "completed";
+        state.messages.push({ from: users.other.handle, text: "Trade marked completed. ⭐", at: new Date() });
+        // public ledger add
+        const offer = state.offer;
+        state.ledger.unshift(`Trade completed: ${offer.items.join(" + ")} → ${offer.target}${offer.cash ? ` + ${offer.cash} ${offer.currency} top-up` : ""}`);
+        // feed event
+        feed.unshift({ id:"e_new_done", type:"trade_completed", when:"Just now", listingId: state.selectedListingId, payload:{ note:"Completed trade appears on public ledger." }});
+        renderInbox();
+        renderProfile();
+        renderFeed();
+      };
+
+      byId("followBtn").onclick = () => {
+        state.followed = !state.followed;
+        renderProfile();
+      };
+
+      byId("resetDemoBtn").onclick = () => {
+        state.offer = null;
+        state.tradeState = "none";
+        byId("offerStatus").classList.add("hidden");
+        byId("cashTopUp").value = "";
+        byId("offerMessage").value = "";
+        byId("offerItem1").value = "";
+        byId("offerItem2").value = "";
+        alert("Demo reset.");
+        renderInbox();
+      };
+
+      ["backToFeedBtn","backToFeedBtn2","backToFeedBtn3"].forEach(id => {
+        const el = byId(id);
+        if (el) el.onclick = () => (location.hash = "#feed");
+      });
 
       window.addEventListener("hashchange", () => {
         const h = location.hash || "#feed";
-        setActiveTab(h);
-        if (h === "#profile") show("profile");
-        else if (h === "#listing") show("listing");
-        else show("feed");
+        setTab(h);
+        if (h === "#listing") renderListingCard(state.selectedListingId);
+        if (h === "#inbox") renderInbox();
+        if (h === "#profile") renderProfile();
       });
 
+      // init
+      populateOfferBuilder();
       renderFeed();
+      renderProfile();
+      openListing(state.selectedListingId);
+      location.hash = "#feed";
       window.dispatchEvent(new Event("hashchange"));
     </script>
   </body>
