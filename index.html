@@ -1,1350 +1,1182 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>BARTR — Social + Marketplace (Demo)</title>
-    <style>
-      /* ====== Design tokens ====== */
-      :root{
-        --bg: #0b1020;
-        --panel: rgba(255,255,255,.04);
-        --panel2: rgba(255,255,255,.06);
-        --stroke: rgba(255,255,255,.10);
-        --stroke2: rgba(255,255,255,.16);
-        --text: rgba(255,255,255,.92);
-        --muted: rgba(255,255,255,.65);
-        --muted2: rgba(255,255,255,.45);
-        --brandA: #7c3aed;
-        --brandB: #2563eb;
-        --good: #22c55e;
-        --warn: #f59e0b;
-        --danger: #ef4444;
-        --shadow: 0 18px 60px rgba(0,0,0,.55);
-        --r16: 16px;
-        --r22: 22px;
-        --r28: 28px;
-      }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BARTR — Demo</title>
+  <style>
+    :root{
+      --bg:#0b0c0f;
+      --panel:#111216;
+      --panel2:#15171c;
+      --stroke:rgba(255,255,255,.08);
+      --stroke2:rgba(255,255,255,.14);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.62);
+      --muted2:rgba(255,255,255,.40);
+      --accent:#e11d2e; /* BARTR red */
+      --shadow: 0 18px 45px rgba(0,0,0,.55);
+      --r12:12px; --r16:16px; --r22:22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(900px 520px at 20% -10%, rgba(225,29,46,.18), transparent 60%),
+                  radial-gradient(850px 520px at 110% 0%, rgba(255,255,255,.05), transparent 60%),
+                  linear-gradient(180deg, #08090c, var(--bg) 28%, #07080b);
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      letter-spacing: .1px;
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    .wrap{max-width:1120px; margin:0 auto; padding:16px;}
+    .hidden{display:none !important;}
+    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+    .between{justify-content:space-between;}
+    .muted{color:var(--muted)}
+    .muted2{color:var(--muted2)}
+    .small{font-size:12px}
 
-      *{ box-sizing:border-box; }
-      html,body{ height:100%; }
-      body{
-        margin:0;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        color: var(--text);
-        background:
-          radial-gradient(1200px 700px at 10% -15%, rgba(124,58,237,.28), transparent 55%),
-          radial-gradient(900px 600px at 92% 0%, rgba(37,99,235,.24), transparent 55%),
-          radial-gradient(900px 700px at 60% 120%, rgba(34,197,94,.14), transparent 55%),
-          linear-gradient(180deg, #090d18, #0b1020 30%, #070a12);
-        overflow-x:hidden;
-      }
+    /* Top bar */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to bottom, rgba(11,12,15,.92), rgba(11,12,15,.72));
+      border-bottom:1px solid var(--stroke);
+    }
+    .topbarInner{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    .brand{display:flex; align-items:center; gap:12px;}
+    .mark{
+      width:44px; height:44px; border-radius: var(--r16);
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
+      border:1px solid var(--stroke2);
+      position:relative;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .mark:before{
+      content:"";
+      position:absolute; left:-10px; top:-10px;
+      width:54px; height:54px;
+      background: radial-gradient(circle at 40% 40%, rgba(225,29,46,.85), transparent 60%);
+      opacity:.85;
+    }
+    .mark:after{
+      content:"///";
+      position:absolute; right:10px; top:10px;
+      font-weight:900; opacity:.70; letter-spacing:2px;
+    }
+    .brandTitle{line-height:1.05}
+    .brandTitle b{letter-spacing:1.2px}
+    .brandTitle span{display:block; margin-top:4px; color:var(--muted); font-size:12px}
 
-      a{ color:inherit; text-decoration:none; }
-      .wrap{ max-width: 1120px; margin: 0 auto; padding: 16px; }
-      .hidden{ display:none !important; }
+    .pill{
+      font-size:12px; padding:7px 10px; border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.03);
+      color:var(--muted);
+    }
+    .pill.red{border-color: rgba(225,29,46,.45); background: rgba(225,29,46,.12); color: rgba(255,220,220,.95);}
+    .btn{
+      border:1px solid var(--stroke2);
+      background: rgba(255,255,255,.04);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .btn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22);}
+    .btn:active{transform: translateY(1px);}
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(225,29,46,.92), rgba(225,29,46,.70));
+      border-color: rgba(225,29,46,.55);
+    }
+    .btn.ghost{background: transparent; border-color: var(--stroke);}
 
-      /* ====== App shell ====== */
-      .appbar{
-        position: sticky; top:0; z-index: 50;
-        backdrop-filter: blur(14px);
-        background: linear-gradient(to bottom, rgba(11,16,32,.92), rgba(11,16,32,.68));
-        border-bottom: 1px solid var(--stroke);
-      }
-      .appbarInner{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
-      .brand{ display:flex; align-items:center; gap:12px; }
-      .logo{
-        width: 40px; height: 40px; border-radius: 14px;
-        background:
-          radial-gradient(circle at 25% 25%, rgba(255,255,255,.32), transparent 55%),
-          linear-gradient(135deg, rgba(124,58,237,.95), rgba(37,99,235,.9));
-        box-shadow: 0 18px 50px rgba(124,58,237,.35);
-        border: 1px solid rgba(255,255,255,.12);
-      }
-      .brandText{ line-height: 1.05; }
-      .brandText strong{ letter-spacing:.6px; font-size: 14px; }
-      .brandText span{ display:block; font-size:12px; color:var(--muted); margin-top:4px; }
+    /* App panels */
+    .card{
+      border:1px solid var(--stroke);
+      border-radius: var(--r22);
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .pad{padding:14px;}
+    .divider{height:1px; background: var(--stroke); margin:12px 0;}
 
-      .topActions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
-      .pill{
-        font-size:12px; padding:7px 10px; border-radius:999px;
-        border: 1px solid var(--stroke);
-        background: rgba(255,255,255,.03);
-        color: var(--muted);
-      }
-      .pill.good{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); color: rgba(214,255,231,.92); }
-      .pill.warn{ border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.12); color: rgba(255,238,204,.95); }
-      .pill.brand{ border-color: rgba(124,58,237,.42); background: rgba(124,58,237,.14); color: rgba(236,224,255,.95); }
+    /* Chips */
+    .chip{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+    }
+    .chip.red{border-color: rgba(225,29,46,.40); background: rgba(225,29,46,.10); color: rgba(255,220,220,.95);}
 
-      .btn{
-        border: 1px solid var(--stroke2);
-        background: rgba(255,255,255,.04);
-        color: var(--text);
-        padding: 10px 12px;
-        border-radius: 14px;
-        cursor: pointer;
-        transition: transform .08s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
-        user-select:none;
-      }
-      .btn:hover{ background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22); }
-      .btn:active{ transform: translateY(1px); }
-      .btn.primary{
-        background: linear-gradient(135deg, rgba(124,58,237,.98), rgba(37,99,235,.90));
-        border-color: rgba(124,58,237,.60);
-        box-shadow: 0 16px 40px rgba(124,58,237,.22);
-      }
-      .btn.good{
-        background: linear-gradient(135deg, rgba(34,197,94,.92), rgba(16,185,129,.76));
-        border-color: rgba(34,197,94,.55);
-      }
-      .btn.ghost{ background: transparent; border-color: var(--stroke); }
+    /* Layout grids */
+    .grid{display:grid; grid-template-columns: 1fr; gap:14px;}
+    @media(min-width:980px){
+      .grid.two{grid-template-columns: 1.25fr .75fr;}
+      .grid.market{grid-template-columns: 1.15fr .85fr;}
+    }
 
-      .grid{
-        display:grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-      @media (min-width: 980px){
-        .grid.two{ grid-template-columns: 1.25fr .75fr; }
-      }
+    /* Bottom nav */
+    .bottomNav{
+      position: sticky; bottom:0; z-index:60;
+      backdrop-filter: blur(14px);
+      background: linear-gradient(to top, rgba(11,12,15,.94), rgba(11,12,15,.76));
+      border-top:1px solid var(--stroke);
+    }
+    .navInner{
+      max-width:1120px; margin:0 auto; padding:10px 16px;
+      display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;
+    }
+    .navBtn{
+      padding:10px 8px;
+      border-radius: 16px;
+      border:1px solid transparent;
+      color: var(--muted);
+      text-align:center;
+      cursor:pointer;
+      user-select:none;
+      transition: background .12s ease, border-color .12s ease, transform .08s ease;
+    }
+    .navBtn:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10);}
+    .navBtn:active{transform: translateY(1px);}
+    .navBtn.active{
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.16);
+    }
+    .navBtn .t{font-size:12px; margin-top:6px;}
+    .navBtn .dot{
+      width:8px; height:8px; border-radius:999px; display:inline-block;
+      background: rgba(255,255,255,.18);
+    }
+    .navBtn.active .dot{background: var(--accent);}
 
-      .card{
-        border: 1px solid var(--stroke);
-        border-radius: var(--r22);
-        background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.025));
-        box-shadow: var(--shadow);
-        overflow:hidden;
-      }
-      .pad{ padding: 14px; }
-      .row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-      .between{ justify-content:space-between; }
-      .muted{ color: var(--muted); }
-      .muted2{ color: var(--muted2); }
-      .small{ font-size:12px; }
-      .divider{ height:1px; background: var(--stroke); margin: 12px 0; }
+    /* Social feed */
+    .hero{
+      border:1px solid var(--stroke);
+      border-radius: var(--r22);
+      overflow:hidden;
+      background:
+        linear-gradient(90deg, rgba(225,29,46,.22), transparent 35%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    .hero .stripe{
+      height:6px;
+      background: linear-gradient(90deg, var(--accent), rgba(225,29,46,.15), transparent);
+    }
+    .hero h1{margin:0; font-size:22px; letter-spacing:.6px;}
+    .hero p{margin:6px 0 0 0; color:var(--muted); line-height:1.4}
 
-      .chip{
-        font-size:12px; padding: 6px 10px; border-radius:999px;
-        border:1px solid var(--stroke);
-        background: rgba(255,255,255,.03);
-        color: var(--muted);
-      }
-      .chip.b{ border-color: rgba(124,58,237,.38); background: rgba(124,58,237,.12); color: rgba(236,224,255,.96); }
-      .chip.g{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); color: rgba(214,255,231,.96); }
-      .chip.w{ border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10); color: rgba(255,238,204,.96); }
+    .post{
+      margin-top:12px;
+      border:1px solid var(--stroke);
+      border-radius: var(--r22);
+      background: rgba(0,0,0,.20);
+      overflow:hidden;
+    }
+    .postHead{padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
+    .avatar{
+      width:40px; height:40px; border-radius:999px;
+      border:1px solid var(--stroke2);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.22), transparent 60%),
+                  linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+      position:relative;
+      overflow:hidden;
+    }
+    .avatar:after{
+      content:"";
+      position:absolute; left:-10px; top:-10px;
+      width:56px; height:56px;
+      background: radial-gradient(circle at 40% 40%, rgba(225,29,46,.55), transparent 62%);
+      opacity:.7;
+    }
+    .postMedia{
+      height:220px;
+      border-top:1px solid var(--stroke);
+      border-bottom:1px solid var(--stroke);
+      background:
+        linear-gradient(90deg, rgba(225,29,46,.18), transparent 35%),
+        radial-gradient(900px 380px at 60% 40%, rgba(255,255,255,.06), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+      display:flex; align-items:flex-end;
+      padding:14px;
+      font-weight:900;
+      letter-spacing:.3px;
+    }
+    .postBody{padding:12px 14px;}
+    .postActions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    .iconBtn{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+      color: var(--muted);
+    }
+    .iconBtn:hover{border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.05);}
+    .iconBtn b{color: var(--text); font-size:12px;}
 
-      .avatar{
-        width: 44px; height: 44px; border-radius: 999px;
-        background:
-          radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 55%),
-          linear-gradient(135deg, rgba(124,58,237,.90), rgba(34,197,94,.70));
-        border: 1px solid rgba(255,255,255,.14);
-        box-shadow: 0 14px 40px rgba(0,0,0,.35);
-      }
-      .avatar.sm{ width: 36px; height: 36px; }
-      .avatar.xs{ width: 28px; height: 28px; }
+    /* Marketplace */
+    .searchRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    input, select, textarea{
+      width:100%;
+      padding: 12px 12px;
+      border-radius: var(--r16);
+      border:1px solid var(--stroke2);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+    }
+    input::placeholder, textarea::placeholder{color: rgba(255,255,255,.30);}
+    .gridItems{
+      display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
+    }
+    @media(max-width:560px){ .gridItems{grid-template-columns: 1fr;} }
 
-      /* ====== Bottom nav ====== */
-      .bottomNav{
-        position: sticky; bottom:0; z-index: 60;
-        backdrop-filter: blur(14px);
-        background: linear-gradient(to top, rgba(11,16,32,.94), rgba(11,16,32,.70));
-        border-top: 1px solid var(--stroke);
-      }
-      .navInner{
-        max-width: 1120px; margin: 0 auto; padding: 10px 16px;
-        display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-      }
-      .navBtn{
-        display:flex; flex-direction:column; align-items:center; gap:6px;
-        padding: 10px 8px;
-        border-radius: 18px;
-        border: 1px solid transparent;
-        color: var(--muted);
-        cursor:pointer;
-        user-select:none;
-        transition: background .12s ease, border-color .12s ease, transform .08s ease;
-      }
-      .navBtn:hover{ background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10); }
-      .navBtn:active{ transform: translateY(1px); }
-      .navBtn.active{
-        color: var(--text);
-        background: rgba(255,255,255,.06);
-        border-color: rgba(255,255,255,.16);
-      }
-      .icon{ width:20px; height:20px; opacity:.95; }
+    .item{
+      border:1px solid var(--stroke);
+      border-radius: var(--r22);
+      background: rgba(255,255,255,.03);
+      overflow:hidden;
+      cursor:pointer;
+      transition: transform .08s ease, border-color .12s ease, background .12s ease;
+    }
+    .item:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05);}
+    .thumb{
+      height:140px;
+      border-bottom:1px solid var(--stroke);
+      background:
+        linear-gradient(90deg, rgba(225,29,46,.16), transparent 40%),
+        radial-gradient(900px 380px at 70% 40%, rgba(255,255,255,.06), transparent 60%),
+        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.01));
+      display:flex; align-items:flex-end;
+      padding:12px;
+      font-weight:900;
+    }
+    .itemBody{padding:12px;}
+    .itemTitle{font-weight:950; margin:0 0 8px 0;}
+    .meta{display:flex; gap:8px; flex-wrap:wrap;}
+    .sideSticky{position:sticky; top:92px;}
 
-      /* ====== Social feed ====== */
-      .hero{
-        border: 1px solid var(--stroke);
-        border-radius: var(--r28);
-        background:
-          radial-gradient(900px 220px at 10% 10%, rgba(124,58,237,.24), transparent 55%),
-          radial-gradient(900px 260px at 90% 20%, rgba(37,99,235,.18), transparent 55%),
-          linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-        box-shadow: var(--shadow);
-        overflow:hidden;
-      }
-      .heroTop{ padding: 14px; }
-      .heroTitle{ font-size: 18px; margin:0; letter-spacing:.2px; }
-      .heroSub{ margin-top:6px; color: var(--muted); font-size: 13px; line-height: 1.35; }
-      .composer{
-        margin-top: 10px;
-        border: 1px solid var(--stroke);
-        border-radius: var(--r22);
-        background: rgba(255,255,255,.03);
-        overflow:hidden;
-      }
-      .composer .pad{ padding: 14px; }
-      textarea{
-        width:100%; min-height: 90px;
-        padding: 12px;
-        border-radius: 16px;
-        border: 1px solid var(--stroke2);
-        background: rgba(0,0,0,.18);
-        color: var(--text);
-        outline:none;
-        resize: vertical;
-      }
-      textarea::placeholder{ color: rgba(255,255,255,.35); }
+    /* Drawer (listing + offer builder) */
+    .overlay{position:fixed; inset:0; background: rgba(0,0,0,.62); display:none; z-index:90;}
+    .drawer{
+      position:fixed; right:0; top:0; height:100%;
+      width: min(560px, 92vw);
+      background: linear-gradient(180deg, rgba(17,18,22,.98), rgba(11,12,15,.98));
+      border-left:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      transform: translateX(105%);
+      transition: transform .18s ease;
+      z-index:100;
+      display:flex; flex-direction:column;
+    }
+    .overlay.show{display:block;}
+    .drawer.show{transform: translateX(0);}
+    .drawerHead{
+      padding:14px;
+      border-bottom:1px solid var(--stroke);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .drawerBody{padding:14px; overflow:auto;}
 
-      .postCard{ margin-top: 12px; }
-      .media{
-        height: 240px;
-        border-top: 1px solid var(--stroke);
-        border-bottom: 1px solid var(--stroke);
-        background:
-          radial-gradient(800px 260px at 20% 20%, rgba(124,58,237,.22), transparent 60%),
-          radial-gradient(700px 260px at 80% 30%, rgba(37,99,235,.18), transparent 60%),
-          linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
-        display:flex; align-items:center; justify-content:center;
-        color: rgba(255,255,255,.78);
-        font-weight: 800;
-        letter-spacing: .4px;
-      }
+    /* Inbox */
+    .threads{display:grid; gap:10px;}
+    .thread{
+      border:1px solid var(--stroke);
+      border-radius: var(--r22);
+      padding:12px;
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+    }
+    .thread.active{border-color: rgba(225,29,46,.35); background: rgba(225,29,46,.08);}
+    .msg{
+      max-width:86%;
+      border:1px solid var(--stroke);
+      border-radius: 18px;
+      padding:10px 12px;
+      background: rgba(255,255,255,.03);
+    }
+    .msg.you{margin-left:auto; background: rgba(255,255,255,.06);}
 
-      /* ====== Marketplace ====== */
-      .searchRow{
-        display:flex; gap:10px; flex-wrap:wrap;
-        align-items:center;
-      }
-      input, select{
-        width:100%;
-        padding: 12px 12px;
-        border-radius: 16px;
-        border: 1px solid var(--stroke2);
-        background: rgba(0,0,0,.18);
-        color: var(--text);
-        outline:none;
-      }
-      input::placeholder{ color: rgba(255,255,255,.35); }
-      .marketGrid{
-        display:grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-      @media(max-width: 560px){
-        .marketGrid{ grid-template-columns: 1fr; }
-      }
-      .mCard{
-        border: 1px solid var(--stroke);
-        border-radius: var(--r22);
-        background: rgba(255,255,255,.03);
-        overflow:hidden;
-        cursor:pointer;
-        transition: transform .08s ease, border-color .12s ease, background .12s ease;
-      }
-      .mCard:hover{ transform: translateY(-1px); border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05); }
-      .thumb{
-        height: 140px;
-        border-bottom: 1px solid var(--stroke);
-        background:
-          radial-gradient(650px 240px at 20% 30%, rgba(37,99,235,.20), transparent 60%),
-          radial-gradient(620px 230px at 80% 40%, rgba(124,58,237,.22), transparent 60%),
-          linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-        display:flex; align-items:flex-end; padding: 12px;
-        font-weight: 900;
-      }
-      .mBody{ padding: 12px; }
-      .mTitle{ font-weight: 900; margin: 2px 0 8px 0; }
-      .mMeta{ display:flex; gap:8px; flex-wrap:wrap; }
-      .stickySide{ position: sticky; top: 92px; }
+    /* Toast */
+    .toast{
+      position:fixed; left:50%; transform: translateX(-50%);
+      bottom:92px; z-index:120;
+      padding:10px 12px;
+      border-radius:999px;
+      border:1px solid var(--stroke2);
+      background: rgba(17,18,22,.92);
+      box-shadow: var(--shadow);
+      display:none;
+    }
+    .toast.show{display:block;}
+  </style>
+</head>
 
-      /* ====== Drawer ====== */
-      .overlay{
-        position: fixed; inset: 0;
-        background: rgba(0,0,0,.58);
-        display:none; z-index: 90;
-      }
-      .drawer{
-        position: fixed; right: 0; top: 0; height: 100%;
-        width: min(560px, 92vw);
-        background: linear-gradient(180deg, rgba(18,27,51,.98), rgba(11,16,32,.98));
-        border-left: 1px solid var(--stroke);
-        box-shadow: var(--shadow);
-        transform: translateX(105%);
-        transition: transform .18s ease;
-        z-index: 100;
-        display:flex; flex-direction:column;
-      }
-      .drawerHeader{
-        padding: 14px;
-        border-bottom: 1px solid var(--stroke);
-        display:flex; align-items:center; justify-content:space-between; gap: 10px;
-      }
-      .drawerBody{ padding: 14px; overflow:auto; }
-      .overlay.show{ display:block; }
-      .drawer.show{ transform: translateX(0); }
-
-      /* ====== Inbox ====== */
-      .threads{ display:grid; gap:10px; }
-      .thread{
-        padding:12px;
-        border: 1px solid var(--stroke);
-        border-radius: var(--r22);
-        background: rgba(255,255,255,.03);
-        cursor:pointer;
-        transition: background .12s ease, border-color .12s ease;
-      }
-      .thread:hover{ background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.14); }
-      .thread.active{ background: rgba(124,58,237,.10); border-color: rgba(124,58,237,.30); }
-      .msg{
-        max-width: 86%;
-        padding: 10px 12px;
-        border: 1px solid var(--stroke);
-        border-radius: 18px;
-        background: rgba(255,255,255,.03);
-      }
-      .msg.you{ margin-left:auto; background: rgba(255,255,255,.06); }
-
-      .toast{
-        position: fixed;
-        left: 50%; transform: translateX(-50%);
-        bottom: 92px; z-index: 120;
-        padding: 10px 12px;
-        border-radius: 999px;
-        border: 1px solid var(--stroke2);
-        background: rgba(18,27,51,.92);
-        box-shadow: var(--shadow);
-        display:none;
-      }
-      .toast.show{ display:block; }
-
-      /* Accessibility */
-      .sr{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
-
-      /* Simple animation polish */
-      @media (prefers-reduced-motion: no-preference){
-        .mCard, .thread, .btn, .navBtn{ transition-duration: .14s; }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="appbar">
-      <div class="wrap appbarInner">
-        <div class="brand">
-          <div class="logo"></div>
-          <div class="brandText">
-            <strong>BARTR</strong>
-            <span>Social + Marketplace • Demo</span>
-          </div>
-        </div>
-
-        <div class="topActions">
-          <span class="pill brand">Trade-first</span>
-          <span class="pill good">Public ledger</span>
-          <span class="pill warn">Top-up intent only</span>
-          <button class="btn" id="helpBtn">How it works</button>
+<body>
+  <div class="topbar">
+    <div class="wrap topbarInner">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="brandTitle">
+          <b>BARTR</b>
+          <span>List. Offer. Trade. • Demo</span>
         </div>
       </div>
-    </div>
-
-    <main class="wrap">
-      <!-- SOCIAL -->
-      <section id="view-social">
-        <div class="hero">
-          <div class="heroTop">
-            <div class="row between">
-              <div>
-                <h2 class="heroTitle">Social feed</h2>
-                <div class="heroSub">
-                  See <b>what gets accepted</b> (patterns), follow traders with taste, and build trust via a <b>public trade ledger</b>.
-                </div>
-              </div>
-              <div class="row">
-                <span class="chip b">Accepted patterns</span>
-                <span class="chip g">Trade wins</span>
-                <span class="chip w">Looking-for</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="composer">
-          <div class="pad">
-            <div class="row between">
-              <div class="row">
-                <div class="avatar sm"></div>
-                <div>
-                  <div><b>@me</b> <span class="muted small">• Bronze</span></div>
-                  <div class="muted small">Post a trade win, “looking for”, or share an accepted pattern.</div>
-                </div>
-              </div>
-              <div class="row">
-                <select id="postType" style="max-width:200px;">
-                  <option value="accepted">Accepted pattern</option>
-                  <option value="win">Trade win</option>
-                  <option value="lf">Looking for</option>
-                </select>
-                <button class="btn primary" id="postBtn">Post</button>
-              </div>
-            </div>
-            <div style="margin-top:10px;">
-              <textarea id="postText" placeholder="Example: ‘Book set + £10 top-up intent got accepted for headphones.’"></textarea>
-            </div>
-            <div class="row" style="margin-top:10px;">
-              <span class="muted small">Demo only. Real build writes to Supabase feed_events.</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="grid two" style="margin-top:14px;">
-          <div>
-            <div id="socialFeed"></div>
-          </div>
-
-          <aside class="stickySide">
-            <div class="card">
-              <div class="pad">
-                <div class="row between">
-                  <div>
-                    <div><b>Discover traders</b></div>
-                    <div class="muted small">Taste + ledger + reliability signals.</div>
-                  </div>
-                  <span class="chip g">Trust</span>
-                </div>
-                <div class="divider"></div>
-                <div class="row between">
-                  <div class="row">
-                    <div class="avatar xs"></div>
-                    <div>
-                      <div><b>@demo_trader</b> <span class="muted small">• Silver</span></div>
-                      <div class="muted small">Tech • Books • Vintage</div>
-                    </div>
-                  </div>
-                  <button class="btn" id="goProfileFromSocial">View</button>
-                </div>
-                <div class="divider"></div>
-                <div class="row between">
-                  <div>
-                    <div><b>What gets accepted</b></div>
-                    <div class="muted small">Copy patterns that work.</div>
-                  </div>
-                  <span class="chip b">Guide</span>
-                </div>
-                <div style="margin-top:10px; display:grid; gap:10px;">
-                  <div class="card" style="box-shadow:none;">
-                    <div class="pad">
-                      <div class="row between">
-                        <b class="small">Pattern</b><span class="chip">Tech</span>
-                      </div>
-                      <div class="muted small" style="margin-top:6px;">
-                        One solid item + small top-up intent closes gaps.
-                      </div>
-                    </div>
-                  </div>
-                  <div class="card" style="box-shadow:none;">
-                    <div class="pad">
-                      <div class="row between">
-                        <b class="small">Pattern</b><span class="chip">Vintage</span>
-                      </div>
-                      <div class="muted small" style="margin-top:6px;">
-                        Bundle 2 mid-value items → 1 high-value.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card" style="margin-top:12px;">
-              <div class="pad">
-                <div class="row between">
-                  <div>
-                    <div><b>Your trust</b></div>
-                    <div class="muted small">Gamify reliability, not spam.</div>
-                  </div>
-                  <span class="pill">Bronze</span>
-                </div>
-                <div class="divider"></div>
-                <div class="row between">
-                  <div>
-                    <div class="muted small">Completion</div>
-                    <div style="font-weight:900; font-size:18px;">94%</div>
-                  </div>
-                  <div>
-                    <div class="muted small">Response</div>
-                    <div style="font-weight:900; font-size:18px;">&lt; 2h</div>
-                  </div>
-                  <div>
-                    <div class="muted small">Trades</div>
-                    <div style="font-weight:900; font-size:18px;">12</div>
-                  </div>
-                </div>
-                <div class="divider"></div>
-                <button class="btn" id="goMarketFromSocial" style="width:100%;">Open marketplace</button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- MARKET -->
-      <section id="view-market" class="hidden">
-        <div class="row between" style="margin-top:6px;">
-          <div>
-            <h2 style="margin:0;">Marketplace</h2>
-            <div class="muted small">Search listings, view details, and build an offer with optional top-up intent.</div>
-          </div>
-          <div class="row" style="min-width:min(520px, 100%);">
-            <input id="marketSearch" placeholder="Search: headphones, books, jacket..." />
-            <button class="btn" id="filtersBtn">Filters</button>
-          </div>
-        </div>
-
-        <div class="grid two" style="margin-top:12px;">
-          <div class="card">
-            <div class="pad">
-              <div class="row between">
-                <div class="row">
-                  <span class="chip b" id="activeFilter">For you</span>
-                  <span class="chip" id="marketCount">0 listings</span>
-                </div>
-                <button class="btn primary" id="listItemBtn">List item</button>
-              </div>
-              <div class="divider"></div>
-              <div class="marketGrid" id="marketGrid"></div>
-            </div>
-          </div>
-
-          <aside class="stickySide">
-            <div class="card">
-              <div class="pad">
-                <div class="row between">
-                  <div>
-                    <div><b>Match insights</b></div>
-                    <div class="muted small">Explainable matching, not magic.</div>
-                  </div>
-                  <span class="pill brand" id="matchPill">Match 82%</span>
-                </div>
-                <div class="divider"></div>
-                <div class="row" style="flex-wrap:wrap;">
-                  <span class="chip">Wishlist overlap</span>
-                  <span class="chip">Category fit</span>
-                  <span class="chip">Acceptance patterns</span>
-                  <span class="chip">Trader reliability</span>
-                </div>
-                <div class="divider"></div>
-                <button class="btn primary" id="openOfferBtn" style="width:100%;">Make offer</button>
-                <button class="btn" id="openDetailsBtn" style="width:100%; margin-top:10px;">View details</button>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <!-- INBOX -->
-      <section id="view-inbox" class="hidden">
-        <div class="row between" style="margin-top:6px;">
-          <div>
-            <h2 style="margin:0;">Inbox</h2>
-            <div class="muted small">Threads contain messages + structured offer cards.</div>
-          </div>
-          <button class="btn" id="newThreadBtn">New thread</button>
-        </div>
-
-        <div class="grid two" style="margin-top:12px;">
-          <div class="card">
-            <div class="pad">
-              <div class="row between">
-                <b>Threads</b>
-                <span class="chip" id="threadCount">0</span>
-              </div>
-              <div class="divider"></div>
-              <div class="threads" id="threadList"></div>
-            </div>
-          </div>
-
-          <div class="card" id="threadPane">
-            <div class="pad">
-              <div class="muted">Select a thread.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- PROFILE -->
-      <section id="view-profile" class="hidden">
-        <div class="row between" style="margin-top:6px;">
-          <div>
-            <h2 style="margin:0;">Profile</h2>
-            <div class="muted small">Social identity + public ledger + marketplace presence.</div>
-          </div>
-          <div class="row">
-            <button class="btn" id="followBtn">Follow</button>
-            <button class="btn primary" id="messageBtn">Message</button>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:12px;">
-          <div class="pad">
-            <div class="row between">
-              <div class="row" style="align-items:flex-start;">
-                <div class="avatar"></div>
-                <div>
-                  <div class="row">
-                    <div style="font-weight: 950; font-size: 18px;">@demo_trader</div>
-                    <span class="pill good">Silver</span>
-                    <span class="chip">UK</span>
-                  </div>
-                  <div class="muted" style="margin-top:6px;">
-                    Tech • Books • Vintage • “Fast replies, clean trades.”
-                  </div>
-                  <div class="row" style="margin-top:10px;">
-                    <span class="chip b">Wants: camera gear</span>
-                    <span class="chip">vinyl</span>
-                    <span class="chip">sneakers</span>
-                    <span class="chip g">bundle offers welcome</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <span class="pill">Completion 94%</span>
-                <span class="pill">Response &lt; 2h</span>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="row between">
-              <div>
-                <div class="muted small">Trades</div>
-                <div style="font-weight: 950; font-size: 22px;">12</div>
-              </div>
-              <div>
-                <div class="muted small">Disputes</div>
-                <div style="font-weight: 950; font-size: 22px;">0</div>
-              </div>
-              <div>
-                <div class="muted small">Tier</div>
-                <div style="font-weight: 950; font-size: 22px;">Silver</div>
-              </div>
-              <div>
-                <div class="muted small">Ledger</div>
-                <div style="font-weight: 950; font-size: 22px;">Public</div>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="row between">
-              <div>
-                <b>Public trade ledger</b>
-                <div class="muted small">Append-only events (blockchain-ish transparency without blockchain).</div>
-              </div>
-              <span class="chip b">Public</span>
-            </div>
-
-            <div id="ledger" style="margin-top:10px; display:grid; gap:10px;"></div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <div class="bottomNav">
-      <div class="navInner">
-        <div class="navBtn active" data-nav="social">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8-8-3.6-8-8Z" stroke="currentColor" stroke-width="2"/><path d="M8 14h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <div class="small">Social</div>
-        </div>
-        <div class="navBtn" data-nav="market">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 7h16l-1 14H5L4 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 7a4 4 0 0 1 8 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <div class="small">Market</div>
-        </div>
-        <div class="navBtn" data-nav="inbox">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H4V4Z" stroke="currentColor" stroke-width="2"/><path d="M4 16l4 4h8l4-4" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
-          <div class="small">Inbox</div>
-        </div>
-        <div class="navBtn" data-nav="profile">
-          <svg class="icon" viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Z" stroke="currentColor" stroke-width="2"/><path d="M4 20c1.8-3.4 5-5 8-5s6.2 1.6 8 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          <div class="small">Profile</div>
-        </div>
+      <div class="row">
+        <span class="pill red">Trade-only</span>
+        <span class="pill">Top-up intent (off-platform)</span>
+        <button class="btn" id="helpBtn">Guide</button>
       </div>
     </div>
+  </div>
 
-    <div class="overlay" id="overlay"></div>
-    <div class="drawer" id="drawer">
-      <div class="drawerHeader">
+  <main class="wrap">
+    <!-- SOCIAL -->
+    <section id="view-social">
+      <div class="hero">
+        <div class="stripe"></div>
+        <div class="pad">
+          <div class="row between">
+            <div>
+              <h1>Community</h1>
+              <p>Stories + accepted patterns. Profiles are “shops” — your taste and your trades are the signal.</p>
+            </div>
+            <div class="row">
+              <span class="chip red">Accepted patterns</span>
+              <span class="chip">Trade wins</span>
+              <span class="chip">Looking for</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="pad">
+          <div class="row between">
+            <div class="row">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <div><b>@me</b> <span class="muted small">• Bronze</span></div>
+                <div class="muted small">Post an accepted pattern or a trade story (demo).</div>
+              </div>
+            </div>
+            <div class="row">
+              <select id="postType" style="max-width:220px;">
+                <option value="accepted">Accepted pattern</option>
+                <option value="win">Trade win</option>
+                <option value="lf">Looking for</option>
+              </select>
+              <button class="btn primary" id="postBtn">Post</button>
+            </div>
+          </div>
+          <div style="margin-top:10px;">
+            <textarea id="postText" placeholder="Example: ‘Book set + £10 top-up intent got accepted for headphones.’"></textarea>
+          </div>
+          <div class="muted small" style="margin-top:10px;">
+            Demo only. Real build writes to feed_events and ties posts to trades.  [oai_citation:7‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
+          </div>
+        </div>
+      </div>
+
+      <div id="socialFeed"></div>
+    </section>
+
+    <!-- MARKET -->
+    <section id="view-market" class="hidden">
+      <div class="row between">
         <div>
-          <b id="drawerTitle">Details</b>
-          <div class="muted small" id="drawerSub"></div>
+          <h1 style="margin:0;">Marketplace</h1>
+          <div class="muted small">Browse listings. Open listing → build offer → DM thread.</div>
         </div>
-        <button class="btn ghost" id="closeDrawer">Close</button>
+        <div class="searchRow" style="min-width:min(560px, 100%);">
+          <input id="marketSearch" placeholder="Search listings…" />
+          <button class="btn" id="filtersBtn">Filter</button>
+        </div>
       </div>
-      <div class="drawerBody" id="drawerBody"></div>
-    </div>
 
-    <div class="toast" id="toast"></div>
+      <div class="grid market" style="margin-top:12px;">
+        <div class="card">
+          <div class="pad">
+            <div class="row between">
+              <div class="row">
+                <span class="chip red" id="marketChip">For you</span>
+                <span class="chip" id="marketCount">0 listings</span>
+              </div>
+              <button class="btn primary" id="listBtn">List item</button>
+            </div>
+            <div class="divider"></div>
+            <div class="gridItems" id="marketGrid"></div>
+          </div>
+        </div>
 
-    <script>
-      // ====== Demo data ======
-      const me = { handle: "@me", tier: "Bronze" };
-      const demoTrader = { handle: "@demo_trader", tier: "Silver", taste: ["Tech","Books","Vintage"] };
-
-      const inventory = [
-        { id:"inv_books", title:"Modern Sci-Fi Classics (box set)", value:"25–50", category:"Books" },
-        { id:"inv_keyboard", title:"Mechanical keyboard", value:"50–100", category:"Tech" },
-        { id:"inv_jacket", title:"Vintage denim jacket", value:"25–50", category:"Vintage" }
-      ];
-
-      const listings = [
-        { id:"l_headphones", title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", location:"London", match:82, proof:"Book set + small top-up intent often accepted." },
-        { id:"l_lens", title:"Fujifilm prime lens", category:"Tech", condition:"Good", value:"100–250", wants:"Audio gear, lens swaps", location:"Bristol", match:73, proof:"Bundles win here (2 mid-value items)." },
-        { id:"l_vinyl", title:"Vinyl bundle (20 records)", category:"Collectibles", condition:"Good", value:"25–50", wants:"Jackets, books", location:"Manchester", match:69, proof:"Condition photos + clear wants raise acceptance." },
-        { id:"l_sneakers", title:"Sneakers (size 10)", category:"Fashion", condition:"Like new", value:"50–100", wants:"Tech, vintage", location:"Leeds", match:76, proof:"Fast movers; trade-ups common." },
-        { id:"l_bookshelf", title:"Wood bookshelf", category:"Home", condition:"Good", value:"25–50", wants:"Home swaps", location:"London", match:64, proof:"Local meetup is preferred." }
-      ];
-
-      let social = [
-        { id:"p1", type:"accepted", user: demoTrader, time:"2h", title:"Accepted pattern", text:"Book set + £10 top-up intent got accepted for headphones. Small top-ups close gaps.", listingId:"l_headphones", likes:128, comments:14 },
-        { id:"p2", type:"win", user: demoTrader, time:"6h", title:"Trade win", text:"Jacket + keyboard → lens. Bundling mid-value items works.", listingId:"l_lens", likes:92, comments:9 },
-        { id:"p3", type:"lf", user: demoTrader, time:"1d", title:"Looking for", text:"Looking for camera gear. Trading vinyl + books. Open to offers.", listingId:"l_vinyl", likes:55, comments:22 }
-      ];
-
-      let ledger = [
-        "Trade completed: Books (10–25) → Headphones (50–100)",
-        "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up intent",
-        "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
-      ];
-
-      // Inbox demo state
-      let threads = [];
-      let activeThreadId = null;
-
-      // ====== DOM helpers ======
-      const $ = (id) => document.getElementById(id);
-      const escapeHtml = (s) =>
-        String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-
-      const toast = (msg) => {
-        const t = $("toast");
-        t.textContent = msg;
-        t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 1600);
-      };
-
-      // ====== Navigation ======
-      const views = {
-        social: $("view-social"),
-        market: $("view-market"),
-        inbox: $("view-inbox"),
-        profile: $("view-profile")
-      };
-
-      function setNav(nav){
-        Object.keys(views).forEach(k => views[k].classList.toggle("hidden", k !== nav));
-        document.querySelectorAll(".navBtn").forEach(b => b.classList.toggle("active", b.dataset.nav === nav));
-        if(nav === "social") renderSocial();
-        if(nav === "market") renderMarket();
-        if(nav === "inbox") renderInbox();
-        if(nav === "profile") renderProfile();
-        window.scrollTo({ top:0, behavior:"smooth" });
-      }
-
-      document.querySelectorAll(".navBtn").forEach(b => b.onclick = () => setNav(b.dataset.nav));
-
-      // ====== Drawer ======
-      function openDrawer(title, sub, bodyHtml){
-        $("drawerTitle").textContent = title;
-        $("drawerSub").textContent = sub || "";
-        $("drawerBody").innerHTML = bodyHtml;
-        $("overlay").classList.add("show");
-        $("drawer").classList.add("show");
-      }
-      function closeDrawer(){
-        $("overlay").classList.remove("show");
-        $("drawer").classList.remove("show");
-      }
-      $("overlay").onclick = closeDrawer;
-      $("closeDrawer").onclick = closeDrawer;
-
-      // ====== Social ======
-      function socialCard(p){
-        const typeChip = p.type === "accepted" ? "chip b" : (p.type === "win" ? "chip g" : "chip w");
-        const listing = listings.find(l => l.id === p.listingId);
-        return `
-          <div class="card postCard">
+        <aside class="sideSticky">
+          <div class="card">
             <div class="pad">
               <div class="row between">
+                <div>
+                  <b>Match</b>
+                  <div class="muted small">Explainable: taste + wants + patterns.</div>
+                </div>
+                <span class="pill red" id="matchPill">82%</span>
+              </div>
+              <div class="divider"></div>
+              <div class="row">
+                <span class="chip">Taste</span>
+                <span class="chip">Wants</span>
+                <span class="chip red">Accepted patterns</span>
+                <span class="chip">Reliability</span>
+              </div>
+              <div class="divider"></div>
+              <button class="btn primary" id="offerBtn" style="width:100%;">Make offer</button>
+              <button class="btn" id="detailsBtn" style="width:100%; margin-top:10px;">View details</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:12px;">
+            <div class="pad">
+              <b>Trader “Shop”</b>
+              <div class="muted small" style="margin-top:6px;">
+                Profiles are shops: taste, listings, social posts, public trade history.  [oai_citation:8‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
+              </div>
+              <div class="divider"></div>
+              <div class="row between">
                 <div class="row">
-                  <div class="avatar sm"></div>
+                  <div class="avatar" style="width:32px;height:32px;"></div>
                   <div>
-                    <div><b>${p.user.handle}</b> <span class="muted small">• ${p.user.tier} • ${p.time}</span></div>
-                    <div class="muted small">${demoTrader.taste.join(" • ")}</div>
+                    <div><b>@demo_trader</b> <span class="muted small">• Silver</span></div>
+                    <div class="muted small">Tech • Books • Vintage</div>
                   </div>
                 </div>
-                <span class="${typeChip}">${escapeHtml(p.title)}</span>
-              </div>
-
-              <div style="margin-top:10px; font-size:15px; line-height:1.45;">
-                ${escapeHtml(p.text)}
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="row between">
-                <div class="row">
-                  <button class="btn" onclick="likePost('${p.id}')">♥ ${p.likes}</button>
-                  <button class="btn" onclick="commentPost('${p.id}')">💬 ${p.comments}</button>
-                  <button class="btn" onclick="repostPost('${p.id}')">↻ Repost</button>
-                </div>
-                <button class="btn" onclick="openListing('${p.listingId}')">View listing</button>
-              </div>
-            </div>
-
-            <div class="media">${escapeHtml(listing ? listing.title : "Trade media")}</div>
-
-            <div class="pad">
-              <div class="row between">
-                <div class="row">
-                  <span class="chip">${listing?.category ?? "Category"}</span>
-                  <span class="chip">${listing?.value ?? "Value"}</span>
-                  <span class="chip b">Public ledger</span>
-                </div>
-                <span class="muted small">No escrow • No payments</span>
+                <button class="btn" id="goShopFromMarket">Open</button>
               </div>
             </div>
           </div>
-        `;
-      }
+        </aside>
+      </div>
+    </section>
 
-      function renderSocial(){
-        $("socialFeed").innerHTML = social.map(socialCard).join("");
-      }
+    <!-- MESSAGES -->
+    <section id="view-messages" class="hidden">
+      <div class="row between">
+        <div>
+          <h1 style="margin:0;">Messages</h1>
+          <div class="muted small">DM threads with structured offer cards.  [oai_citation:9‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)</div>
+        </div>
+        <button class="btn" id="newThreadBtn">New</button>
+      </div>
 
-      function likePost(id){
-        const p = social.find(x => x.id === id);
-        if(!p) return;
-        p.likes += 1;
-        renderSocial();
-      }
-      function commentPost(id){
-        const p = social.find(x => x.id === id);
-        if(!p) return;
-        p.comments += 1;
-        toast("Commented (demo)");
-        renderSocial();
-      }
-      function repostPost(id){
-        const p = social.find(x => x.id === id);
-        if(!p) return;
-        social.unshift({ ...p, id: "rp_" + Math.random().toString(16).slice(2), time:"now", likes:0, comments:0, title:"Repost" });
-        toast("Reposted (demo)");
-        renderSocial();
-      }
-
-      $("postBtn").onclick = () => {
-        const text = $("postText").value.trim();
-        if(!text){ toast("Write something first"); return; }
-        const type = $("postType").value;
-        const id = "p_" + Math.random().toString(16).slice(2);
-        const title = type === "accepted" ? "Accepted pattern" : (type === "win" ? "Trade win" : "Looking for");
-        social.unshift({ id, type, user: me, time:"now", title, text, listingId:"l_headphones", likes:0, comments:0 });
-        $("postText").value = "";
-        toast("Posted (demo)");
-        renderSocial();
-      };
-
-      // ====== Marketplace ======
-      let selectedListingId = "l_headphones";
-
-      function marketCard(l){
-        return `
-          <div class="mCard" onclick="selectListing('${l.id}')">
-            <div class="thumb">
-              <div>
-                <div class="small muted2">${escapeHtml(l.category)} • ${escapeHtml(l.location)}</div>
-                <div style="font-size:18px;">${escapeHtml(l.value)}</div>
-              </div>
-            </div>
-            <div class="mBody">
-              <div class="mTitle">${escapeHtml(l.title)}</div>
-              <div class="mMeta">
-                <span class="chip">${escapeHtml(l.condition)}</span>
-                <span class="chip b">Match ${l.match}%</span>
-                <span class="chip">${escapeHtml(demoTrader.handle)}</span>
-              </div>
-              <div class="muted small" style="margin-top:10px;">Wants: ${escapeHtml(l.wants)}</div>
-            </div>
-          </div>
-        `;
-      }
-
-      function renderMarket(){
-        const q = $("marketSearch").value.trim().toLowerCase();
-        const list = listings.filter(l =>
-          !q || l.title.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) || l.wants.toLowerCase().includes(q)
-        );
-        $("marketGrid").innerHTML = list.map(marketCard).join("");
-        $("marketCount").textContent = `${list.length} listings`;
-
-        const active = listings.find(l => l.id === selectedListingId) || listings[0];
-        $("matchPill").textContent = `Match ${active.match}%`;
-      }
-
-      $("marketSearch").addEventListener("input", renderMarket);
-
-      function selectListing(id){
-        selectedListingId = id;
-        const l = listings.find(x => x.id === id);
-        if(l) $("matchPill").textContent = `Match ${l.match}%`;
-        openListing(id);
-      }
-
-      function openListing(id){
-        const l = listings.find(x => x.id === id);
-        if(!l) return;
-        selectedListingId = id;
-        const body = `
-          <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-            <div class="pad">
-              <div class="row between">
-                <div>
-                  <div class="row">
-                    <div style="font-weight:950; font-size:18px;">${escapeHtml(l.title)}</div>
-                    <span class="chip">${escapeHtml(l.category)}</span>
-                    <span class="chip">${escapeHtml(l.value)}</span>
-                    <span class="chip b">Match ${l.match}%</span>
-                  </div>
-                  <div class="muted small" style="margin-top:6px;">
-                    Owner: ${escapeHtml(demoTrader.handle)} • Tier: ${escapeHtml(demoTrader.tier)} • ${escapeHtml(l.location)}
-                  </div>
-                </div>
-                <button class="btn primary" onclick="openOffer('${l.id}')">Make offer</button>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="row">
-                <span class="chip">${escapeHtml(l.condition)}</span>
-                <span class="chip b">What gets accepted</span>
-                <span class="chip g">Public ledger</span>
-                <span class="chip w">Top-up intent allowed</span>
-              </div>
-
-              <div class="divider"></div>
-
-              <div>
-                <div class="muted small"><b style="color:var(--text);">Wants</b></div>
-                <div style="margin-top:6px;">${escapeHtml(l.wants)}</div>
-              </div>
-
-              <div style="margin-top:12px;">
-                <div class="muted small"><b style="color:var(--text);">Social proof</b></div>
-                <div class="muted" style="margin-top:6px;">${escapeHtml(l.proof)}</div>
-              </div>
-
-              <div class="divider"></div>
-              <div class="muted small">
-                Cash top-up is off-platform; BARTR stores intent only (no payment processing).
-              </div>
-            </div>
-          </div>
-        `;
-        openDrawer("Listing", `${l.category} • ${l.value}`, body);
-      }
-
-      $("filtersBtn").onclick = () => openDrawer("Filters (demo)", "Marketplace filters",
-        `<div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+      <div class="grid two" style="margin-top:12px;">
+        <div class="card">
           <div class="pad">
-            <div class="row" style="flex-wrap:wrap;">
-              <span class="chip">Category</span>
-              <span class="chip">Value band</span>
-              <span class="chip">Location</span>
-              <span class="chip">Trust tier</span>
-              <span class="chip">Only bundles</span>
+            <div class="row between">
+              <b>Threads</b>
+              <span class="chip" id="threadCount">0</span>
             </div>
             <div class="divider"></div>
-            <div class="muted small">In the real build, this queries Postgres + a search index.</div>
+            <div class="threads" id="threadList"></div>
           </div>
-        </div>`
-      );
+        </div>
 
-      $("listItemBtn").onclick = () => toast("Listing creation is in the Next.js build.");
+        <div class="card" id="threadPane">
+          <div class="pad">
+            <div class="muted">Select a thread.</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      $("openDetailsBtn").onclick = () => openListing(selectedListingId);
-      $("openOfferBtn").onclick = () => openOffer(selectedListingId);
+    <!-- SHOP (PROFILE) -->
+    <section id="view-shop" class="hidden">
+      <div class="row between">
+        <div>
+          <h1 style="margin:0;">Shop</h1>
+          <div class="muted small">This is the person. Their taste, inventory, and ledger are the product.</div>
+        </div>
+        <div class="row">
+          <button class="btn" id="followBtn">Follow</button>
+          <button class="btn primary" id="messageShopBtn">Message</button>
+        </div>
+      </div>
 
-      // ====== Offer builder (drawer) ======
-      function openOffer(targetId){
-        const t = listings.find(x => x.id === targetId) || listings[0];
-        const invOpts = inventory.map(i => `<option value="${i.id}">${escapeHtml(i.title)} (${i.value})</option>`).join("");
-        const body = `
-          <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-            <div class="pad">
-              <div class="row between">
-                <div>
-                  <div><b>Offer builder</b></div>
-                  <div class="muted small">Trade + optional cash top-up intent (off-platform).</div>
+      <div class="card" style="margin-top:12px;">
+        <div class="pad">
+          <div class="row between">
+            <div class="row" style="align-items:flex-start;">
+              <div class="avatar" style="width:56px;height:56px;"></div>
+              <div>
+                <div class="row">
+                  <b style="font-size:18px;">@demo_trader</b>
+                  <span class="pill red">Silver</span>
+                  <span class="chip">UK</span>
                 </div>
-                <span class="pill brand">Match ${t.match}%</span>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="muted small">Target</div>
-              <div style="margin-top:6px;"><b>${escapeHtml(t.title)}</b> <span class="muted small">(${t.value})</span></div>
-
-              <div class="divider"></div>
-
-              <div class="muted small">Your items</div>
-              <div style="margin-top:8px; display:grid; gap:10px;">
-                <select id="offerA">
-                  <option value="">Select item #1</option>
-                  ${invOpts}
-                </select>
-                <select id="offerB">
-                  <option value="">(optional) item #2</option>
-                  ${invOpts}
-                </select>
-              </div>
-
-              <div class="divider"></div>
-
-              <div class="row" style="gap:10px;">
-                <div style="flex:1;">
-                  <div class="muted small">Cash top-up (optional)</div>
-                  <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
-                  <div class="muted small">We do not process payments.</div>
-                </div>
-                <div style="width:160px;">
-                  <div class="muted small">Currency</div>
-                  <select id="offerCur">
-                    <option>GBP</option><option>EUR</option><option>USD</option><option>AUD</option>
-                  </select>
+                <div class="muted" style="margin-top:6px;">Tech • Books • Vintage • “fast replies, clean trades”</div>
+                <div class="row" style="margin-top:10px;">
+                  <span class="chip red">Wants: camera gear</span>
+                  <span class="chip">vinyl</span>
+                  <span class="chip">sneakers</span>
+                  <span class="chip">bundle offers ok</span>
                 </div>
               </div>
+            </div>
 
-              <div style="margin-top:10px;">
-                <div class="muted small">Message</div>
-                <textarea id="offerMsg" placeholder="Meetup preference, timing, notes..."></textarea>
-              </div>
-
-              <div class="row" style="margin-top:10px;">
-                <button class="btn primary" id="sendOfferBtn">Send offer</button>
-                <button class="btn" id="previewOfferBtn">Preview</button>
-              </div>
-
-              <div class="muted small" id="offerPreview" style="margin-top:10px;"></div>
+            <div class="row">
+              <span class="pill">Completion 94%</span>
+              <span class="pill">Response &lt; 2h</span>
+              <span class="pill">Trades 12</span>
             </div>
           </div>
-        `;
-        openDrawer("Make offer", `Target: ${t.title}`, body);
 
-        setTimeout(() => {
-          $("previewOfferBtn").onclick = () => previewOffer(t);
-          $("sendOfferBtn").onclick = () => sendOffer(t);
-        }, 0);
-      }
-
-      function previewOffer(target){
-        const a = $("offerA").value;
-        const b = $("offerB").value;
-        const cash = $("offerCash").value.trim();
-        const cur = $("offerCur").value;
-        const msg = $("offerMsg").value.trim();
-        const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id)?.title).filter(Boolean);
-        $("offerPreview").textContent =
-          `Offering: ${items.join(" + ") || "(none)"}${cash ? ` + ${cash} ${cur} top-up intent` : ""}${msg ? ` — "${msg}"` : ""}`;
-      }
-
-      function ensureThread(){
-        let t = threads.find(x => x.peer === demoTrader.handle);
-        if(!t){
-          t = {
-            id: "t_" + Math.random().toString(16).slice(2),
-            peer: demoTrader.handle,
-            state: "none", // none | offered | accepted | completed
-            targetId: selectedListingId,
-            messages: [
-              { from: demoTrader.handle, text:"Hey — what are you thinking for this?", at: new Date(Date.now()-1000*60*12) }
-            ],
-            offer: null
-          };
-          threads.unshift(t);
-        }
-        activeThreadId = t.id;
-        return t;
-      }
-
-      function sendOffer(target){
-        const a = $("offerA").value;
-        if(!a){ toast("Pick at least one item"); return; }
-        const b = $("offerB").value;
-        const cash = $("offerCash").value.trim();
-        const cur = $("offerCur").value;
-        const msg = $("offerMsg").value.trim();
-
-        const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id));
-        const t = ensureThread();
-        t.targetId = target.id;
-        t.offer = {
-          items: items.map(i => ({ title: i.title, value: i.value })),
-          cash: cash ? { amount: cash, currency: cur } : null,
-          msg: msg || null
-        };
-        t.state = "offered";
-        t.messages.push({ from: me.handle, text: `Offer: ${items.map(i=>i.title).join(" + ")}${cash?` + ${cash} ${cur} top-up intent`: ""}${msg?` — ${msg}`:""}`, at: new Date() });
-
-        closeDrawer();
-        toast("Offer sent (demo)");
-        setNav("inbox");
-      }
-
-      // ====== Inbox ======
-      function renderInbox(){
-        $("threadCount").textContent = String(threads.length);
-        const list = $("threadList");
-        list.innerHTML = "";
-
-        if(threads.length === 0){
-          list.innerHTML = `<div class="muted">No threads yet. Make an offer from Marketplace.</div>`;
-          $("threadPane").innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
-          return;
-        }
-
-        threads.forEach(t => {
-          const active = t.id === activeThreadId;
-          const node = document.createElement("div");
-          node.className = "thread" + (active ? " active" : "");
-          const target = listings.find(x => x.id === t.targetId) || listings[0];
-          node.innerHTML = `
-            <div class="row between">
-              <div class="row">
-                <div class="avatar xs"></div>
-                <div>
-                  <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
-                  <div class="muted small">Target: ${escapeHtml(target.title)}</div>
-                </div>
-              </div>
-              <span class="chip ${t.state==="accepted" ? "g" : t.state==="completed" ? "b" : ""}">State: ${t.state}</span>
-            </div>
-          `;
-          node.onclick = () => { activeThreadId = t.id; renderInbox(); };
-          list.appendChild(node);
-        });
-
-        renderThreadPane();
-      }
-
-      function renderThreadPane(){
-        const pane = $("threadPane");
-        const t = threads.find(x => x.id === activeThreadId);
-        if(!t){
-          pane.innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
-          return;
-        }
-        const target = listings.find(x => x.id === t.targetId) || listings[0];
-
-        const msgs = t.messages.map(m => `
-          <div class="msg ${m.from===me.handle ? "you" : ""}">
-            <div class="muted small">${escapeHtml(m.from)} • ${new Date(m.at).toLocaleTimeString()}</div>
-            <div style="margin-top:6px;">${escapeHtml(m.text)}</div>
-          </div>
-        `).join("");
-
-        const offerCard = t.offer ? `
           <div class="divider"></div>
-          <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-            <div class="pad">
-              <div class="row between">
-                <div>
-                  <b>Offer card</b>
-                  <div class="muted small">Target: ${escapeHtml(target.title)} (${target.value})</div>
-                </div>
-                <span class="pill brand">State: ${t.state}</span>
+
+          <div class="row between">
+            <b>Public trade ledger</b>
+            <span class="chip red">Transparency</span>
+          </div>
+          <div class="muted small" style="margin-top:6px;">
+            Public history is the trust layer (no escrow).  [oai_citation:10‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
+          </div>
+
+          <div id="ledger" style="margin-top:12px; display:grid; gap:10px;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Nav -->
+  <div class="bottomNav">
+    <div class="navInner">
+      <div class="navBtn active" data-nav="social"><span class="dot"></span><div class="t">Social</div></div>
+      <div class="navBtn" data-nav="market"><span class="dot"></span><div class="t">Market</div></div>
+      <div class="navBtn" data-nav="messages"><span class="dot"></span><div class="t">Messages</div></div>
+      <div class="navBtn" data-nav="shop"><span class="dot"></span><div class="t">Shop</div></div>
+    </div>
+  </div>
+
+  <!-- Drawer -->
+  <div class="overlay" id="overlay"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawerHead">
+      <div>
+        <b id="drawerTitle">Details</b>
+        <div class="muted small" id="drawerSub"></div>
+      </div>
+      <button class="btn ghost" id="closeDrawer">Close</button>
+    </div>
+    <div class="drawerBody" id="drawerBody"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // -------- Demo data --------
+    const me = { handle:"@me", tier:"Bronze" };
+    const demoTrader = { handle:"@demo_trader", tier:"Silver", taste:["Tech","Books","Vintage"] };
+
+    const inventory = [
+      { id:"inv_books", title:"Modern Sci-Fi Classics (box set)", value:"25–50", category:"Books" },
+      { id:"inv_keyboard", title:"Mechanical keyboard", value:"50–100", category:"Tech" },
+      { id:"inv_jacket", title:"Vintage denim jacket", value:"25–50", category:"Vintage" }
+    ];
+
+    const listings = [
+      { id:"l_headphones", title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", location:"London", match:82, proof:"Book set + small top-up intent often accepted." },
+      { id:"l_lens", title:"Fujifilm prime lens", category:"Tech", condition:"Good", value:"100–250", wants:"Audio gear, lens swaps", location:"Bristol", match:73, proof:"Bundles win here (2 mid-value items)." },
+      { id:"l_vinyl", title:"Vinyl bundle (20 records)", category:"Collectibles", condition:"Good", value:"25–50", wants:"Jackets, books", location:"Manchester", match:69, proof:"Condition photos + clear wants raise acceptance." },
+      { id:"l_sneakers", title:"Sneakers (size 10)", category:"Fashion", condition:"Like new", value:"50–100", wants:"Tech, vintage", location:"Leeds", match:76, proof:"Fast movers; trade-ups common." },
+      { id:"l_bookshelf", title:"Wood bookshelf", category:"Home", condition:"Good", value:"25–50", wants:"Home swaps", location:"London", match:64, proof:"Local meetup preferred." }
+    ];
+
+    let social = [
+      { id:"p1", type:"accepted", time:"2h", title:"Accepted pattern", text:"Book set + £10 top-up intent got accepted for headphones. Small top-ups close gaps.", listingId:"l_headphones", likes:128, comments:14 },
+      { id:"p2", type:"win", time:"6h", title:"Trade win", text:"Jacket + keyboard → lens. Bundling mid-value items works.", listingId:"l_lens", likes:92, comments:9 },
+      { id:"p3", type:"lf", time:"1d", title:"Looking for", text:"Looking for camera gear. Trading vinyl + books. Open to offers.", listingId:"l_vinyl", likes:55, comments:22 }
+    ];
+
+    let ledger = [
+      "Trade completed: Books (10–25) → Headphones (50–100)",
+      "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up intent",
+      "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
+    ];
+
+    // Inbox state
+    let threads = [];
+    let activeThreadId = null;
+
+    // -------- DOM helpers --------
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (s) => String(s)
+      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+
+    const toast = (msg) => {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      setTimeout(() => t.classList.remove("show"), 1600);
+    };
+
+    // -------- Navigation --------
+    const views = {
+      social: $("view-social"),
+      market: $("view-market"),
+      messages: $("view-messages"),
+      shop: $("view-shop")
+    };
+
+    function setNav(nav){
+      Object.keys(views).forEach(k => views[k].classList.toggle("hidden", k !== nav));
+      document.querySelectorAll(".navBtn").forEach(b => b.classList.toggle("active", b.dataset.nav === nav));
+      if(nav === "social") renderSocial();
+      if(nav === "market") renderMarket();
+      if(nav === "messages") renderMessages();
+      if(nav === "shop") renderShop();
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+    document.querySelectorAll(".navBtn").forEach(b => b.onclick = () => setNav(b.dataset.nav));
+
+    // -------- Drawer --------
+    function openDrawer(title, sub, bodyHtml){
+      $("drawerTitle").textContent = title;
+      $("drawerSub").textContent = sub || "";
+      $("drawerBody").innerHTML = bodyHtml;
+      $("overlay").classList.add("show");
+      $("drawer").classList.add("show");
+    }
+    function closeDrawer(){
+      $("overlay").classList.remove("show");
+      $("drawer").classList.remove("show");
+    }
+    $("overlay").onclick = closeDrawer;
+    $("closeDrawer").onclick = closeDrawer;
+
+    // -------- Social --------
+    function socialPost(p){
+      const listing = listings.find(l => l.id === p.listingId);
+      const badge = p.type === "accepted" ? `<span class="chip red">Accepted</span>` :
+                    p.type === "win" ? `<span class="chip">Win</span>` :
+                    `<span class="chip">Looking for</span>`;
+
+      return `
+        <div class="post">
+          <div class="postHead">
+            <div class="row">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <div><b>${demoTrader.handle}</b> <span class="muted small">• ${demoTrader.tier} • ${p.time}</span></div>
+                <div class="muted small">${demoTrader.taste.join(" • ")}</div>
               </div>
-              <div class="divider"></div>
-              <div class="muted small">Offering</div>
-              <div class="row" style="margin-top:8px;">
-                ${t.offer.items.map(i => `<span class="chip">${escapeHtml(i.title)} (${escapeHtml(i.value)})</span>`).join("")}
-              </div>
-              <div style="margin-top:10px;" class="muted small">
-                <b style="color:var(--text);">Top-up</b>: ${t.offer.cash ? `${escapeHtml(t.offer.cash.amount)} ${escapeHtml(t.offer.cash.currency)} intent (off-platform)` : "none"}
-              </div>
-              ${t.offer.msg ? `<div style="margin-top:8px;" class="muted small"><b style="color:var(--text);">Message</b>: ${escapeHtml(t.offer.msg)}</div>` : ""}
-              <div class="divider"></div>
-              <div class="row">
-                <button class="btn primary" id="acceptBtn" ${t.state!=="offered" ? "disabled" : ""}>Accept</button>
-                <button class="btn good" id="completeBtn" ${t.state!=="accepted" ? "disabled" : ""}>Complete</button>
-                <button class="btn" id="viewTargetBtn">View listing</button>
-              </div>
-              <div class="muted small" style="margin-top:10px;">Real build: accept → lock items + create trade record + feed event.</div>
+            </div>
+            ${badge}
+          </div>
+
+          <div class="postBody">
+            <div style="font-weight:900; letter-spacing:.2px;">${escapeHtml(p.title)}</div>
+            <div class="muted" style="margin-top:6px; line-height:1.45;">${escapeHtml(p.text)}</div>
+
+            <div class="postActions">
+              <div class="iconBtn" onclick="likePost('${p.id}')">♥ <b>${p.likes}</b></div>
+              <div class="iconBtn" onclick="commentPost('${p.id}')">💬 <b>${p.comments}</b></div>
+              <div class="iconBtn" onclick="openListing('${p.listingId}')">View listing</div>
             </div>
           </div>
-        ` : `<div class="divider"></div><div class="muted">No offer attached yet.</div>`;
 
-        pane.innerHTML = `
-          <div class="pad">
+          <div class="postMedia">
+            ${escapeHtml(listing ? listing.title : "Trade")}
+          </div>
+
+          <div class="postBody">
             <div class="row between">
               <div class="row">
-                <div class="avatar sm"></div>
-                <div>
-                  <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
-                  <div class="muted small">Target: ${escapeHtml(target.title)}</div>
-                </div>
+                <span class="chip">${listing?.category ?? "Category"}</span>
+                <span class="chip">${listing?.value ?? "Value"}</span>
+                <span class="chip red">Public ledger</span>
               </div>
-              <span class="chip b">Public ledger</span>
-            </div>
-
-            <div class="divider"></div>
-            <div style="display:grid; gap:10px;">${msgs}</div>
-
-            <div class="divider"></div>
-            <div class="row" style="gap:10px;">
-              <textarea id="msgInput" placeholder="Message..." style="min-height:76px;"></textarea>
-            </div>
-            <div class="row" style="margin-top:10px;">
-              <button class="btn" id="sendMsgBtn">Send</button>
-              <button class="btn primary" id="offerFromChatBtn">Offer</button>
-            </div>
-
-            ${offerCard}
-          </div>
-        `;
-
-        setTimeout(() => {
-          $("sendMsgBtn").onclick = () => {
-            const txt = $("msgInput").value.trim();
-            if(!txt) return;
-            t.messages.push({ from: me.handle, text: txt, at: new Date() });
-            renderThreadPane();
-          };
-          $("offerFromChatBtn").onclick = () => openOffer(t.targetId);
-          const v = $("viewTargetBtn"); if(v) v.onclick = () => openListing(t.targetId);
-
-          const a = $("acceptBtn");
-          if(a) a.onclick = () => {
-            t.state = "accepted";
-            t.messages.push({ from: t.peer, text: "Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
-            social.unshift({ id:"p_acc_"+Math.random().toString(16).slice(2), type:"accepted", user: demoTrader, time:"now", title:"Accepted pattern", text:"Accepted an offer — in real build items lock + trade record is created.", listingId: t.targetId, likes:0, comments:0 });
-            toast("Accepted (demo)");
-            renderInbox();
-          };
-
-          const c = $("completeBtn");
-          if(c) c.onclick = () => {
-            t.state = "completed";
-            t.messages.push({ from: t.peer, text: "Trade completed. ⭐", at: new Date() });
-            const cash = t.offer.cash ? ` + ${t.offer.cash.amount} ${t.offer.cash.currency} top-up intent` : "";
-            const offerStr = t.offer.items.map(i => `${i.title} (${i.value})`).join(" + ");
-            ledger.unshift(`Trade completed: ${offerStr} → ${target.title}${cash}`);
-            social.unshift({ id:"p_done_"+Math.random().toString(16).slice(2), type:"win", user: demoTrader, time:"now", title:"Trade win", text:`Trade completed: ${offerStr} → ${target.title}${cash}.`, listingId: t.targetId, likes:0, comments:0 });
-            toast("Completed (demo)");
-            renderInbox();
-          };
-        }, 0);
-      }
-
-      $("newThreadBtn").onclick = () => {
-        const t = ensureThread();
-        t.messages.push({ from: demoTrader.handle, text: "New thread started. What are you offering?", at: new Date() });
-        toast("Thread created (demo)");
-        renderInbox();
-      };
-
-      // ====== Profile ======
-      let followed = false;
-
-      function renderProfile(){
-        $("followBtn").textContent = followed ? "Following" : "Follow";
-        $("ledger").innerHTML = ledger.slice(0, 10).map(line => `
-          <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-            <div class="pad">
-              <div class="row between">
-                <span class="chip b">trade_completed</span>
-                <span class="muted small">${new Date().toLocaleDateString()}</span>
-              </div>
-              <div style="margin-top:8px; font-weight:800;">${escapeHtml(line)}</div>
-              <div class="muted small" style="margin-top:6px;">Public ledger event • boosts trust tier</div>
+              <span class="muted small">No escrow • No payments</span>
             </div>
           </div>
-        `).join("");
-      }
+        </div>
+      `;
+    }
 
-      $("followBtn").onclick = () => {
-        followed = !followed;
-        $("followBtn").textContent = followed ? "Following" : "Follow";
-        toast(followed ? "Followed" : "Unfollowed");
-      };
+    function renderSocial(){
+      $("socialFeed").innerHTML = social.map(socialPost).join("");
+    }
 
-      $("messageBtn").onclick = () => {
-        ensureThread();
-        setNav("inbox");
-      };
+    function likePost(id){
+      const p = social.find(x => x.id === id);
+      if(!p) return;
+      p.likes += 1;
+      renderSocial();
+    }
+    function commentPost(id){
+      const p = social.find(x => x.id === id);
+      if(!p) return;
+      p.comments += 1;
+      toast("Commented (demo)");
+      renderSocial();
+    }
 
-      $("goProfileFromSocial").onclick = () => setNav("profile");
-      $("goMarketFromSocial").onclick = () => setNav("market");
+    $("postBtn").onclick = () => {
+      const text = $("postText").value.trim();
+      if(!text){ toast("Write something first"); return; }
+      const type = $("postType").value;
+      const title = type === "accepted" ? "Accepted pattern" : (type === "win" ? "Trade win" : "Looking for");
+      social.unshift({
+        id: "p_" + Math.random().toString(16).slice(2),
+        type,
+        time: "now",
+        title,
+        text,
+        listingId: "l_headphones",
+        likes: 0,
+        comments: 0
+      });
+      $("postText").value = "";
+      toast("Posted (demo)");
+      renderSocial();
+    };
 
-      // ====== Help ======
-      $("helpBtn").onclick = () => openDrawer("How this demo works", "Social + Marketplace + Inbox", `
+    // -------- Market --------
+    let selectedListingId = "l_headphones";
+
+    function marketItem(l){
+      return `
+        <div class="item" onclick="openListing('${l.id}')">
+          <div class="thumb">
+            <div>
+              <div class="small muted2">${escapeHtml(l.category)} • ${escapeHtml(l.location)}</div>
+              <div style="font-size:18px;">${escapeHtml(l.value)}</div>
+            </div>
+          </div>
+          <div class="itemBody">
+            <div class="itemTitle">${escapeHtml(l.title)}</div>
+            <div class="meta">
+              <span class="chip">${escapeHtml(l.condition)}</span>
+              <span class="chip red">Match ${l.match}%</span>
+              <span class="chip">${demoTrader.handle}</span>
+            </div>
+            <div class="muted small" style="margin-top:10px;">Wants: ${escapeHtml(l.wants)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderMarket(){
+      const q = $("marketSearch").value.trim().toLowerCase();
+      const list = listings.filter(l =>
+        !q || l.title.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) || l.wants.toLowerCase().includes(q)
+      );
+      $("marketGrid").innerHTML = list.map(marketItem).join("");
+      $("marketCount").textContent = `${list.length} listings`;
+
+      const active = listings.find(l => l.id === selectedListingId) || listings[0];
+      $("matchPill").textContent = `${active.match}%`;
+    }
+    $("marketSearch").addEventListener("input", renderMarket);
+
+    function openListing(id){
+      const l = listings.find(x => x.id === id);
+      if(!l) return;
+      selectedListingId = id;
+      $("matchPill").textContent = `${l.match}%`;
+
+      const body = `
         <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
           <div class="pad">
-            <div class="row"><span class="chip b">Social feed</span><span class="chip">Accepted patterns</span><span class="chip">Trade wins</span></div>
+            <div class="row between">
+              <div>
+                <div class="row">
+                  <b style="font-size:18px;">${escapeHtml(l.title)}</b>
+                  <span class="chip">${escapeHtml(l.category)}</span>
+                  <span class="chip">${escapeHtml(l.value)}</span>
+                  <span class="chip red">Match ${l.match}%</span>
+                </div>
+                <div class="muted small" style="margin-top:6px;">
+                  Owner: ${demoTrader.handle} • Tier: ${demoTrader.tier} • ${escapeHtml(l.location)}
+                </div>
+              </div>
+              <button class="btn primary" onclick="openOffer('${l.id}')">Make offer</button>
+            </div>
+
             <div class="divider"></div>
-            <div class="muted">
-              <b style="color:var(--text);">What you can do now</b>
-              <ul style="margin-top:10px; padding-left:18px;">
-                <li>Post to social feed (mock).</li>
-                <li>Browse marketplace and open listing details.</li>
-                <li>Make an offer with optional cash top-up intent (off-platform).</li>
-                <li>Inbox: accept → complete updates social + public ledger.</li>
-              </ul>
+
+            <div class="row">
+              <span class="chip">${escapeHtml(l.condition)}</span>
+              <span class="chip red">What gets accepted</span>
+              <span class="chip">Trust via ledger</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+              <div class="muted small"><b style="color:var(--text);">Wants</b></div>
+              <div style="margin-top:6px;">${escapeHtml(l.wants)}</div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <div class="muted small"><b style="color:var(--text);">Social proof</b></div>
+              <div class="muted" style="margin-top:6px;">${escapeHtml(l.proof)}</div>
+            </div>
+
+            <div class="divider"></div>
+            <div class="muted small">Top-up is off-platform; we store intent only.</div>
+          </div>
+        </div>
+      `;
+      openDrawer("Listing", `${l.category} • ${l.value}`, body);
+    }
+
+    $("filtersBtn").onclick = () => openDrawer("Filter (demo)", "Marketplace filters", `
+      <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+        <div class="pad">
+          <div class="row">
+            <span class="chip">Category</span>
+            <span class="chip">Value band</span>
+            <span class="chip">Location</span>
+            <span class="chip">Trust tier</span>
+            <span class="chip red">Accepted patterns</span>
+          </div>
+          <div class="divider"></div>
+          <div class="muted small">Real build uses Postgres + search index + feed signals.</div>
+        </div>
+      </div>
+    `);
+
+    $("detailsBtn").onclick = () => openListing(selectedListingId);
+    $("offerBtn").onclick = () => openOffer(selectedListingId);
+    $("listBtn").onclick = () => toast("Listing creation is in the real Next.js build.");
+    $("goShopFromMarket").onclick = () => setNav("shop");
+
+    // -------- Offer builder -> creates/updates a thread --------
+    function ensureThread(){
+      let t = threads.find(x => x.peer === demoTrader.handle);
+      if(!t){
+        t = {
+          id: "t_" + Math.random().toString(16).slice(2),
+          peer: demoTrader.handle,
+          state: "none", // none | offered | accepted | completed
+          targetId: selectedListingId,
+          messages: [{ from: demoTrader.handle, text:"Hey — what are you thinking for this?", at: new Date(Date.now()-1000*60*12) }],
+          offer: null
+        };
+        threads.unshift(t);
+      }
+      activeThreadId = t.id;
+      return t;
+    }
+
+    function openOffer(targetId){
+      const t = listings.find(x => x.id === targetId) || listings[0];
+      const invOpts = inventory.map(i => `<option value="${i.id}">${escapeHtml(i.title)} (${i.value})</option>`).join("");
+
+      const body = `
+        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+          <div class="pad">
+            <div class="row between">
+              <div>
+                <b>Offer builder</b>
+                <div class="muted small">Trade + optional top-up intent (off-platform).</div>
+              </div>
+              <span class="pill red">Match ${t.match}%</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="muted small">Target</div>
+            <div style="margin-top:6px;"><b>${escapeHtml(t.title)}</b> <span class="muted small">(${t.value})</span></div>
+
+            <div class="divider"></div>
+
+            <div class="muted small">Your items</div>
+            <div style="margin-top:8px; display:grid; gap:10px;">
+              <select id="offerA"><option value="">Select item #1</option>${invOpts}</select>
+              <select id="offerB"><option value="">(optional) item #2</option>${invOpts}</select>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="row" style="gap:10px;">
+              <div style="flex:1;">
+                <div class="muted small">Top-up intent (optional)</div>
+                <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
+              </div>
+              <div style="width:160px;">
+                <div class="muted small">Currency</div>
+                <select id="offerCur"><option>GBP</option><option>EUR</option><option>USD</option><option>AUD</option></select>
+              </div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <div class="muted small">Message</div>
+              <textarea id="offerMsg" placeholder="Meetup preference, timing, notes…" style="min-height:76px;"></textarea>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+              <button class="btn primary" id="sendOfferBtn">Send offer</button>
+              <button class="btn" id="previewOfferBtn">Preview</button>
+            </div>
+
+            <div class="muted small" id="offerPreview" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      `;
+
+      openDrawer("Make offer", `Target: ${t.title}`, body);
+      setTimeout(() => {
+        $("previewOfferBtn").onclick = () => previewOffer();
+        $("sendOfferBtn").onclick = () => sendOffer(targetId);
+      }, 0);
+    }
+
+    function previewOffer(){
+      const a = $("offerA").value;
+      const b = $("offerB").value;
+      const cash = $("offerCash").value.trim();
+      const cur = $("offerCur").value;
+      const msg = $("offerMsg").value.trim();
+      const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id)?.title).filter(Boolean);
+      $("offerPreview").textContent =
+        `Offering: ${items.join(" + ") || "(none)"}${cash ? ` + ${cash} ${cur} top-up intent` : ""}${msg ? ` — "${msg}"` : ""}`;
+    }
+
+    function sendOffer(targetId){
+      const a = $("offerA").value;
+      if(!a){ toast("Pick at least one item"); return; }
+      const b = $("offerB").value;
+      const cash = $("offerCash").value.trim();
+      const cur = $("offerCur").value;
+      const msg = $("offerMsg").value.trim();
+
+      const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id));
+      const t = ensureThread();
+      t.targetId = targetId;
+      t.offer = {
+        items: items.map(i => ({ title:i.title, value:i.value })),
+        cash: cash ? { amount: cash, currency: cur } : null,
+        msg: msg || null
+      };
+      t.state = "offered";
+      t.messages.push({ from: me.handle, text: `Offer: ${items.map(i=>i.title).join(" + ")}${cash?` + ${cash} ${cur} top-up intent`: ""}${msg?` — ${msg}`:""}`, at: new Date() });
+
+      closeDrawer();
+      toast("Offer sent (demo)");
+      setNav("messages");
+    }
+
+    // -------- Messages --------
+    function renderMessages(){
+      $("threadCount").textContent = String(threads.length);
+      const list = $("threadList");
+      list.innerHTML = "";
+
+      if(threads.length === 0){
+        list.innerHTML = `<div class="muted">No threads yet. Send an offer from Market.</div>`;
+        $("threadPane").innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
+        return;
+      }
+
+      threads.forEach(t => {
+        const active = t.id === activeThreadId;
+        const target = listings.find(x => x.id === t.targetId) || listings[0];
+        const node = document.createElement("div");
+        node.className = "thread" + (active ? " active" : "");
+        node.innerHTML = `
+          <div class="row between">
+            <div class="row">
+              <div class="avatar" style="width:28px;height:28px;"></div>
+              <div>
+                <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
+                <div class="muted small">Target: ${escapeHtml(target.title)}</div>
+              </div>
+            </div>
+            <span class="chip ${t.state==="accepted" ? "red" : ""}">State: ${t.state}</span>
+          </div>
+        `;
+        node.onclick = () => { activeThreadId = t.id; renderMessages(); };
+        list.appendChild(node);
+      });
+
+      renderThreadPane();
+    }
+
+    function renderThreadPane(){
+      const pane = $("threadPane");
+      const t = threads.find(x => x.id === activeThreadId);
+      if(!t){
+        pane.innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
+        return;
+      }
+
+      const target = listings.find(x => x.id === t.targetId) || listings[0];
+
+      const msgs = t.messages.map(m => `
+        <div class="msg ${m.from===me.handle ? "you" : ""}">
+          <div class="muted small">${escapeHtml(m.from)} • ${new Date(m.at).toLocaleTimeString()}</div>
+          <div style="margin-top:6px;">${escapeHtml(m.text)}</div>
+        </div>
+      `).join("");
+
+      const offerCard = t.offer ? `
+        <div class="divider"></div>
+        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+          <div class="pad">
+            <div class="row between">
+              <div>
+                <b>Offer card</b>
+                <div class="muted small">Target: ${escapeHtml(target.title)} (${target.value})</div>
+              </div>
+              <span class="pill red">State: ${t.state}</span>
             </div>
             <div class="divider"></div>
-            <div class="muted small">
-              Next: replace mock state with the real Next.js + Supabase backend you set up.
+            <div class="muted small">Offering</div>
+            <div class="row" style="margin-top:8px;">
+              ${t.offer.items.map(i => `<span class="chip">${escapeHtml(i.title)} (${escapeHtml(i.value)})</span>`).join("")}
+            </div>
+            <div style="margin-top:10px;" class="muted small">
+              <b style="color:var(--text);">Top-up</b>: ${t.offer.cash ? `${escapeHtml(t.offer.cash.amount)} ${escapeHtml(t.offer.cash.currency)} intent (off-platform)` : "none"}
+            </div>
+            ${t.offer.msg ? `<div style="margin-top:8px;" class="muted small"><b style="color:var(--text);">Message</b>: ${escapeHtml(t.offer.msg)}</div>` : ""}
+            <div class="divider"></div>
+            <div class="row">
+              <button class="btn primary" id="acceptBtn" ${t.state!=="offered" ? "disabled" : ""}>Accept</button>
+              <button class="btn" id="completeBtn" ${t.state!=="accepted" ? "disabled" : ""} style="border-color: rgba(225,29,46,.35);">Complete</button>
+              <button class="btn" id="viewTargetBtn">View listing</button>
+            </div>
+            <div class="muted small" style="margin-top:10px;">
+              Real build: accept locks items + creates trade record; completion writes to public ledger.  [oai_citation:11‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
             </div>
           </div>
         </div>
-      `);
+      ` : `<div class="divider"></div><div class="muted">No offer attached yet.</div>`;
 
-      // ====== Init ======
-      function ensureThread(){
-        let t = threads.find(x => x.peer === demoTrader.handle);
-        if(!t){
-          t = {
-            id: "t_" + Math.random().toString(16).slice(2),
-            peer: demoTrader.handle,
-            state: "none",
-            targetId: selectedListingId,
-            messages: [
-              { from: demoTrader.handle, text:"Hey — what are you thinking for this?", at: new Date(Date.now()-1000*60*12) }
-            ],
-            offer: null
-          };
-          threads.unshift(t);
-        }
-        activeThreadId = t.id;
-        return t;
-      }
+      pane.innerHTML = `
+        <div class="pad">
+          <div class="row between">
+            <div class="row">
+              <div class="avatar sm"></div>
+              <div>
+                <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
+                <div class="muted small">Target: ${escapeHtml(target.title)}</div>
+              </div>
+            </div>
+            <span class="chip red">Public ledger</span>
+          </div>
 
+          <div class="divider"></div>
+          <div style="display:grid; gap:10px;">${msgs}</div>
+
+          <div class="divider"></div>
+          <textarea id="msgInput" placeholder="Message…" style="min-height:76px;"></textarea>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn" id="sendMsgBtn">Send</button>
+            <button class="btn primary" id="offerFromChatBtn">Offer</button>
+          </div>
+
+          ${offerCard}
+        </div>
+      `;
+
+      setTimeout(() => {
+        $("sendMsgBtn").onclick = () => {
+          const txt = $("msgInput").value.trim();
+          if(!txt) return;
+          t.messages.push({ from: me.handle, text: txt, at: new Date() });
+          renderThreadPane();
+        };
+        $("offerFromChatBtn").onclick = () => openOffer(t.targetId);
+
+        const v = $("viewTargetBtn");
+        if(v) v.onclick = () => openListing(t.targetId);
+
+        const a = $("acceptBtn");
+        if(a) a.onclick = () => {
+          t.state = "accepted";
+          t.messages.push({ from: t.peer, text: "Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
+          social.unshift({ id:"p_acc_"+Math.random().toString(16).slice(2), type:"accepted", time:"now", title:"Accepted pattern", text:"Accepted an offer — (real build locks items + writes feed event).", listingId: t.targetId, likes:0, comments:0 });
+          toast("Accepted (demo)");
+          renderMessages();
+        };
+
+        const c = $("completeBtn");
+        if(c) c.onclick = () => {
+          t.state = "completed";
+          t.messages.push({ from: t.peer, text: "Trade completed. ⭐", at: new Date() });
+          const cash = t.offer.cash ? ` + ${t.offer.cash.amount} ${t.offer.cash.currency} top-up intent` : "";
+          const offerStr = t.offer.items.map(i => `${i.title} (${i.value})`).join(" + ");
+          ledger.unshift(`Trade completed: ${offerStr} → ${target.title}${cash}`);
+          social.unshift({ id:"p_done_"+Math.random().toString(16).slice(2), type:"win", time:"now", title:"Trade win", text:`Trade completed: ${offerStr} → ${target.title}${cash}.`, listingId: t.targetId, likes:0, comments:0 });
+          toast("Completed (demo)");
+          renderMessages();
+        };
+      }, 0);
+    }
+
+    $("newThreadBtn").onclick = () => {
+      const t = ensureThread();
+      t.messages.push({ from: demoTrader.handle, text: "New thread started. What are you offering?", at: new Date() });
+      toast("Thread created (demo)");
+      renderMessages();
+    };
+
+    // -------- Shop/Profile --------
+    let followed = false;
+    function renderShop(){
+      $("followBtn").textContent = followed ? "Following" : "Follow";
+      $("ledger").innerHTML = ledger.slice(0, 10).map(line => `
+        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+          <div class="pad">
+            <div class="row between">
+              <span class="chip red">trade_completed</span>
+              <span class="muted small">${new Date().toLocaleDateString()}</span>
+            </div>
+            <div style="margin-top:8px; font-weight:900;">${escapeHtml(line)}</div>
+            <div class="muted small" style="margin-top:6px;">Public ledger event • trust signal</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    $("followBtn").onclick = () => { followed = !followed; renderShop(); toast(followed ? "Followed" : "Unfollowed"); };
+    $("messageShopBtn").onclick = () => { ensureThread(); setNav("messages"); };
+
+    // -------- Guide --------
+    $("helpBtn").onclick = () => openDrawer("Guide", "Demo navigation", `
+      <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
+        <div class="pad">
+          <b>How BARTR works</b>
+          <div class="divider"></div>
+          <ol class="muted" style="margin:0; padding-left:18px; line-height:1.6;">
+            <li>Market → open listing → Make offer (trade items + optional top-up intent)</li>
+            <li>Messages → accept → complete (writes to social + public ledger)</li>
+            <li>Shop → profile-as-shop with public trade history</li>
+          </ol>
+          <div class="divider"></div>
+          <div class="muted small">This matches the deck: shops, community/blog, messaging, and trust via profile + history.  [oai_citation:12‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)</div>
+        </div>
+      </div>
+    `);
+
+    // -------- Init --------
+    function renderAll(){
       renderSocial();
       renderMarket();
-      renderProfile();
-      setNav("social");
-    </script>
-  </body>
+      renderMessages();
+      renderShop();
+    }
+
+    renderAll();
+    setNav("social");
+  </script>
+</body>
 </html>
