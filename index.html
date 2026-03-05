@@ -1,1182 +1,1993 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BARTR — Demo</title>
-  <style>
-    :root{
-      --bg:#0b0c0f;
-      --panel:#111216;
-      --panel2:#15171c;
-      --stroke:rgba(255,255,255,.08);
-      --stroke2:rgba(255,255,255,.14);
-      --text:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.62);
-      --muted2:rgba(255,255,255,.40);
-      --accent:#e11d2e; /* BARTR red */
-      --shadow: 0 18px 45px rgba(0,0,0,.55);
-      --r12:12px; --r16:16px; --r22:22px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background: radial-gradient(900px 520px at 20% -10%, rgba(225,29,46,.18), transparent 60%),
-                  radial-gradient(850px 520px at 110% 0%, rgba(255,255,255,.05), transparent 60%),
-                  linear-gradient(180deg, #08090c, var(--bg) 28%, #07080b);
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      letter-spacing: .1px;
-      overflow-x:hidden;
-    }
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:1120px; margin:0 auto; padding:16px;}
-    .hidden{display:none !important;}
-    .row{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
-    .between{justify-content:space-between;}
-    .muted{color:var(--muted)}
-    .muted2{color:var(--muted2)}
-    .small{font-size:12px}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bartr — Trade what you have for what you love</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #F6F4F1;
+  --bg2:   #EDEAE5;
+  --surf:  #FDFCFA;
+  --brd:   #E0DCD5;
+  --brd2:  #CAC5BC;
+  --ink:   #1A1814;
+  --ink2:  #3C3830;
+  --muted: #78746E;
+  --faint: #B4B0A8;
+  --red:   #C4312A;
+  --rbg:   #FDF0EF;
+  --rbd:   #EACAC7;
+  --grn:   #1A7A4A;
+  --gbg:   #EFF9F4;
+  --gbd:   #B5DDC8;
+  --blu:   #1D5FA8;
+  --blubg: #EFF5FD;
+  --blubd: #BACDE8;
+  --gld:   #9A6C18;
+  --gldbg: #FDF6EC;
+  --gldbd: #E3CCAA;
+  --r:5px; --rl:11px; --nav:56px; --bot:64px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-tap-highlight-color:transparent;scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--brd2)}
 
-    /* Top bar */
-    .topbar{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(to bottom, rgba(11,12,15,.92), rgba(11,12,15,.72));
-      border-bottom:1px solid var(--stroke);
-    }
-    .topbarInner{display:flex; align-items:center; justify-content:space-between; gap:12px;}
-    .brand{display:flex; align-items:center; gap:12px;}
-    .mark{
-      width:44px; height:44px; border-radius: var(--r16);
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.02));
-      border:1px solid var(--stroke2);
-      position:relative;
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .mark:before{
-      content:"";
-      position:absolute; left:-10px; top:-10px;
-      width:54px; height:54px;
-      background: radial-gradient(circle at 40% 40%, rgba(225,29,46,.85), transparent 60%);
-      opacity:.85;
-    }
-    .mark:after{
-      content:"///";
-      position:absolute; right:10px; top:10px;
-      font-weight:900; opacity:.70; letter-spacing:2px;
-    }
-    .brandTitle{line-height:1.05}
-    .brandTitle b{letter-spacing:1.2px}
-    .brandTitle span{display:block; margin-top:4px; color:var(--muted); font-size:12px}
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes popStar{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes barGrow{from{width:0}to{width:var(–w,0%)}}
+@keyframes shimmer{from{background-position:-600px 0}to{background-position:600px 0}}
+@keyframes dot{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
 
-    .pill{
-      font-size:12px; padding:7px 10px; border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.03);
-      color:var(--muted);
-    }
-    .pill.red{border-color: rgba(225,29,46,.45); background: rgba(225,29,46,.12); color: rgba(255,220,220,.95);}
-    .btn{
-      border:1px solid var(--stroke2);
-      background: rgba(255,255,255,.04);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius: 999px;
-      cursor:pointer;
-      transition: transform .08s ease, background .12s ease, border-color .12s ease;
-      user-select:none;
-    }
-    .btn:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.22);}
-    .btn:active{transform: translateY(1px);}
-    .btn.primary{
-      background: linear-gradient(180deg, rgba(225,29,46,.92), rgba(225,29,46,.70));
-      border-color: rgba(225,29,46,.55);
-    }
-    .btn.ghost{background: transparent; border-color: var(--stroke);}
+/* ── VIEWS ── */
+.view{display:none;min-height:100svh}
+.view.on{display:block;animation:fadeIn .15s ease both}
+.app{padding-top:var(–nav);padding-bottom:var(–bot)}
 
-    /* App panels */
-    .card{
-      border:1px solid var(--stroke);
-      border-radius: var(--r22);
-      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-      box-shadow: var(--shadow);
-      overflow:hidden;
-    }
-    .pad{padding:14px;}
-    .divider{height:1px; background: var(--stroke); margin:12px 0;}
+/* ── SVG ICONS ── */
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.ico svg{display:block}
 
-    /* Chips */
-    .chip{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.03);
-      color: var(--muted);
-    }
-    .chip.red{border-color: rgba(225,29,46,.40); background: rgba(225,29,46,.10); color: rgba(255,220,220,.95);}
+/* ── TYPE ── */
+.serif{font-family:‘Instrument Serif’,serif}
+.mono{font-family:‘DM Mono’,monospace}
+.lbl{font-family:‘DM Mono’,monospace;font-size:.54rem;letter-spacing:.15em;text-transform:uppercase;color:var(–muted)}
 
-    /* Layout grids */
-    .grid{display:grid; grid-template-columns: 1fr; gap:14px;}
-    @media(min-width:980px){
-      .grid.two{grid-template-columns: 1.25fr .75fr;}
-      .grid.market{grid-template-columns: 1.15fr .85fr;}
-    }
+/* ── CHIPS ── */
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:.7rem;padding:3px 9px;border-radius:20px;border:1px solid var(–brd);background:var(–surf);color:var(–ink2);white-space:nowrap;font-family:‘DM Mono’,monospace;letter-spacing:.03em}
+.chip-red{background:var(–rbg);border-color:var(–rbd);color:var(–red)}
+.chip-grn{background:var(–gbg);border-color:var(–gbd);color:var(–grn)}
+.chip-gld{background:var(–gldbg);border-color:var(–gldbd);color:var(–gld)}
+.chip-blu{background:var(–blubg);border-color:var(–blubd);color:var(–blu)}
 
-    /* Bottom nav */
-    .bottomNav{
-      position: sticky; bottom:0; z-index:60;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(to top, rgba(11,12,15,.94), rgba(11,12,15,.76));
-      border-top:1px solid var(--stroke);
-    }
-    .navInner{
-      max-width:1120px; margin:0 auto; padding:10px 16px;
-      display:grid; grid-template-columns: repeat(4, 1fr); gap:10px;
-    }
-    .navBtn{
-      padding:10px 8px;
-      border-radius: 16px;
-      border:1px solid transparent;
-      color: var(--muted);
-      text-align:center;
-      cursor:pointer;
-      user-select:none;
-      transition: background .12s ease, border-color .12s ease, transform .08s ease;
-    }
-    .navBtn:hover{background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.10);}
-    .navBtn:active{transform: translateY(1px);}
-    .navBtn.active{
-      color: var(--text);
-      background: rgba(255,255,255,.06);
-      border-color: rgba(255,255,255,.16);
-    }
-    .navBtn .t{font-size:12px; margin-top:6px;}
-    .navBtn .dot{
-      width:8px; height:8px; border-radius:999px; display:inline-block;
-      background: rgba(255,255,255,.18);
-    }
-    .navBtn.active .dot{background: var(--accent);}
+/* reputation */
+.rep{font-family:‘DM Mono’,monospace;font-size:.5rem;letter-spacing:.06em;padding:2px 7px;border-radius:3px;border:1px solid}
+.rep-b{color:#9A5E2C;border-color:#D4A070;background:#FEF5EE}
+.rep-s{color:var(–muted);border-color:var(–brd2);background:var(–bg2)}
+.rep-g{color:var(–gld);border-color:var(–gldbd);background:var(–gldbg)}
 
-    /* Social feed */
-    .hero{
-      border:1px solid var(--stroke);
-      border-radius: var(--r22);
-      overflow:hidden;
-      background:
-        linear-gradient(90deg, rgba(225,29,46,.22), transparent 35%),
-        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
-    }
-    .hero .stripe{
-      height:6px;
-      background: linear-gradient(90deg, var(--accent), rgba(225,29,46,.15), transparent);
-    }
-    .hero h1{margin:0; font-size:22px; letter-spacing:.6px;}
-    .hero p{margin:6px 0 0 0; color:var(--muted); line-height:1.4}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:‘DM Sans’,sans-serif;font-weight:600;font-size:.83rem;padding:10px 20px;border-radius:var(–r);cursor:pointer;border:none;transition:all .14s;white-space:nowrap;line-height:1}
+.btn-red{background:var(–red);color:#fff}
+.btn-red:hover{background:#aa2a24;box-shadow:0 2px 12px rgba(196,49,42,.2)}
+.btn-dark{background:var(–ink);color:var(–bg)}
+.btn-dark:hover{background:var(–ink2)}
+.btn-out{background:transparent;color:var(–ink);border:1.5px solid var(–brd2)}
+.btn-out:hover{border-color:var(–ink);background:var(–bg2)}
+.btn-ghost{background:transparent;color:var(–muted)}
+.btn-ghost:hover{color:var(–ink)}
+.btn-grn{background:var(–grn);color:#fff}
+.btn-grn:hover{background:#156040}
+.btn-blu{background:var(–blubg);color:var(–blu);border:1.5px solid var(–blubd)}
+.btn-sm{padding:7px 14px;font-size:.75rem}
+.btn-xs{padding:6px 11px;font-size:.7rem}
+.btn-w{width:100%}
+.btn:disabled{opacity:.38;pointer-events:none}
+.btn:active{transform:scale(.98)}
 
-    .post{
-      margin-top:12px;
-      border:1px solid var(--stroke);
-      border-radius: var(--r22);
-      background: rgba(0,0,0,.20);
-      overflow:hidden;
-    }
-    .postHead{padding:12px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px;}
-    .avatar{
-      width:40px; height:40px; border-radius:999px;
-      border:1px solid var(--stroke2);
-      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.22), transparent 60%),
-                  linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
-      position:relative;
-      overflow:hidden;
-    }
-    .avatar:after{
-      content:"";
-      position:absolute; left:-10px; top:-10px;
-      width:56px; height:56px;
-      background: radial-gradient(circle at 40% 40%, rgba(225,29,46,.55), transparent 62%);
-      opacity:.7;
-    }
-    .postMedia{
-      height:220px;
-      border-top:1px solid var(--stroke);
-      border-bottom:1px solid var(--stroke);
-      background:
-        linear-gradient(90deg, rgba(225,29,46,.18), transparent 35%),
-        radial-gradient(900px 380px at 60% 40%, rgba(255,255,255,.06), transparent 60%),
-        linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
-      display:flex; align-items:flex-end;
-      padding:14px;
-      font-weight:900;
-      letter-spacing:.3px;
-    }
-    .postBody{padding:12px 14px;}
-    .postActions{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
-    .iconBtn{
-      display:flex; align-items:center; gap:8px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.03);
-      cursor:pointer;
-      color: var(--muted);
-    }
-    .iconBtn:hover{border-color: rgba(255,255,255,.18); background: rgba(255,255,255,.05);}
-    .iconBtn b{color: var(--text); font-size:12px;}
+/* ── FORMS ── */
+.fl{font-family:‘DM Mono’,monospace;font-size:.54rem;letter-spacing:.13em;text-transform:uppercase;color:var(–muted);display:block;margin-bottom:6px}
+.fi,.fsel,.fta{width:100%;background:var(–surf);border:1.5px solid var(–brd);color:var(–ink);padding:11px 13px;font-family:‘DM Sans’,sans-serif;font-size:.88rem;border-radius:var(–r);outline:none;transition:border-color .14s,box-shadow .14s}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(–ink);box-shadow:0 0 0 3px rgba(26,24,20,.05)}
+.fi::placeholder,.fta::placeholder{color:var(–faint)}
+.fta{min-height:86px;resize:vertical;line-height:1.6}
+.frow{margin-bottom:14px}
+.fnote{font-size:.72rem;color:var(–muted);margin-top:5px;line-height:1.55}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
 
-    /* Marketplace */
-    .searchRow{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
-    input, select, textarea{
-      width:100%;
-      padding: 12px 12px;
-      border-radius: var(--r16);
-      border:1px solid var(--stroke2);
-      background: rgba(0,0,0,.22);
-      color: var(--text);
-      outline:none;
-    }
-    input::placeholder, textarea::placeholder{color: rgba(255,255,255,.30);}
-    .gridItems{
-      display:grid; grid-template-columns: repeat(2, 1fr); gap:12px;
-    }
-    @media(max-width:560px){ .gridItems{grid-template-columns: 1fr;} }
+/* ── TOAST ── */
+.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(14px);opacity:0;background:var(–ink);color:var(–bg);padding:9px 20px;font-size:.77rem;border-radius:20px;z-index:950;transition:all .22s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.14)}
+.toast.up{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.grn{background:var(–grn)}
+.toast.gld{background:var(–gld)}
+.toast.blu{background:var(–blu)}
 
-    .item{
-      border:1px solid var(--stroke);
-      border-radius: var(--r22);
-      background: rgba(255,255,255,.03);
-      overflow:hidden;
-      cursor:pointer;
-      transition: transform .08s ease, border-color .12s ease, background .12s ease;
-    }
-    .item:hover{transform: translateY(-1px); border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05);}
-    .thumb{
-      height:140px;
-      border-bottom:1px solid var(--stroke);
-      background:
-        linear-gradient(90deg, rgba(225,29,46,.16), transparent 40%),
-        radial-gradient(900px 380px at 70% 40%, rgba(255,255,255,.06), transparent 60%),
-        linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.01));
-      display:flex; align-items:flex-end;
-      padding:12px;
-      font-weight:900;
-    }
-    .itemBody{padding:12px;}
-    .itemTitle{font-weight:950; margin:0 0 8px 0;}
-    .meta{display:flex; gap:8px; flex-wrap:wrap;}
-    .sideSticky{position:sticky; top:92px;}
+/* ── SHEET ── */
+.sov{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.38);display:none;align-items:flex-end;justify-content:center}
+.sov.on{display:flex}
+.sheet{background:var(–surf);border-radius:var(–rl) var(–rl) 0 0;width:100%;max-width:520px;max-height:92svh;overflow-y:auto;padding:0 20px 44px;animation:slideUp .22s cubic-bezier(.34,1.1,.64,1) both;position:relative}
+.sh-bar{width:34px;height:3.5px;background:var(–brd2);border-radius:2px;margin:12px auto 18px}
+.sh-x{position:absolute;top:12px;right:14px;background:var(–bg2);border:none;border-radius:50%;width:27px;height:27px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(–muted)}
 
-    /* Drawer (listing + offer builder) */
-    .overlay{position:fixed; inset:0; background: rgba(0,0,0,.62); display:none; z-index:90;}
-    .drawer{
-      position:fixed; right:0; top:0; height:100%;
-      width: min(560px, 92vw);
-      background: linear-gradient(180deg, rgba(17,18,22,.98), rgba(11,12,15,.98));
-      border-left:1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      transform: translateX(105%);
-      transition: transform .18s ease;
-      z-index:100;
-      display:flex; flex-direction:column;
-    }
-    .overlay.show{display:block;}
-    .drawer.show{transform: translateX(0);}
-    .drawerHead{
-      padding:14px;
-      border-bottom:1px solid var(--stroke);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    .drawerBody{padding:14px; overflow:auto;}
+/* ── DIVIDER ── */
+.div{border:none;border-top:1px solid var(–brd);margin:0}
 
-    /* Inbox */
-    .threads{display:grid; gap:10px;}
-    .thread{
-      border:1px solid var(--stroke);
-      border-radius: var(--r22);
-      padding:12px;
-      background: rgba(255,255,255,.03);
-      cursor:pointer;
-    }
-    .thread.active{border-color: rgba(225,29,46,.35); background: rgba(225,29,46,.08);}
-    .msg{
-      max-width:86%;
-      border:1px solid var(--stroke);
-      border-radius: 18px;
-      padding:10px 12px;
-      background: rgba(255,255,255,.03);
-    }
-    .msg.you{margin-left:auto; background: rgba(255,255,255,.06);}
+/* ── APP TOP NAV ── */
+.tnav{position:fixed;top:0;left:0;right:0;z-index:200;height:var(–nav);background:rgba(246,244,241,.96);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid var(–brd);display:none;align-items:center;padding:0 14px;gap:10px}
+.tnav-logo{font-family:‘Instrument Serif’,serif;font-size:1.3rem;cursor:pointer;flex-shrink:0;letter-spacing:-.01em}
+.tnav-logo sup{font-size:.44rem;color:var(–red);font-family:‘DM Mono’,monospace;vertical-align:super;letter-spacing:.06em}
+.tsearch{flex:1;display:flex;align-items:center;gap:8px;background:var(–bg2);border:1.5px solid var(–brd);border-radius:20px;padding:0 13px;height:32px;transition:border-color .14s}
+.tsearch:focus-within{border-color:var(–brd2)}
+.tsearch input{background:none;border:none;outline:none;font-size:.81rem;width:100%;color:var(–ink);font-family:‘DM Sans’,sans-serif}
+.tsearch input::placeholder{color:var(–faint)}
+.tnav-r{display:flex;gap:5px;flex-shrink:0}
+.tnav-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(–brd);background:var(–surf);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:border-color .12s;color:var(–ink2)}
+.tnav-btn:hover{border-color:var(–brd2);background:var(–bg2)}
+.tnav-dot{position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(–red);border:1.5px solid var(–bg)}
+.tnav-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.66rem;color:#fff;cursor:pointer;transition:box-shadow .12s}
+.tnav-av:hover{box-shadow:0 0 0 2px var(–red)}
 
-    /* Toast */
-    .toast{
-      position:fixed; left:50%; transform: translateX(-50%);
-      bottom:92px; z-index:120;
-      padding:10px 12px;
-      border-radius:999px;
-      border:1px solid var(--stroke2);
-      background: rgba(17,18,22,.92);
-      box-shadow: var(--shadow);
-      display:none;
-    }
-    .toast.show{display:block;}
-  </style>
+/* ── BOTTOM NAV ── */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:200;height:var(–bot);background:rgba(246,244,241,.97);backdrop-filter:blur(20px);border-top:1px solid var(–brd);display:none;align-items:stretch;padding-bottom:env(safe-area-inset-bottom,0)}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;transition:opacity .12s;position:relative;color:var(–faint)}
+.bni:active{opacity:.7}
+.bni.on{color:var(–red)}
+.bni-lbl{font-family:‘DM Mono’,monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;transition:color .14s;color:inherit}
+.bni-badge{position:absolute;top:7px;right:calc(50% - 18px);background:var(–red);color:#fff;font-size:.36rem;font-weight:700;font-family:‘DM Mono’,monospace;min-width:14px;height:14px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:1.5px solid var(–bg)}
+.bni-plus{flex:1;display:flex;align-items:center;justify-content:center}
+.bni-plus-btn{width:42px;height:42px;border-radius:50%;background:var(–red);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(196,49,42,.3);transition:transform .14s,box-shadow .14s;cursor:pointer;color:#fff}
+.bni-plus-btn:active{transform:scale(.93)}
+</style>
+
+<style>
+/* ══════════ LANDING ══════════ */
+.lnav{position:fixed;top:0;left:0;right:0;z-index:200;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;transition:background .25s,border-color .25s}
+.lnav.ink{background:rgba(246,244,241,.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--brd)}
+.lnav-logo{font-family:'Instrument Serif',serif;font-size:1.3rem;letter-spacing:-.01em}
+.lnav-logo sup{font-size:.44rem;color:var(--red);font-family:'DM Mono',monospace;vertical-align:super}
+.lnav-r{display:flex;gap:8px}
+
+.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 90px;text-align:center;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--brd) 1px,transparent 1px),linear-gradient(90deg,var(--brd) 1px,transparent 1px);background-size:46px 46px;opacity:.45;mask-image:radial-gradient(ellipse 75% 65% at 50% 50%,black 20%,transparent 100%)}
+.hero-eyebrow{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;animation:fadeUp .6s .1s both}
+.hero-h1{font-family:'Instrument Serif',serif;font-size:clamp(2.8rem,9vw,5.2rem);line-height:1.03;letter-spacing:-.025em;margin-bottom:16px;max-width:620px;animation:fadeUp .6s .2s both}
+.hero-h1 em{color:var(--red);font-style:italic}
+.hero-sub{font-size:clamp(.88rem,2vw,1.02rem);color:var(--muted);max-width:390px;margin:0 auto 34px;line-height:1.72;font-weight:300;animation:fadeUp .6s .3s both}
+.hero-cta{background:var(--ink);color:var(--bg);font-family:'DM Sans',sans-serif;font-weight:600;font-size:.93rem;padding:14px 36px;border-radius:var(--r);border:none;cursor:pointer;letter-spacing:.01em;box-shadow:0 2px 12px rgba(0,0,0,.11);transition:background .14s,transform .14s,box-shadow .14s;animation:fadeUp .6s .4s both}
+.hero-cta:hover{background:var(--ink2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.16)}
+.hero-note{font-size:.73rem;color:var(--faint);margin-top:10px;animation:fadeUp .6s .5s both}
+
+/* proof */
+.proof{border-top:1px solid var(--brd);padding:36px 20px}
+.proof-eyebrow{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);text-align:center;margin-bottom:16px}
+.proof-list{display:flex;flex-direction:column;gap:9px;max-width:480px;margin:0 auto}
+.proof-item{display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);padding:12px 14px;animation:fadeUp .5s both}
+.pi-ems{display:flex;align-items:center;gap:5px;flex-shrink:0;font-size:1.3rem}
+.pi-arr{font-size:.62rem;color:var(--faint)}
+.pi-inf{flex:1;min-width:0}
+.pi-desc{font-size:.83rem;font-weight:500;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pi-who{font-size:.7rem;color:var(--muted)}
+.pi-time{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--faint);flex-shrink:0}
+
+/* landing live feed */
+.land-feed{padding:0 0 48px}
+.lf-hdr{max-width:480px;margin:0 auto;padding:44px 20px 14px}
+.lf-hdr h2{font-family:'Instrument Serif',serif;font-size:1.55rem;margin-bottom:5px}
+.lf-hdr p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.lf-scroll{display:flex;gap:11px;overflow-x:auto;padding:4px 20px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lf-scroll::-webkit-scrollbar{display:none}
+.lf-card{flex-shrink:0;width:190px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:border-color .14s}
+.lf-card:hover{border-color:var(--brd2)}
+.lf-photo{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:3.4rem}
+.lf-info{padding:10px 11px}
+.lf-title{font-weight:600;font-size:.83rem;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lf-bottom{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.lf-price{font-family:'Instrument Serif',serif;font-size:.97rem}
+.lf-btn{width:100%;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.7rem;padding:8px;border-radius:var(--r);border:none;cursor:pointer;transition:background .12s}
+.lf-btn:hover{background:#aa2a24}
+
+/* ticker */
+.ticker-wrap{overflow:hidden;border-top:1px solid var(--brd);padding:9px 0;position:relative}
+.ticker-wrap::before,.ticker-wrap::after{content:'';position:absolute;top:0;bottom:0;width:56px;z-index:2;pointer-events:none}
+.ticker-wrap::before{left:0;background:linear-gradient(to right,var(--bg),transparent)}
+.ticker-wrap::after{right:0;background:linear-gradient(to left,var(--bg),transparent)}
+.ticker{display:flex;white-space:nowrap;animation:ticker 24s linear infinite}
+.ti{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:0 22px;display:inline-flex;align-items:center;gap:7px}
+.ti span{color:var(--red)}
+
+/* how */
+.how{max-width:460px;margin:0 auto;padding:48px 24px}
+.how h2{font-family:'Instrument Serif',serif;font-size:1.6rem;margin-bottom:22px}
+.how-step{display:flex;gap:18px;padding:17px 0;border-top:1px solid var(--brd)}
+.how-n{font-family:'DM Mono',monospace;font-size:.54rem;color:var(--faint);flex-shrink:0;padding-top:3px;letter-spacing:.1em}
+.how-body h3{font-weight:600;font-size:.93rem;margin-bottom:5px}
+.how-body p{font-size:.81rem;color:var(--muted);line-height:1.7}
+
+/* land cta */
+.land-cta{max-width:420px;margin:0 auto;padding:48px 24px;text-align:center}
+.land-cta h2{font-family:'Instrument Serif',serif;font-size:clamp(1.55rem,4vw,2.2rem);line-height:1.1;margin-bottom:9px}
+.land-cta p{font-size:.83rem;color:var(--muted);margin-bottom:20px;line-height:1.7}
+
+/* gate */
+.gate{position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--surf);border-top:1px solid var(--brd);padding:18px 20px 26px;box-shadow:0 -4px 24px rgba(0,0,0,.07);display:none;animation:slideUp .2s ease both}
+.gate.on{display:block}
+.gate-h{font-family:'Instrument Serif',serif;font-size:1.15rem;margin-bottom:4px}
+.gate-sub{font-size:.81rem;color:var(--muted);margin-bottom:14px;line-height:1.55}
+.gate-row{display:flex;gap:9px}
+
+/* ══════════ AUTH ══════════ */
+.auth-wrap{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:20px}
+.auth-card{width:100%;max-width:360px}
+.auth-logo{font-family:'Instrument Serif',serif;font-size:1.9rem;text-align:center;margin-bottom:26px;letter-spacing:-.01em}
+.auth-logo sup{font-size:.44rem;color:var(--red);font-family:'DM Mono',monospace;vertical-align:super}
+.auth-pips{display:flex;gap:5px;margin-bottom:20px}
+.auth-pip{flex:1;height:2.5px;background:var(--brd);border-radius:2px;transition:background .3s}
+.auth-pip.on{background:var(--red)}
+.social-btn{display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px solid var(--brd);border-radius:var(--r);padding:11px;font-size:.85rem;font-weight:500;cursor:pointer;background:var(--surf);transition:border-color .14s,background .14s;font-family:'DM Sans',sans-serif;margin-bottom:9px}
+.social-btn:hover{border-color:var(--brd2);background:var(--bg2)}
+.or-div{display:flex;align-items:center;gap:12px;margin:14px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--brd)}
+.or-div span{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--faint)}
+
+/* ══════════ FEED ══════════ */
+.feed-wrap{max-width:480px;margin:0 auto}
+.match-banner{margin:13px 15px 0;background:var(--gldbg);border:1px solid var(--gldbd);border-radius:var(--rl);padding:11px 13px;cursor:pointer;transition:border-color .14s;animation:fadeUp .4s both}
+.match-banner:hover{border-color:var(--gld)}
+.mb-eye{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gld);margin-bottom:2px}
+.mb-count{font-family:'Instrument Serif',serif;font-size:1rem;color:var(--gld);display:inline}
+.mb-h{font-weight:600;font-size:.85rem;margin-bottom:2px}
+.mb-d{font-size:.73rem;color:var(--muted)}
+.feed-tabs{display:flex;overflow-x:auto;padding:0 15px;border-bottom:1px solid var(--brd);position:sticky;top:var(--nav);z-index:80;background:rgba(246,244,241,.97);backdrop-filter:blur(12px);scrollbar-width:none}
+.feed-tabs::-webkit-scrollbar{display:none}
+.ftab{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);flex-shrink:0;padding:10px 13px 10px 0;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s}
+.ftab:hover{color:var(--muted)}
+.ftab.on{color:var(--ink);border-bottom-color:var(--red)}
+
+/* feed cards */
+.card{margin:11px 15px 0;background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:border-color .14s,box-shadow .14s}
+.card:hover{border-color:var(--brd2);box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.card:hover .card-photo-inner{transform:scale(1.03)}
+.card-person{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid var(--brd)}
+.card-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.62rem;color:#fff}
+.card-handle{font-size:.79rem;font-weight:500}
+.card-loc{font-size:.68rem;color:var(--faint)}
+.card-match{margin-left:auto;font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.06em;color:var(--grn);background:var(--gbg);border:1px solid var(--gbd);padding:2px 7px;border-radius:20px}
+.card-photo{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:4.4rem}
+.card-photo-inner{transition:transform .3s;display:flex;align-items:center;justify-content:center;width:100%;height:100%}
+.card-info{padding:11px 12px 4px}
+.card-title{font-weight:600;font-size:.91rem;margin-bottom:5px;line-height:1.3}
+.card-row{display:flex;align-items:center;justify-content:space-between}
+.card-price{font-family:'Instrument Serif',serif;font-size:1.1rem}
+.card-want{font-size:.69rem;color:var(--muted)}
+.card-acts{padding:10px 12px 12px;display:flex;gap:7px}
+.card-offer-btn{flex:1;background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.74rem;padding:8px;border-radius:var(--r);border:none;cursor:pointer;transition:background .12s}
+.card-offer-btn:hover{background:#aa2a24}
+.card-msg-btn{width:35px;height:35px;border:1.5px solid var(--brd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .12s,background .12s;flex-shrink:0;color:var(--muted)}
+.card-msg-btn:hover{border-color:var(--brd2);background:var(--bg2)}
+
+/* ══════════ DETAIL ══════════ */
+.detail-wrap{max-width:480px;margin:0 auto;padding-bottom:80px}
+.d-back{display:flex;align-items:center;gap:6px;padding:11px 15px;font-size:.78rem;color:var(--muted);cursor:pointer;border:none;background:none;transition:color .12s}
+.d-back:hover{color:var(--ink)}
+.d-photo{width:100%;aspect-ratio:4/3;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:6.5rem;position:relative;overflow:hidden}
+.d-photo-main{transition:opacity .2s;font-size:6.5rem}
+.d-photo-main.switching{opacity:0}
+/* dot indicators */
+.d-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:5px}
+.d-dot{width:6px;height:6px;border-radius:50%;background:rgba(26,24,20,.2);transition:background .15s,transform .15s}
+.d-dot.on{background:var(--ink);transform:scale(1.2)}
+.d-thumbs{display:flex;gap:6px;padding:9px 15px;overflow-x:auto;scrollbar-width:none}
+.d-thumbs::-webkit-scrollbar{display:none}
+.d-thumb{width:50px;height:50px;flex-shrink:0;background:var(--bg2);border-radius:var(--r);border:2px solid transparent;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:border-color .12s}
+.d-thumb.on{border-color:var(--red)}
+.d-info{padding:3px 15px 15px}
+.d-cat{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.d-title{font-family:'Instrument Serif',serif;font-size:1.48rem;line-height:1.1;margin-bottom:12px}
+.d-prices{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--brd)}
+.d-price{font-family:'Instrument Serif',serif;font-size:1.85rem}
+.d-est-val{font-family:'DM Mono',monospace;font-size:.74rem;color:var(--gld);font-weight:500}
+.d-est-lbl{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.d-watching{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:11px}
+.d-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.d-desc{font-size:.85rem;color:var(--muted);line-height:1.78;overflow:hidden}
+.d-desc.clamped{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.d-readmore{font-size:.75rem;color:var(--red);cursor:pointer;margin-top:4px;margin-bottom:13px;display:inline-block}
+.d-wants{background:var(--bg2);border-radius:var(--r);padding:11px 12px;margin-bottom:12px;margin-top:4px}
+.d-wants-lbl{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.d-want-tags{display:flex;flex-wrap:wrap;gap:5px}
+.d-want-tag{font-size:.78rem;color:var(--ink2);background:var(--surf);border:1px solid var(--brd);padding:4px 10px;border-radius:20px}
+.d-seller{border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:12px;cursor:pointer;transition:border-color .14s}
+.d-seller:hover{border-color:var(--brd2)}
+.ds-top{display:flex;align-items:center;gap:10px;padding:11px 12px}
+.ds-av{width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;color:#fff}
+.ds-name{font-weight:600;font-size:.84rem;margin-bottom:3px}
+.ds-meta{display:flex;align-items:center;gap:5px}
+.ds-arr{margin-left:auto;color:var(--faint)}
+.ds-stats{display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--brd)}
+.ds-stat{padding:10px;text-align:center;border-right:1px solid var(--brd)}
+.ds-stat:last-child{border-right:none}
+.ds-val{font-family:'Instrument Serif',serif;font-size:.98rem;margin-bottom:1px}
+.ds-lbl{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+/* similar items */
+.similar{padding:16px 0 4px}
+.sim-lbl{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 15px;margin-bottom:10px}
+.sim-scroll{display:flex;gap:9px;overflow-x:auto;padding:0 15px 4px;scrollbar-width:none}
+.sim-scroll::-webkit-scrollbar{display:none}
+.sim-card{flex-shrink:0;width:130px;background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:border-color .14s}
+.sim-card:hover{border-color:var(--brd2)}
+.sim-photo{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.sim-info{padding:8px 9px}
+.sim-name{font-size:.72rem;font-weight:600;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sim-price{font-family:'Instrument Serif',serif;font-size:.9rem}
+
+/* sticky offer */
+.d-sticky{position:fixed;bottom:var(--bot);left:0;right:0;z-index:150;background:rgba(246,244,241,.98);backdrop-filter:blur(16px);border-top:1px solid var(--brd);padding:9px 15px;display:flex;align-items:center;gap:9px}
+.dsi{flex:1;min-width:0}
+.dsi-title{font-size:.79rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dsi-price{font-family:'Instrument Serif',serif;font-size:.95rem}
+.d-watch-btn{width:38px;height:38px;border:1.5px solid var(--brd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;flex-shrink:0;color:var(--muted)}
+.d-watch-btn.on{border-color:var(--gldbd);background:var(--gldbg);color:var(--gld)}
+.d-offer-btn{background:var(--red);color:#fff;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.78rem;padding:11px 19px;border-radius:var(--r);border:none;cursor:pointer;flex-shrink:0;transition:background .12s}
+.d-offer-btn:hover{background:#aa2a24}
+
+/* ══════════ OFFER SHEET ══════════ */
+.offer-recv{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:var(--r);padding:10px 12px;margin-bottom:15px}
+.or-img{width:44px;height:44px;background:var(--surf);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;border:1px solid var(--brd)}
+.or-getting{font-size:.69rem;color:var(--muted);margin-bottom:1px}
+.or-name{font-weight:600;font-size:.84rem;margin-bottom:1px}
+.or-val{font-family:'DM Mono',monospace;font-size:.56rem;color:var(--muted)}
+.item-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px}
+.item-card{border:1.5px solid var(--brd);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:all .14s;background:var(--surf)}
+.item-card:hover{border-color:var(--brd2);background:var(--bg2)}
+.item-card.on{border-color:var(--red);background:var(--rbg);transform:scale(1.02)}
+.ic-img{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:1.6rem}
+.ic-name{font-size:.66rem;font-weight:600;padding:4px 6px 2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ic-val{font-family:'DM Mono',monospace;font-size:.48rem;color:var(--muted);padding:0 6px 6px}
+
+/* value balance — handles both directions */
+.val-bal{background:var(--bg2);border-radius:var(--r);padding:11px 12px;margin-bottom:11px;display:none}
+.val-bal.show{display:block;animation:fadeUp .14s ease both}
+.vb-items{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.vb-item{flex:1;background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);padding:8px 9px;text-align:center}
+.vb-em{font-size:1.2rem;margin-bottom:3px}
+.vb-name{font-size:.62rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vb-val{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--muted)}
+.vb-arr{font-family:'Instrument Serif',serif;font-size:1.3rem;color:var(--red);flex-shrink:0}
+.vb-bar-wrap{margin-bottom:8px}
+.vb-bar-bg{height:4px;background:var(--brd);border-radius:2px;overflow:hidden;position:relative}
+.vb-bar-fill{position:absolute;height:100%;border-radius:2px;transition:all .45s cubic-bezier(.4,0,.2,1)}
+.vb-midline{position:absolute;top:-3px;left:50%;width:1px;height:10px;background:var(--faint)}
+/* state messages */
+.vb-msg{font-size:.78rem;line-height:1.55;padding:9px 11px;border-radius:var(--r);border:1px solid;margin-bottom:8px}
+.vb-msg.fair{background:var(--gbg);border-color:var(--gbd);color:var(--grn)}
+.vb-msg.short{background:#FFFBEB;border-color:#FDE68A;color:#92400E}
+.vb-msg.way-short{background:var(--rbg);border-color:var(--rbd);color:var(--red)}
+.vb-msg.over{background:var(--blubg);border-color:var(--blubd);color:var(--blu)}
+.vb-msg.way-over{background:var(--gldbg);border-color:var(--gldbd);color:var(--gld)}
+/* cash bridge — link only */
+.cash-link{font-size:.74rem;color:var(--red);cursor:pointer;display:inline-block;margin-top:4px}
+.cash-expand{display:none;margin-top:9px;animation:fadeUp .13s ease both}
+.cash-expand.open{display:block}
+/* request extra — shows when offering more */
+.req-link{font-size:.74rem;color:var(--blu);cursor:pointer;display:inline-block;margin-top:4px}
+.req-expand{display:none;margin-top:9px;animation:fadeUp .13s ease both}
+.req-expand.open{display:block}
+/* offer expiry */
+.offer-expiry{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:center;margin-top:10px}
+.o-step{display:none}
+.o-step.on{display:block;animation:fadeUp .14s ease both}
+
+/* ══════════ OFFERS ══════════ */
+.offers-wrap{max-width:480px;margin:0 auto}
+.offers-hdr{padding:14px 15px 12px;border-bottom:1px solid var(--brd)}
+.offers-title{font-family:'Instrument Serif',serif;font-size:1.4rem;margin-bottom:2px}
+.offers-sub{font-size:.79rem;color:var(--muted)}
+.o-tabs{display:flex;border-bottom:1px solid var(--brd);padding:0 15px}
+.otab{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 13px 10px 0;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s}
+.otab:hover{color:var(--muted)}
+.otab.on{color:var(--ink);border-bottom-color:var(--red)}
+.offer-row{border-bottom:1px solid var(--brd);padding:12px 15px;cursor:pointer;transition:background .1s}
+.offer-row:hover{background:var(--bg2)}
+.offer-row.unread{box-shadow:inset 3px 0 0 var(--red)}
+.or2-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:9px}
+.or2-imgs{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.or2-img{width:38px;height:38px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
+.or2-inf{flex:1;min-width:0}
+.or2-title{font-weight:600;font-size:.84rem;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.or2-meta{font-size:.7rem;color:var(--muted)}
+.or2-latest{background:var(--bg2);border-radius:var(--r);padding:8px 10px;font-size:.77rem;color:var(--muted);line-height:1.5}
+.or2-acts{display:flex;gap:6px;margin-top:7px}
+/* expiry badge */
+.expiry-badge{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.expiry-badge.urgent{color:var(--red)}
+
+/* thread */
+.thread-wrap{max-width:480px;margin:0 auto}
+.th-hdr{display:flex;align-items:center;gap:8px;padding:10px 15px;border-bottom:1px solid var(--brd);position:sticky;top:var(--nav);background:rgba(246,244,241,.97);backdrop-filter:blur(12px);z-index:50}
+.th-back{font-size:.88rem;color:var(--muted);cursor:pointer;background:none;border:none}
+.th-title{font-weight:600;font-size:.85rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.th-sum{display:flex;align-items:center;gap:10px;padding:11px 15px;background:var(--bg2);border-bottom:1px solid var(--brd)}
+.ts-item{flex:1;text-align:center}
+.ts-em{font-size:1.6rem;margin-bottom:2px}
+.ts-name{font-size:.7rem;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.ts-val{font-family:'DM Mono',monospace;font-size:.48rem;color:var(--muted)}
+.ts-arr{font-size:1.1rem;color:var(--red);flex-shrink:0}
+.t-msgs{padding:13px 15px;display:flex;flex-direction:column;gap:12px}
+.tmsg{display:flex;gap:8px;max-width:360px}
+.tmsg.mine{flex-direction:row-reverse;margin-left:auto}
+.tmav{width:25px;height:25px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.56rem;color:#fff;align-self:flex-end}
+.tmfrom{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:4px}
+.tmsg.mine .tmfrom{text-align:right}
+.tmbub{background:var(--bg2);border-radius:var(--rl) var(--rl) var(--rl) 3px;padding:10px 12px;font-size:.81rem;line-height:1.55;border:1px solid var(--brd)}
+.tmsg.mine .tmbub{background:var(--rbg);border-color:var(--rbd);border-radius:var(--rl) var(--rl) 3px var(--rl)}
+.tmd{border-top:1px solid var(--brd);padding-top:8px;margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.tmd-r{display:flex;justify-content:space-between;font-size:.75rem}
+.tmd-l{color:var(--muted)}
+.tmtime{font-family:'DM Mono',monospace;font-size:.43rem;letter-spacing:.06em;color:var(--faint);margin-top:4px}
+.tmsg.mine .tmtime{text-align:right}
+.tsys{text-align:center;font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:var(--bg2);border:1px solid var(--brd);padding:4px 12px;border-radius:20px;display:inline-block;margin:0 auto}
+.t-acts{padding:11px 15px;border-top:1px solid var(--brd);position:sticky;bottom:var(--bot);background:rgba(246,244,241,.98);backdrop-filter:blur(12px);z-index:50}
+.t-acts-row{display:flex;gap:7px}
+.t-counter{display:none;padding-top:11px;animation:fadeUp .13s ease both}
+.t-counter.open{display:block}
+
+/* ══════════ MESSAGES ══════════ */
+.msgs-wrap{max-width:480px;margin:0 auto}
+.msgs-hdr{padding:14px 15px;border-bottom:1px solid var(--brd)}
+.msgs-title{font-family:'Instrument Serif',serif;font-size:1.4rem;margin-bottom:9px}
+.msgs-srch{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1.5px solid var(--brd);border-radius:20px;padding:0 12px;height:34px}
+.msgs-srch input{background:none;border:none;outline:none;font-size:.81rem;width:100%;font-family:'DM Sans',sans-serif;color:var(--ink)}
+.msgs-srch input::placeholder{color:var(--faint)}
+.msg-row{display:flex;gap:10px;padding:12px 15px;border-bottom:1px solid var(--brd);cursor:pointer;transition:background .1s}
+.msg-row:hover{background:var(--bg2)}
+.msg-av{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;color:#fff;position:relative}
+.msg-dot{position:absolute;bottom:0;right:0;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid var(--bg)}
+.msg-body{flex:1;min-width:0}
+.msg-top{display:flex;justify-content:space-between;margin-bottom:2px}
+.msg-name{font-weight:600;font-size:.83rem}
+.msg-time{font-family:'DM Mono',monospace;font-size:.46rem;color:var(--faint)}
+.msg-trade{font-family:'DM Mono',monospace;font-size:.48rem;color:var(--muted);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-prev{font-size:.77rem;color:var(--faint);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.msg-row.unread .msg-prev{color:var(--muted);font-weight:500}
+
+/* chat */
+.chat-wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;height:calc(100svh - var(--nav) - var(--bot))}
+.ch-hdr{padding:10px 15px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ch-back{font-size:.88rem;color:var(--muted);cursor:pointer;background:none;border:none}
+.ch-av{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.64rem;color:#fff}
+.ch-inf{flex:1;min-width:0}
+.ch-name{font-weight:600;font-size:.82rem}
+.ch-trade{font-size:.7rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ch-msgs{flex:1;overflow-y:auto;padding:12px 15px;display:flex;flex-direction:column;gap:10px}
+.cmsg{display:flex;gap:7px;max-width:330px}
+.cmsg.mine{flex-direction:row-reverse;margin-left:auto}
+.cav{width:23px;height:23px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.54rem;color:#fff;align-self:flex-end}
+.cbub{background:var(--bg2);border-radius:var(--rl) var(--rl) var(--rl) 3px;padding:8px 11px;font-size:.8rem;line-height:1.55;border:1px solid var(--brd)}
+.cmsg.mine .cbub{background:var(--rbg);border-color:var(--rbd);border-radius:var(--rl) var(--rl) 3px var(--rl)}
+.ctime{font-family:'DM Mono',monospace;font-size:.42rem;color:var(--faint);margin-top:3px}
+.cmsg.mine .ctime{text-align:right}
+.csys{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);text-align:center}
+.ch-inp-row{padding:8px 11px;border-top:1px solid var(--brd);display:flex;gap:7px;align-items:center;flex-shrink:0}
+.ch-inp{flex:1;background:var(--bg2);border:1.5px solid var(--brd);color:var(--ink);padding:9px 13px;font-size:.81rem;border-radius:20px;outline:none;transition:border-color .13s;font-family:'DM Sans',sans-serif}
+.ch-inp:focus{border-color:var(--brd2)}
+.ch-inp::placeholder{color:var(--faint)}
+.ch-send{width:34px;height:34px;background:var(--red);border-radius:50%;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .12s;color:#fff}
+.ch-send:hover{background:#aa2a24}
+.chat-offer{background:var(--surf);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;margin-top:7px}
+.cof-hdr{background:var(--bg2);border-bottom:1px solid var(--brd);padding:5px 10px;font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.cof-body{padding:9px 10px;font-size:.78rem}
+.cof-r{display:flex;justify-content:space-between;margin-bottom:4px}
+.cof-l{color:var(--muted)}
+.cof-acts{display:flex;gap:6px;margin-top:8px}
+.cof-acc{flex:1;background:var(--grn);color:#fff;padding:7px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.69rem;border:none;border-radius:var(--r);cursor:pointer}
+.cof-cnt{flex:1;background:transparent;border:1px solid var(--brd);color:var(--muted);padding:7px;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.69rem;border-radius:var(--r);cursor:pointer}
+
+/* ══════════ LIST ══════════ */
+.list-wrap{max-width:480px;margin:0 auto;padding-bottom:80px}
+.list-prog{height:2px;background:var(--brd);position:sticky;top:var(--nav);z-index:60}
+.list-fill{height:100%;background:var(--red);transition:width .3s cubic-bezier(.4,0,.2,1)}
+.list-hdr{padding:16px 15px 5px}
+.list-h{font-family:'Instrument Serif',serif;font-size:1.4rem;margin-bottom:3px}
+.list-sub{font-size:.79rem;color:var(--muted)}
+.list-step{padding:14px 15px;display:none}
+.list-step.on{display:block;animation:fadeUp .15s ease both}
+.photo-guide{background:var(--gldbg);border:1px solid var(--gldbd);border-radius:var(--rl);padding:11px 12px;margin-bottom:12px}
+.pg-t{font-weight:600;font-size:.8rem;margin-bottom:6px;color:var(--gld)}
+.pg-egs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.pg-eg{border-radius:var(--r);overflow:hidden}
+.pg-eg-img{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+.pg-eg-lbl{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.08em;text-transform:uppercase;text-align:center;padding:4px 3px}
+.pg-eg.g .pg-eg-img{background:var(--gbg);border:1px solid var(--gbd)}.pg-eg.g .pg-eg-lbl{color:var(--grn)}
+.pg-eg.o .pg-eg-img{background:var(--gldbg);border:1px solid var(--gldbd)}.pg-eg.o .pg-eg-lbl{color:var(--gld)}
+.pg-eg.b .pg-eg-img{background:var(--rbg);border:1px solid var(--rbd)}.pg-eg.b .pg-eg-lbl{color:var(--red)}
+.upload-z{border:2px dashed var(--brd2);border-radius:var(--rl);padding:24px 15px;text-align:center;cursor:pointer;position:relative;transition:all .14s;margin-bottom:8px}
+.upload-z:hover{border-color:var(--red);background:var(--rbg)}
+.upload-z input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upload-z-ico{font-size:1.6rem;margin-bottom:6px}
+.upload-z-t{font-weight:600;font-size:.84rem;margin-bottom:2px}
+.upload-z-s{font-size:.7rem;color:var(--muted)}
+.photo-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.ph-th{width:62px;height:62px;border-radius:var(--r);border:1.5px solid var(--brd);background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;position:relative;overflow:hidden}
+.ph-th-cover{position:absolute;bottom:0;left:0;right:0;background:var(--red);font-family:'DM Mono',monospace;font-size:.34rem;text-align:center;padding:2px;letter-spacing:.06em;color:#fff}
+.ph-th-rm{position:absolute;top:2px;right:2px;width:15px;height:15px;background:rgba(26,24,20,.7);border:none;border-radius:50%;color:#fff;font-size:.46rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.cond-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}
+.cond-opt{border:1.5px solid var(--brd);border-radius:var(--rl);padding:10px 7px;text-align:center;cursor:pointer;transition:all .12s;background:var(--surf)}
+.cond-opt:hover{border-color:var(--brd2);background:var(--bg2)}
+.cond-opt.on{border-color:var(--red);background:var(--rbg)}
+.cond-opt.off{opacity:.38;cursor:not-allowed;pointer-events:none}
+.cond-lbl{font-weight:600;font-size:.79rem;margin-bottom:2px}
+.cond-opt.on .cond-lbl{color:var(--red)}
+.cond-d{font-size:.67rem;color:var(--muted)}
+.est-reveal{background:var(--gldbg);border:1px solid var(--gldbd);border-radius:var(--r);padding:9px 11px;margin-top:7px;display:none}
+.est-reveal.show{display:block;animation:fadeUp .13s ease both}
+.est-num{font-family:'Instrument Serif',serif;font-size:1.25rem;color:var(--gld);margin-bottom:2px}
+.est-note{font-size:.7rem;color:var(--muted);line-height:1.5}
+.want-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;min-height:22px}
+.want-chip{background:var(--bg2);border:1px solid var(--brd);border-radius:20px;padding:4px 9px;font-size:.77rem;display:flex;align-items:center;gap:5px}
+.want-chip-rm{background:none;border:none;color:var(--faint);cursor:pointer;font-size:.76rem;line-height:1}
+.want-chip-rm:hover{color:var(--red)}
+.want-add-row{display:flex;gap:7px}
+.step-footer{padding:10px 15px;border-top:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;position:sticky;bottom:var(--bot);background:rgba(246,244,241,.98);backdrop-filter:blur(12px);z-index:50}
+.step-bk{font-size:.77rem;color:var(--muted);background:none;border:none;cursor:pointer;padding:8px 0}
+.step-bk:hover{color:var(--ink)}
+
+/* ══════════ PROFILE ══════════ */
+.profile-wrap{max-width:480px;margin:0 auto}
+.ph-hero{padding:15px 15px 13px;border-bottom:1px solid var(--brd)}
+.ph-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ph-av{width:64px;height:64px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.15rem;color:#fff}
+.ph-name{font-family:'Instrument Serif',serif;font-size:1.3rem;line-height:1.1;margin-bottom:3px}
+.ph-handle{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.07em;color:var(--muted);margin-bottom:6px}
+.ph-badges{display:flex;align-items:center;gap:5px}
+/* profile completion nudge */
+.ph-nudge{background:var(--blubg);border:1px solid var(--blubd);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;cursor:pointer}
+.ph-nudge-t{font-size:.82rem;font-weight:600;color:var(--blu);margin-bottom:5px}
+.ph-nudge-bar{height:3px;background:var(--blubd);border-radius:2px;overflow:hidden;margin-bottom:4px}
+.ph-nudge-fill{height:100%;background:var(--blu);border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+.ph-nudge-note{font-size:.7rem;color:var(--blu)}
+.ph-bio{font-size:.81rem;color:var(--muted);line-height:1.68;margin-bottom:9px}
+.ph-taste{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.ph-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--brd);border-radius:var(--r);overflow:hidden;border:1px solid var(--brd)}
+.ph-stat{background:var(--surf);padding:9px 6px;text-align:center}
+.ph-stat-val{font-family:'Instrument Serif',serif;font-size:1.02rem;margin-bottom:1px}
+.ph-stat-lbl{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+.ph-btns{display:flex;gap:7px;margin-top:10px}
+.p-tabs{display:flex;border-bottom:1px solid var(--brd);position:sticky;top:var(--nav);background:rgba(246,244,241,.97);backdrop-filter:blur(12px);z-index:50}
+.ptab{flex:1;font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:10px 0;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .12s}
+.ptab:hover{color:var(--muted)}
+.ptab.on{color:var(--ink);border-bottom-color:var(--red)}
+.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--brd)}
+.p-item{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:2.3rem;cursor:pointer;position:relative;overflow:hidden;transition:filter .12s}
+.p-item:hover{filter:brightness(1.04)}
+.p-item-ov{position:absolute;inset:0;background:linear-gradient(transparent 50%,rgba(26,24,20,.5));display:flex;align-items:flex-end;padding:7px;opacity:0;transition:opacity .18s}
+.p-item:hover .p-item-ov{opacity:1}
+.p-item-val{font-family:'Instrument Serif',serif;font-size:.8rem;color:#fff}
+.trade-row2{display:flex;align-items:center;gap:10px;padding:11px 15px;border-bottom:1px solid var(--brd)}
+.tr2-imgs{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.tr2-img{width:34px;height:34px;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
+.tr2-arr{font-size:.62rem;color:var(--faint)}
+.tr2-inf{flex:1;min-width:0}
+.tr2-t{font-size:.8rem;font-weight:500;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr2-m{font-family:'DM Mono',monospace;font-size:.46rem;color:var(--muted)}
+.tr2-stars{font-size:.85rem;letter-spacing:-1px;color:var(--gld);flex-shrink:0}
+.wl-wrap{padding:12px 15px;display:flex;flex-wrap:wrap;gap:6px}
+.wl-i{font-size:.8rem;color:var(--ink2);background:var(--bg2);border:1px solid var(--brd);padding:5px 11px;border-radius:20px;display:flex;align-items:center;gap:5px}
+
+/* ══════════ TRADE COMPLETE ══════════ */
+.trade-wrap{max-width:480px;margin:0 auto;padding:17px 15px 100px}
+.trade-h{font-family:'Instrument Serif',serif;font-size:1.4rem;margin-bottom:3px}
+.trade-sub{font-size:.79rem;color:var(--muted);margin-bottom:17px}
+.trade-items{display:grid;grid-template-columns:1fr auto 1fr;gap:9px;align-items:center;margin-bottom:17px}
+.ti-c{background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden}
+.ti-img{aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:2.3rem;max-height:115px}
+.ti-inf{padding:9px 11px}
+.ti-role{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.ti-name{font-size:.79rem;font-weight:600;margin-bottom:2px}
+.ti-val{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--gld)}
+.ti-arr{font-family:'Instrument Serif',serif;font-size:1.45rem;color:var(--red);text-align:center}
+.tstep{display:flex;gap:9px;padding:11px 0;border-bottom:1px solid var(--brd)}
+.tstep:last-child{border-bottom:none}
+.tstep-ico{width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.76rem;flex-shrink:0;background:var(--bg2);border:1px solid var(--brd)}
+.tstep.done .tstep-ico{background:var(--gbg);border-color:var(--gbd)}
+.tstep.active .tstep-ico{background:var(--rbg);border-color:var(--rbd);animation:pulse 2s infinite}
+.tstep-inf{flex:1}
+.tstep-t{font-weight:600;font-size:.82rem;margin-bottom:2px}
+.tstep-d{font-size:.74rem;color:var(--muted);line-height:1.55}
+.tstep-st{flex-shrink:0;font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.tstep.done .tstep-st{color:var(--grn)}
+.tstep.active .tstep-st{color:var(--red)}
+.stars-row{display:flex;gap:5px;margin-bottom:9px}
+.star{font-size:1.75rem;cursor:pointer;color:var(--brd2);transition:color .1s;user-select:none}
+.star.on{color:var(--gld);animation:popStar .18s ease}
+@keyframes conf{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(-90px) rotate(540deg)}}
+.conf{position:fixed;pointer-events:none;z-index:9999;animation:conf .75s ease forwards}
+
+/* ══════════ SETTINGS ══════════ */
+.settings-wrap{max-width:480px;margin:0 auto;padding-bottom:40px}
+.settings-hdr{padding:14px 15px;border-bottom:1px solid var(--brd);font-family:'Instrument Serif',serif;font-size:1.4rem}
+.ss-group{display:block;font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:12px 15px 4px}
+.ss-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;border-bottom:1px solid var(--brd)}
+.ss-lbl{font-weight:500;font-size:.84rem;margin-bottom:2px}
+.ss-d{font-size:.7rem;color:var(--muted)}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--brd2);border:none;cursor:pointer;position:relative;transition:background .16s;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .16s;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.toggle.on{background:var(--grn)}
+.toggle.on::after{transform:translateX(16px)}
+.rep-card{background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);margin:0 15px 6px;overflow:hidden}
+.rc-bar{height:3px;background:var(--brd)}
+.rc-fill{height:100%;background:linear-gradient(to right,var(--red),var(--gld));transition:width .5s cubic-bezier(.4,0,.2,1)}
+.rc-nums{padding:10px;display:grid;grid-template-columns:1fr 1fr 1fr}
+.rc-num{text-align:center}
+.rc-val{font-family:'Instrument Serif',serif;font-size:1rem}
+.rc-lbl{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
+
+/* ══════════ RESPONSIVE ══════════ */
+@media(min-width:600px){
+  .feed-wrap,.detail-wrap,.offers-wrap,.msgs-wrap,.chat-wrap,.list-wrap,.profile-wrap,.trade-wrap,.settings-wrap{max-width:540px;margin:0 auto}
+  .d-sticky{max-width:480px;left:50%;transform:translateX(-50%)}
+}
+@media(min-width:960px){
+  .bnav{display:none!important}
+  .app{padding-bottom:20px}
+  :root{--bot:0px}
+  .d-sticky{bottom:10px;border-radius:var(--rl);border:1px solid var(--brd);box-shadow:0 4px 20px rgba(0,0,0,.08)}
+  .t-acts{bottom:10px}
+  .step-footer{bottom:10px}
+  .sov{align-items:center}
+  .sheet{border-radius:var(--rl);margin:auto}
+}
+</style>
+
 </head>
-
 <body>
-  <div class="topbar">
-    <div class="wrap topbarInner">
-      <div class="brand">
-        <div class="mark" aria-hidden="true"></div>
-        <div class="brandTitle">
-          <b>BARTR</b>
-          <span>List. Offer. Trade. • Demo</span>
-        </div>
+
+<!-- SVG ICON DEFINITIONS -->
+
+<svg style="display:none">
+  <symbol id="ic-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+  </symbol>
+  <symbol id="ic-swap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/>
+  </symbol>
+  <symbol id="ic-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 7 10-7"/>
+  </symbol>
+  <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+  </symbol>
+  <symbol id="ic-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+  </symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+  </symbol>
+  <symbol id="ic-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <path d="M12 5v14M5 12h14"/>
+  </symbol>
+  <symbol id="ic-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5m0 0 7 7m-7-7 7-7"/>
+  </symbol>
+  <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 12h14m0 0-7-7m7 7-7 7"/>
+  </symbol>
+  <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </symbol>
+  <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 6 9 17l-5-5"/>
+  </symbol>
+  <symbol id="ic-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+    <path d="M18 6 6 18M6 6l12 12"/>
+  </symbol>
+  <symbol id="ic-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m22 2-7 20-4-9-9-4 20-7z"/><path d="M22 2 11 13"/>
+  </symbol>
+  <symbol id="ic-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+  </symbol>
+  <symbol id="ic-pkg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.27 6.96 8.73 5.04 8.73-5.04M12 22.08V12"/>
+  </symbol>
+  <symbol id="ic-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m9 18 6-6-6-6"/>
+  </symbol>
+</svg>
+
+<!-- APP TOP NAV -->
+
+<nav class="tnav" id="tnav">
+  <div class="tnav-logo" onclick="go('feed')">Bartr<sup>®</sup></div>
+  <div class="tsearch">
+    <svg width="13" height="13" style="flex-shrink:0;color:var(--faint)"><use href="#ic-search"/></svg>
+    <input placeholder="Search items, people…" oninput="filterSearch(this.value)">
+  </div>
+  <div class="tnav-r">
+    <div class="tnav-btn" onclick="openNotifs()">
+      <svg width="15" height="15"><use href="#ic-bell"/></svg>
+      <div class="tnav-dot"></div>
+    </div>
+    <div class="tnav-av" style="background:#C4312A" onclick="go('profile')">JM</div>
+  </div>
+</nav>
+
+<!-- BOTTOM NAV -->
+
+<nav class="bnav" id="bnav">
+  <div class="bni on" id="bn-feed" onclick="go('feed')">
+    <svg width="20" height="20"><use href="#ic-grid"/></svg>
+    <span class="bni-lbl">Browse</span>
+  </div>
+  <div class="bni" id="bn-offers" onclick="go('offers')">
+    <svg width="20" height="20"><use href="#ic-swap"/></svg>
+    <span class="bni-lbl">Offers</span>
+    <div class="bni-badge">2</div>
+  </div>
+  <div class="bni-plus" onclick="go('list')">
+    <div class="bni-plus-btn">
+      <svg width="18" height="18"><use href="#ic-plus"/></svg>
+    </div>
+  </div>
+  <div class="bni" id="bn-msgs" onclick="go('msgs')">
+    <svg width="20" height="20"><use href="#ic-mail"/></svg>
+    <span class="bni-lbl">Messages</span>
+    <div class="bni-badge">3</div>
+  </div>
+  <div class="bni" id="bn-me" onclick="go('profile')">
+    <svg width="20" height="20"><use href="#ic-user"/></svg>
+    <span class="bni-lbl">Me</span>
+  </div>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<!-- SHEET -->
+
+<div class="sov" id="sov" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet">
+    <div class="sh-bar"></div>
+    <button class="sh-x" onclick="closeSheet()">
+      <svg width="12" height="12"><use href="#ic-x"/></svg>
+    </button>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<!-- OFFER GATE -->
+
+<div class="gate" id="gate">
+  <div class="gate-h">Sign up to make an offer</div>
+  <div class="gate-sub">Free account. No credit card. Takes 30 seconds.</div>
+  <div class="gate-row">
+    <button class="btn btn-red" style="flex:1" onclick="go('auth')">Create free account →</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('gate').classList.remove('on')">Later</button>
+  </div>
+</div>
+
+<!-- ════════ LANDING ════════ -->
+
+<div class="view on" id="v-land">
+  <nav class="lnav" id="lnav">
+    <div class="lnav-logo">Bartr<sup>®</sup></div>
+    <div class="lnav-r">
+      <button class="btn btn-out btn-sm" onclick="go('auth')">Sign in</button>
+      <button class="btn btn-dark btn-sm" onclick="go('feed')">Browse listings</button>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-eyebrow">The trading network</div>
+    <h1 class="hero-h1">Trade what you have<br>for what you <em>love.</em></h1>
+    <p class="hero-sub">List what you own. Find someone who wants it. Get what you've always wanted. No money needed.</p>
+    <button class="hero-cta" onclick="go('feed')">Browse listings</button>
+    <p class="hero-note">No account needed to look around · 847 traders already here</p>
+  </section>
+
+  <div class="proof">
+    <div class="proof-eyebrow">Recent trades completed</div>
+    <div class="proof-list">
+      <div class="proof-item" style="animation-delay:.05s">
+        <div class="pi-ems"><span>👕</span><span class="pi-arr">→</span><span>🎧</span></div>
+        <div class="pi-inf"><div class="pi-desc">Levi's 501 jacket → Sony WH-1000XM4</div><div class="pi-who">@jordanmc with @priya.k · Sydney · 2.1km apart</div></div>
+        <div class="pi-time">2d ago</div>
       </div>
-      <div class="row">
-        <span class="pill red">Trade-only</span>
-        <span class="pill">Top-up intent (off-platform)</span>
-        <button class="btn" id="helpBtn">Guide</button>
+      <div class="proof-item" style="animation-delay:.1s">
+        <div class="pi-ems"><span>📚</span><span class="pi-arr">→</span><span>📷</span></div>
+        <div class="pi-inf"><div class="pi-desc">Design books (×8) → Polaroid 600 + film</div><div class="pi-who">@canvas.jo with @alexwren · London · Posted</div></div>
+        <div class="pi-time">4d ago</div>
+      </div>
+      <div class="proof-item" style="animation-delay:.15s">
+        <div class="pi-ems"><span>⌨️</span><span class="pi-arr">→</span><span>🧥</span></div>
+        <div class="pi-inf"><div class="pi-desc">Keychron Q1 Pro → Arc'teryx Beta LT</div><div class="pi-who">@typist75 with @outdoorpal · Melbourne · 0.8km</div></div>
+        <div class="pi-time">5d ago</div>
       </div>
     </div>
   </div>
 
-  <main class="wrap">
-    <!-- SOCIAL -->
-    <section id="view-social">
-      <div class="hero">
-        <div class="stripe"></div>
-        <div class="pad">
-          <div class="row between">
-            <div>
-              <h1>Community</h1>
-              <p>Stories + accepted patterns. Profiles are “shops” — your taste and your trades are the signal.</p>
-            </div>
-            <div class="row">
-              <span class="chip red">Accepted patterns</span>
-              <span class="chip">Trade wins</span>
-              <span class="chip">Looking for</span>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="land-feed">
+    <div class="lf-hdr">
+      <h2>What's available right now.</h2>
+      <p>Real items from real people. Sign up when you're ready to make an offer.</p>
+    </div>
+    <div class="lf-scroll" id="lf-scroll"></div>
+  </div>
 
-      <div class="card" style="margin-top:12px;">
-        <div class="pad">
-          <div class="row between">
-            <div class="row">
-              <div class="avatar" aria-hidden="true"></div>
-              <div>
-                <div><b>@me</b> <span class="muted small">• Bronze</span></div>
-                <div class="muted small">Post an accepted pattern or a trade story (demo).</div>
-              </div>
-            </div>
-            <div class="row">
-              <select id="postType" style="max-width:220px;">
-                <option value="accepted">Accepted pattern</option>
-                <option value="win">Trade win</option>
-                <option value="lf">Looking for</option>
-              </select>
-              <button class="btn primary" id="postBtn">Post</button>
-            </div>
-          </div>
-          <div style="margin-top:10px;">
-            <textarea id="postText" placeholder="Example: ‘Book set + £10 top-up intent got accepted for headphones.’"></textarea>
-          </div>
-          <div class="muted small" style="margin-top:10px;">
-            Demo only. Real build writes to feed_events and ties posts to trades.  [oai_citation:7‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
-          </div>
-        </div>
-      </div>
-
-      <div id="socialFeed"></div>
-    </section>
-
-    <!-- MARKET -->
-    <section id="view-market" class="hidden">
-      <div class="row between">
-        <div>
-          <h1 style="margin:0;">Marketplace</h1>
-          <div class="muted small">Browse listings. Open listing → build offer → DM thread.</div>
-        </div>
-        <div class="searchRow" style="min-width:min(560px, 100%);">
-          <input id="marketSearch" placeholder="Search listings…" />
-          <button class="btn" id="filtersBtn">Filter</button>
-        </div>
-      </div>
-
-      <div class="grid market" style="margin-top:12px;">
-        <div class="card">
-          <div class="pad">
-            <div class="row between">
-              <div class="row">
-                <span class="chip red" id="marketChip">For you</span>
-                <span class="chip" id="marketCount">0 listings</span>
-              </div>
-              <button class="btn primary" id="listBtn">List item</button>
-            </div>
-            <div class="divider"></div>
-            <div class="gridItems" id="marketGrid"></div>
-          </div>
-        </div>
-
-        <aside class="sideSticky">
-          <div class="card">
-            <div class="pad">
-              <div class="row between">
-                <div>
-                  <b>Match</b>
-                  <div class="muted small">Explainable: taste + wants + patterns.</div>
-                </div>
-                <span class="pill red" id="matchPill">82%</span>
-              </div>
-              <div class="divider"></div>
-              <div class="row">
-                <span class="chip">Taste</span>
-                <span class="chip">Wants</span>
-                <span class="chip red">Accepted patterns</span>
-                <span class="chip">Reliability</span>
-              </div>
-              <div class="divider"></div>
-              <button class="btn primary" id="offerBtn" style="width:100%;">Make offer</button>
-              <button class="btn" id="detailsBtn" style="width:100%; margin-top:10px;">View details</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:12px;">
-            <div class="pad">
-              <b>Trader “Shop”</b>
-              <div class="muted small" style="margin-top:6px;">
-                Profiles are shops: taste, listings, social posts, public trade history.  [oai_citation:8‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
-              </div>
-              <div class="divider"></div>
-              <div class="row between">
-                <div class="row">
-                  <div class="avatar" style="width:32px;height:32px;"></div>
-                  <div>
-                    <div><b>@demo_trader</b> <span class="muted small">• Silver</span></div>
-                    <div class="muted small">Tech • Books • Vintage</div>
-                  </div>
-                </div>
-                <button class="btn" id="goShopFromMarket">Open</button>
-              </div>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- MESSAGES -->
-    <section id="view-messages" class="hidden">
-      <div class="row between">
-        <div>
-          <h1 style="margin:0;">Messages</h1>
-          <div class="muted small">DM threads with structured offer cards.  [oai_citation:9‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)</div>
-        </div>
-        <button class="btn" id="newThreadBtn">New</button>
-      </div>
-
-      <div class="grid two" style="margin-top:12px;">
-        <div class="card">
-          <div class="pad">
-            <div class="row between">
-              <b>Threads</b>
-              <span class="chip" id="threadCount">0</span>
-            </div>
-            <div class="divider"></div>
-            <div class="threads" id="threadList"></div>
-          </div>
-        </div>
-
-        <div class="card" id="threadPane">
-          <div class="pad">
-            <div class="muted">Select a thread.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SHOP (PROFILE) -->
-    <section id="view-shop" class="hidden">
-      <div class="row between">
-        <div>
-          <h1 style="margin:0;">Shop</h1>
-          <div class="muted small">This is the person. Their taste, inventory, and ledger are the product.</div>
-        </div>
-        <div class="row">
-          <button class="btn" id="followBtn">Follow</button>
-          <button class="btn primary" id="messageShopBtn">Message</button>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:12px;">
-        <div class="pad">
-          <div class="row between">
-            <div class="row" style="align-items:flex-start;">
-              <div class="avatar" style="width:56px;height:56px;"></div>
-              <div>
-                <div class="row">
-                  <b style="font-size:18px;">@demo_trader</b>
-                  <span class="pill red">Silver</span>
-                  <span class="chip">UK</span>
-                </div>
-                <div class="muted" style="margin-top:6px;">Tech • Books • Vintage • “fast replies, clean trades”</div>
-                <div class="row" style="margin-top:10px;">
-                  <span class="chip red">Wants: camera gear</span>
-                  <span class="chip">vinyl</span>
-                  <span class="chip">sneakers</span>
-                  <span class="chip">bundle offers ok</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <span class="pill">Completion 94%</span>
-              <span class="pill">Response &lt; 2h</span>
-              <span class="pill">Trades 12</span>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
-          <div class="row between">
-            <b>Public trade ledger</b>
-            <span class="chip red">Transparency</span>
-          </div>
-          <div class="muted small" style="margin-top:6px;">
-            Public history is the trust layer (no escrow).  [oai_citation:10‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
-          </div>
-
-          <div id="ledger" style="margin-top:12px; display:grid; gap:10px;"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Nav -->
-  <div class="bottomNav">
-    <div class="navInner">
-      <div class="navBtn active" data-nav="social"><span class="dot"></span><div class="t">Social</div></div>
-      <div class="navBtn" data-nav="market"><span class="dot"></span><div class="t">Market</div></div>
-      <div class="navBtn" data-nav="messages"><span class="dot"></span><div class="t">Messages</div></div>
-      <div class="navBtn" data-nav="shop"><span class="dot"></span><div class="t">Shop</div></div>
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <span class="ti">Levi's jacket <span>→</span> Sony headphones</span>
+      <span class="ti">Design books <span>→</span> Polaroid camera</span>
+      <span class="ti">Keychron keyboard <span>→</span> Arc'teryx jacket</span>
+      <span class="ti">iPhone 14 Pro <span>→</span> MacBook Air M2</span>
+      <span class="ti">Murakami novels <span>→</span> jazz vinyl</span>
+      <span class="ti">Canon AE-1 <span>→</span> photography books</span>
+      <span class="ti">Jordan 1 Low <span>→</span> Supreme hoodie</span>
+      <span class="ti">Levi's jacket <span>→</span> Sony headphones</span>
+      <span class="ti">Design books <span>→</span> Polaroid camera</span>
+      <span class="ti">Keychron keyboard <span>→</span> Arc'teryx jacket</span>
+      <span class="ti">iPhone 14 Pro <span>→</span> MacBook Air M2</span>
+      <span class="ti">Murakami novels <span>→</span> jazz vinyl</span>
+      <span class="ti">Canon AE-1 <span>→</span> photography books</span>
+      <span class="ti">Jordan 1 Low <span>→</span> Supreme hoodie</span>
     </div>
   </div>
 
-  <!-- Drawer -->
-  <div class="overlay" id="overlay"></div>
-  <div class="drawer" id="drawer">
-    <div class="drawerHead">
-      <div>
-        <b id="drawerTitle">Details</b>
-        <div class="muted small" id="drawerSub"></div>
-      </div>
-      <button class="btn ghost" id="closeDrawer">Close</button>
-    </div>
-    <div class="drawerBody" id="drawerBody"></div>
+  <div class="how">
+    <h2>How it works.</h2>
+    <div class="how-step"><div class="how-n">01</div><div class="how-body"><h3>List what you own</h3><p>Photos, a description, and what you'd trade for. Takes 3 minutes. Your items tell other traders who you are.</p></div></div>
+    <div class="how-step"><div class="how-n">02</div><div class="how-body"><h3>Find the right match</h3><p>Browse until something catches you. Check if that person wants what you have. When it fits, you both know it.</p></div></div>
+    <div class="how-step"><div class="how-n">03</div><div class="how-body"><h3>Trade. Zero fees.</h3><p>Make an offer, negotiate if needed, then sort the handover directly. Every trade builds your public reputation. Bartr takes nothing.</p></div></div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="land-cta">
+    <h2>Your stuff is someone else's obsession.</h2>
+    <p>List your first item and find out who wants it.</p>
+    <button class="btn btn-red btn-w" onclick="go('auth')" style="padding:13px;font-size:.88rem">Create free account →</button>
+    <p style="font-size:.7rem;color:var(--faint);margin-top:8px">No credit card. Takes 30 seconds.</p>
+  </div>
+</div>
 
-  <script>
-    // -------- Demo data --------
-    const me = { handle:"@me", tier:"Bronze" };
-    const demoTrader = { handle:"@demo_trader", tier:"Silver", taste:["Tech","Books","Vintage"] };
+<!-- ════════ AUTH ════════ -->
 
-    const inventory = [
-      { id:"inv_books", title:"Modern Sci-Fi Classics (box set)", value:"25–50", category:"Books" },
-      { id:"inv_keyboard", title:"Mechanical keyboard", value:"50–100", category:"Tech" },
-      { id:"inv_jacket", title:"Vintage denim jacket", value:"25–50", category:"Vintage" }
-    ];
-
-    const listings = [
-      { id:"l_headphones", title:"Sony WH-1000XM3 Headphones", category:"Tech", condition:"Good", value:"50–100", wants:"Books, camera gear, vinyl", location:"London", match:82, proof:"Book set + small top-up intent often accepted." },
-      { id:"l_lens", title:"Fujifilm prime lens", category:"Tech", condition:"Good", value:"100–250", wants:"Audio gear, lens swaps", location:"Bristol", match:73, proof:"Bundles win here (2 mid-value items)." },
-      { id:"l_vinyl", title:"Vinyl bundle (20 records)", category:"Collectibles", condition:"Good", value:"25–50", wants:"Jackets, books", location:"Manchester", match:69, proof:"Condition photos + clear wants raise acceptance." },
-      { id:"l_sneakers", title:"Sneakers (size 10)", category:"Fashion", condition:"Like new", value:"50–100", wants:"Tech, vintage", location:"Leeds", match:76, proof:"Fast movers; trade-ups common." },
-      { id:"l_bookshelf", title:"Wood bookshelf", category:"Home", condition:"Good", value:"25–50", wants:"Home swaps", location:"London", match:64, proof:"Local meetup preferred." }
-    ];
-
-    let social = [
-      { id:"p1", type:"accepted", time:"2h", title:"Accepted pattern", text:"Book set + £10 top-up intent got accepted for headphones. Small top-ups close gaps.", listingId:"l_headphones", likes:128, comments:14 },
-      { id:"p2", type:"win", time:"6h", title:"Trade win", text:"Jacket + keyboard → lens. Bundling mid-value items works.", listingId:"l_lens", likes:92, comments:9 },
-      { id:"p3", type:"lf", time:"1d", title:"Looking for", text:"Looking for camera gear. Trading vinyl + books. Open to offers.", listingId:"l_vinyl", likes:55, comments:22 }
-    ];
-
-    let ledger = [
-      "Trade completed: Books (10–25) → Headphones (50–100)",
-      "Trade completed: Jacket (25–50) → Keyboard (50–100) + £10 top-up intent",
-      "Trade completed: Vinyl (10–25) → Sneakers (50–100)"
-    ];
-
-    // Inbox state
-    let threads = [];
-    let activeThreadId = null;
-
-    // -------- DOM helpers --------
-    const $ = (id) => document.getElementById(id);
-    const escapeHtml = (s) => String(s)
-      .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-
-    const toast = (msg) => {
-      const t = $("toast");
-      t.textContent = msg;
-      t.classList.add("show");
-      setTimeout(() => t.classList.remove("show"), 1600);
-    };
-
-    // -------- Navigation --------
-    const views = {
-      social: $("view-social"),
-      market: $("view-market"),
-      messages: $("view-messages"),
-      shop: $("view-shop")
-    };
-
-    function setNav(nav){
-      Object.keys(views).forEach(k => views[k].classList.toggle("hidden", k !== nav));
-      document.querySelectorAll(".navBtn").forEach(b => b.classList.toggle("active", b.dataset.nav === nav));
-      if(nav === "social") renderSocial();
-      if(nav === "market") renderMarket();
-      if(nav === "messages") renderMessages();
-      if(nav === "shop") renderShop();
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
-    document.querySelectorAll(".navBtn").forEach(b => b.onclick = () => setNav(b.dataset.nav));
-
-    // -------- Drawer --------
-    function openDrawer(title, sub, bodyHtml){
-      $("drawerTitle").textContent = title;
-      $("drawerSub").textContent = sub || "";
-      $("drawerBody").innerHTML = bodyHtml;
-      $("overlay").classList.add("show");
-      $("drawer").classList.add("show");
-    }
-    function closeDrawer(){
-      $("overlay").classList.remove("show");
-      $("drawer").classList.remove("show");
-    }
-    $("overlay").onclick = closeDrawer;
-    $("closeDrawer").onclick = closeDrawer;
-
-    // -------- Social --------
-    function socialPost(p){
-      const listing = listings.find(l => l.id === p.listingId);
-      const badge = p.type === "accepted" ? `<span class="chip red">Accepted</span>` :
-                    p.type === "win" ? `<span class="chip">Win</span>` :
-                    `<span class="chip">Looking for</span>`;
-
-      return `
-        <div class="post">
-          <div class="postHead">
-            <div class="row">
-              <div class="avatar" aria-hidden="true"></div>
-              <div>
-                <div><b>${demoTrader.handle}</b> <span class="muted small">• ${demoTrader.tier} • ${p.time}</span></div>
-                <div class="muted small">${demoTrader.taste.join(" • ")}</div>
-              </div>
-            </div>
-            ${badge}
-          </div>
-
-          <div class="postBody">
-            <div style="font-weight:900; letter-spacing:.2px;">${escapeHtml(p.title)}</div>
-            <div class="muted" style="margin-top:6px; line-height:1.45;">${escapeHtml(p.text)}</div>
-
-            <div class="postActions">
-              <div class="iconBtn" onclick="likePost('${p.id}')">♥ <b>${p.likes}</b></div>
-              <div class="iconBtn" onclick="commentPost('${p.id}')">💬 <b>${p.comments}</b></div>
-              <div class="iconBtn" onclick="openListing('${p.listingId}')">View listing</div>
-            </div>
-          </div>
-
-          <div class="postMedia">
-            ${escapeHtml(listing ? listing.title : "Trade")}
-          </div>
-
-          <div class="postBody">
-            <div class="row between">
-              <div class="row">
-                <span class="chip">${listing?.category ?? "Category"}</span>
-                <span class="chip">${listing?.value ?? "Value"}</span>
-                <span class="chip red">Public ledger</span>
-              </div>
-              <span class="muted small">No escrow • No payments</span>
-            </div>
-          </div>
+<div class="view" id="v-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-logo">Bartr<sup>®</sup></div>
+      <div class="auth-pips" id="auth-pips">
+        <div class="auth-pip on"></div><div class="auth-pip"></div>
+      </div>
+      <div id="as-1">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.35rem;margin-bottom:3px">Create your account.</div>
+        <div style="font-size:.81rem;color:var(--muted);margin-bottom:17px;line-height:1.65">Your @handle is permanent — it's part of your public trade history.</div>
+        <div class="social-btn" onclick="authGo(2)">
+          <svg width="16" height="16" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908C16.658 14.13 17.64 11.822 17.64 9.2z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+          Continue with Google
         </div>
-      `;
-    }
-
-    function renderSocial(){
-      $("socialFeed").innerHTML = social.map(socialPost).join("");
-    }
-
-    function likePost(id){
-      const p = social.find(x => x.id === id);
-      if(!p) return;
-      p.likes += 1;
-      renderSocial();
-    }
-    function commentPost(id){
-      const p = social.find(x => x.id === id);
-      if(!p) return;
-      p.comments += 1;
-      toast("Commented (demo)");
-      renderSocial();
-    }
-
-    $("postBtn").onclick = () => {
-      const text = $("postText").value.trim();
-      if(!text){ toast("Write something first"); return; }
-      const type = $("postType").value;
-      const title = type === "accepted" ? "Accepted pattern" : (type === "win" ? "Trade win" : "Looking for");
-      social.unshift({
-        id: "p_" + Math.random().toString(16).slice(2),
-        type,
-        time: "now",
-        title,
-        text,
-        listingId: "l_headphones",
-        likes: 0,
-        comments: 0
-      });
-      $("postText").value = "";
-      toast("Posted (demo)");
-      renderSocial();
-    };
-
-    // -------- Market --------
-    let selectedListingId = "l_headphones";
-
-    function marketItem(l){
-      return `
-        <div class="item" onclick="openListing('${l.id}')">
-          <div class="thumb">
-            <div>
-              <div class="small muted2">${escapeHtml(l.category)} • ${escapeHtml(l.location)}</div>
-              <div style="font-size:18px;">${escapeHtml(l.value)}</div>
-            </div>
-          </div>
-          <div class="itemBody">
-            <div class="itemTitle">${escapeHtml(l.title)}</div>
-            <div class="meta">
-              <span class="chip">${escapeHtml(l.condition)}</span>
-              <span class="chip red">Match ${l.match}%</span>
-              <span class="chip">${demoTrader.handle}</span>
-            </div>
-            <div class="muted small" style="margin-top:10px;">Wants: ${escapeHtml(l.wants)}</div>
-          </div>
+        <div class="social-btn" onclick="authGo(2)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.17 6.839 9.49.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.342-3.369-1.342-.454-1.155-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.167 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
+          Continue with GitHub
         </div>
-      `;
-    }
-
-    function renderMarket(){
-      const q = $("marketSearch").value.trim().toLowerCase();
-      const list = listings.filter(l =>
-        !q || l.title.toLowerCase().includes(q) || l.category.toLowerCase().includes(q) || l.wants.toLowerCase().includes(q)
-      );
-      $("marketGrid").innerHTML = list.map(marketItem).join("");
-      $("marketCount").textContent = `${list.length} listings`;
-
-      const active = listings.find(l => l.id === selectedListingId) || listings[0];
-      $("matchPill").textContent = `${active.match}%`;
-    }
-    $("marketSearch").addEventListener("input", renderMarket);
-
-    function openListing(id){
-      const l = listings.find(x => x.id === id);
-      if(!l) return;
-      selectedListingId = id;
-      $("matchPill").textContent = `${l.match}%`;
-
-      const body = `
-        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-          <div class="pad">
-            <div class="row between">
-              <div>
-                <div class="row">
-                  <b style="font-size:18px;">${escapeHtml(l.title)}</b>
-                  <span class="chip">${escapeHtml(l.category)}</span>
-                  <span class="chip">${escapeHtml(l.value)}</span>
-                  <span class="chip red">Match ${l.match}%</span>
-                </div>
-                <div class="muted small" style="margin-top:6px;">
-                  Owner: ${demoTrader.handle} • Tier: ${demoTrader.tier} • ${escapeHtml(l.location)}
-                </div>
-              </div>
-              <button class="btn primary" onclick="openOffer('${l.id}')">Make offer</button>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="row">
-              <span class="chip">${escapeHtml(l.condition)}</span>
-              <span class="chip red">What gets accepted</span>
-              <span class="chip">Trust via ledger</span>
-            </div>
-
-            <div class="divider"></div>
-
-            <div>
-              <div class="muted small"><b style="color:var(--text);">Wants</b></div>
-              <div style="margin-top:6px;">${escapeHtml(l.wants)}</div>
-            </div>
-
-            <div style="margin-top:12px;">
-              <div class="muted small"><b style="color:var(--text);">Social proof</b></div>
-              <div class="muted" style="margin-top:6px;">${escapeHtml(l.proof)}</div>
-            </div>
-
-            <div class="divider"></div>
-            <div class="muted small">Top-up is off-platform; we store intent only.</div>
-          </div>
+        <div class="or-div"><span>or email</span></div>
+        <div class="frow"><label class="fl">Email</label><input class="fi" type="email" placeholder="you@email.com"></div>
+        <div class="frow"><label class="fl">@handle</label><input class="fi" placeholder="yourhandle" style="font-family:'DM Mono',monospace"></div>
+        <div class="frow"><label class="fl">Password</label><input class="fi" type="password" placeholder="min. 8 characters"></div>
+        <button class="btn btn-red btn-w" onclick="authGo(2)" style="margin-bottom:10px;padding:12px">Create account →</button>
+        <p style="text-align:center;font-size:.75rem;color:var(--muted)">Already have an account? <span style="color:var(--red);cursor:pointer" onclick="go('feed')">Sign in</span></p>
+      </div>
+      <div id="as-2" style="display:none">
+        <div style="font-family:'Instrument Serif',serif;font-size:1.35rem;margin-bottom:5px">You're in.</div>
+        <div style="font-size:.81rem;color:var(--muted);margin-bottom:18px;line-height:1.65">The fastest way to get your first offer is to list something. Takes 3 minutes.</div>
+        <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rl);padding:16px;text-align:center;margin-bottom:10px">
+          <div style="font-size:1.7rem;margin-bottom:7px">📦</div>
+          <div style="font-weight:600;font-size:.9rem;margin-bottom:4px">List your first item</div>
+          <div style="font-size:.79rem;color:var(--muted);margin-bottom:12px;line-height:1.65">Photos + what you want in return. Other traders can find you within minutes.</div>
+          <button class="btn btn-red btn-w" onclick="go('list')">List something now →</button>
         </div>
-      `;
-      openDrawer("Listing", `${l.category} • ${l.value}`, body);
-    }
+        <button class="btn btn-out btn-w" onclick="go('feed')">Browse first, list later</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-    $("filtersBtn").onclick = () => openDrawer("Filter (demo)", "Marketplace filters", `
-      <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-        <div class="pad">
-          <div class="row">
-            <span class="chip">Category</span>
-            <span class="chip">Value band</span>
-            <span class="chip">Location</span>
-            <span class="chip">Trust tier</span>
-            <span class="chip red">Accepted patterns</span>
-          </div>
-          <div class="divider"></div>
-          <div class="muted small">Real build uses Postgres + search index + feed signals.</div>
+<!-- ════════ FEED ════════ -->
+
+<div class="view app" id="v-feed">
+  <div class="feed-wrap">
+    <div class="match-banner" onclick="showToast('Showing your wishlist matches')">
+      <div class="mb-eye">🎯 Wishlist match</div>
+      <div class="mb-h"><span class="mb-count">3 new items</span> match what you're looking for</div>
+      <div class="mb-d">Canon AE-1, Murakami set, Keychron TKL appeared today →</div>
+    </div>
+    <div class="feed-tabs">
+      <button class="ftab on" onclick="setFeedTab('all',this)">All</button>
+      <button class="ftab" onclick="setFeedTab('match',this)">My matches</button>
+      <button class="ftab" onclick="setFeedTab('fashion',this)">Fashion</button>
+      <button class="ftab" onclick="setFeedTab('books',this)">Books</button>
+      <button class="ftab" onclick="setFeedTab('tech',this)">Tech</button>
+      <button class="ftab" onclick="setFeedTab('sneakers',this)">Sneakers</button>
+    </div>
+    <div id="feed-cards"></div>
+  </div>
+</div>
+
+<!-- ════════ DETAIL ════════ -->
+
+<div class="view app" id="v-detail">
+  <div class="detail-wrap">
+    <button class="d-back" onclick="go('feed')">
+      <svg width="14" height="14"><use href="#ic-arrow-left"/></svg> back
+    </button>
+    <div class="d-photo" id="d-photo">
+      <div class="d-photo-main" id="d-main"></div>
+      <div class="d-dots" id="d-dots"></div>
+    </div>
+    <div class="d-thumbs" id="d-thumbs"></div>
+    <div class="d-info">
+      <div class="d-cat" id="d-cat"></div>
+      <div class="d-title" id="d-title"></div>
+      <div class="d-prices">
+        <div>
+          <div style="font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:4px">Owner's estimate</div>
+          <div class="d-price" id="d-price"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="d-est-lbl">Bartr market estimate</div>
+          <div class="d-est-val" id="d-est"></div>
         </div>
       </div>
-    `);
+      <div class="d-watching" id="d-watching"></div>
+      <div class="d-chips" id="d-chips"></div>
+      <div class="d-desc clamped" id="d-desc"></div>
+      <div class="d-readmore" id="d-more" onclick="expandDesc()">Read more ↓</div>
+      <div class="d-wants" id="d-wants"></div>
+      <div class="d-seller" id="d-seller" onclick="go('profile')"></div>
+      <div class="similar" id="similar"></div>
+    </div>
+  </div>
+  <div class="d-sticky">
+    <div class="dsi">
+      <div class="dsi-title" id="dsi-title"></div>
+      <div class="dsi-price" id="dsi-price"></div>
+    </div>
+    <div class="d-watch-btn" id="d-watch" onclick="toggleWatch()">
+      <svg width="15" height="15"><use href="#ic-bell"/></svg>
+    </div>
+    <button class="d-offer-btn" onclick="openOfferSheet()">Make offer →</button>
+  </div>
+</div>
 
-    $("detailsBtn").onclick = () => openListing(selectedListingId);
-    $("offerBtn").onclick = () => openOffer(selectedListingId);
-    $("listBtn").onclick = () => toast("Listing creation is in the real Next.js build.");
-    $("goShopFromMarket").onclick = () => setNav("shop");
+<!-- ════════ OFFERS ════════ -->
 
-    // -------- Offer builder -> creates/updates a thread --------
-    function ensureThread(){
-      let t = threads.find(x => x.peer === demoTrader.handle);
-      if(!t){
-        t = {
-          id: "t_" + Math.random().toString(16).slice(2),
-          peer: demoTrader.handle,
-          state: "none", // none | offered | accepted | completed
-          targetId: selectedListingId,
-          messages: [{ from: demoTrader.handle, text:"Hey — what are you thinking for this?", at: new Date(Date.now()-1000*60*12) }],
-          offer: null
-        };
-        threads.unshift(t);
-      }
-      activeThreadId = t.id;
-      return t;
-    }
+<div class="view app" id="v-offers">
+  <div class="offers-wrap">
+    <div class="offers-hdr">
+      <div class="offers-title">Offers</div>
+      <div class="offers-sub">Your active negotiations</div>
+    </div>
+    <div class="o-tabs">
+      <button class="otab on" onclick="setOfferTab('all',this)">All</button>
+      <button class="otab" onclick="setOfferTab('in',this)">Incoming</button>
+      <button class="otab" onclick="setOfferTab('out',this)">Sent</button>
+    </div>
+    <div id="offers-list"></div>
+  </div>
+</div>
 
-    function openOffer(targetId){
-      const t = listings.find(x => x.id === targetId) || listings[0];
-      const invOpts = inventory.map(i => `<option value="${i.id}">${escapeHtml(i.title)} (${i.value})</option>`).join("");
+<!-- THREAD -->
 
-      const body = `
-        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-          <div class="pad">
-            <div class="row between">
-              <div>
-                <b>Offer builder</b>
-                <div class="muted small">Trade + optional top-up intent (off-platform).</div>
-              </div>
-              <span class="pill red">Match ${t.match}%</span>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="muted small">Target</div>
-            <div style="margin-top:6px;"><b>${escapeHtml(t.title)}</b> <span class="muted small">(${t.value})</span></div>
-
-            <div class="divider"></div>
-
-            <div class="muted small">Your items</div>
-            <div style="margin-top:8px; display:grid; gap:10px;">
-              <select id="offerA"><option value="">Select item #1</option>${invOpts}</select>
-              <select id="offerB"><option value="">(optional) item #2</option>${invOpts}</select>
-            </div>
-
-            <div class="divider"></div>
-
-            <div class="row" style="gap:10px;">
-              <div style="flex:1;">
-                <div class="muted small">Top-up intent (optional)</div>
-                <input id="offerCash" placeholder="e.g. 10" inputmode="decimal" />
-              </div>
-              <div style="width:160px;">
-                <div class="muted small">Currency</div>
-                <select id="offerCur"><option>GBP</option><option>EUR</option><option>USD</option><option>AUD</option></select>
-              </div>
-            </div>
-
-            <div style="margin-top:10px;">
-              <div class="muted small">Message</div>
-              <textarea id="offerMsg" placeholder="Meetup preference, timing, notes…" style="min-height:76px;"></textarea>
-            </div>
-
-            <div class="row" style="margin-top:10px;">
-              <button class="btn primary" id="sendOfferBtn">Send offer</button>
-              <button class="btn" id="previewOfferBtn">Preview</button>
-            </div>
-
-            <div class="muted small" id="offerPreview" style="margin-top:10px;"></div>
-          </div>
-        </div>
-      `;
-
-      openDrawer("Make offer", `Target: ${t.title}`, body);
-      setTimeout(() => {
-        $("previewOfferBtn").onclick = () => previewOffer();
-        $("sendOfferBtn").onclick = () => sendOffer(targetId);
-      }, 0);
-    }
-
-    function previewOffer(){
-      const a = $("offerA").value;
-      const b = $("offerB").value;
-      const cash = $("offerCash").value.trim();
-      const cur = $("offerCur").value;
-      const msg = $("offerMsg").value.trim();
-      const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id)?.title).filter(Boolean);
-      $("offerPreview").textContent =
-        `Offering: ${items.join(" + ") || "(none)"}${cash ? ` + ${cash} ${cur} top-up intent` : ""}${msg ? ` — "${msg}"` : ""}`;
-    }
-
-    function sendOffer(targetId){
-      const a = $("offerA").value;
-      if(!a){ toast("Pick at least one item"); return; }
-      const b = $("offerB").value;
-      const cash = $("offerCash").value.trim();
-      const cur = $("offerCur").value;
-      const msg = $("offerMsg").value.trim();
-
-      const items = [a,b].filter(Boolean).map(id => inventory.find(x => x.id === id));
-      const t = ensureThread();
-      t.targetId = targetId;
-      t.offer = {
-        items: items.map(i => ({ title:i.title, value:i.value })),
-        cash: cash ? { amount: cash, currency: cur } : null,
-        msg: msg || null
-      };
-      t.state = "offered";
-      t.messages.push({ from: me.handle, text: `Offer: ${items.map(i=>i.title).join(" + ")}${cash?` + ${cash} ${cur} top-up intent`: ""}${msg?` — ${msg}`:""}`, at: new Date() });
-
-      closeDrawer();
-      toast("Offer sent (demo)");
-      setNav("messages");
-    }
-
-    // -------- Messages --------
-    function renderMessages(){
-      $("threadCount").textContent = String(threads.length);
-      const list = $("threadList");
-      list.innerHTML = "";
-
-      if(threads.length === 0){
-        list.innerHTML = `<div class="muted">No threads yet. Send an offer from Market.</div>`;
-        $("threadPane").innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
-        return;
-      }
-
-      threads.forEach(t => {
-        const active = t.id === activeThreadId;
-        const target = listings.find(x => x.id === t.targetId) || listings[0];
-        const node = document.createElement("div");
-        node.className = "thread" + (active ? " active" : "");
-        node.innerHTML = `
-          <div class="row between">
-            <div class="row">
-              <div class="avatar" style="width:28px;height:28px;"></div>
-              <div>
-                <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
-                <div class="muted small">Target: ${escapeHtml(target.title)}</div>
-              </div>
-            </div>
-            <span class="chip ${t.state==="accepted" ? "red" : ""}">State: ${t.state}</span>
-          </div>
-        `;
-        node.onclick = () => { activeThreadId = t.id; renderMessages(); };
-        list.appendChild(node);
-      });
-
-      renderThreadPane();
-    }
-
-    function renderThreadPane(){
-      const pane = $("threadPane");
-      const t = threads.find(x => x.id === activeThreadId);
-      if(!t){
-        pane.innerHTML = `<div class="pad"><div class="muted">Select a thread.</div></div>`;
-        return;
-      }
-
-      const target = listings.find(x => x.id === t.targetId) || listings[0];
-
-      const msgs = t.messages.map(m => `
-        <div class="msg ${m.from===me.handle ? "you" : ""}">
-          <div class="muted small">${escapeHtml(m.from)} • ${new Date(m.at).toLocaleTimeString()}</div>
-          <div style="margin-top:6px;">${escapeHtml(m.text)}</div>
-        </div>
-      `).join("");
-
-      const offerCard = t.offer ? `
-        <div class="divider"></div>
-        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-          <div class="pad">
-            <div class="row between">
-              <div>
-                <b>Offer card</b>
-                <div class="muted small">Target: ${escapeHtml(target.title)} (${target.value})</div>
-              </div>
-              <span class="pill red">State: ${t.state}</span>
-            </div>
-            <div class="divider"></div>
-            <div class="muted small">Offering</div>
-            <div class="row" style="margin-top:8px;">
-              ${t.offer.items.map(i => `<span class="chip">${escapeHtml(i.title)} (${escapeHtml(i.value)})</span>`).join("")}
-            </div>
-            <div style="margin-top:10px;" class="muted small">
-              <b style="color:var(--text);">Top-up</b>: ${t.offer.cash ? `${escapeHtml(t.offer.cash.amount)} ${escapeHtml(t.offer.cash.currency)} intent (off-platform)` : "none"}
-            </div>
-            ${t.offer.msg ? `<div style="margin-top:8px;" class="muted small"><b style="color:var(--text);">Message</b>: ${escapeHtml(t.offer.msg)}</div>` : ""}
-            <div class="divider"></div>
-            <div class="row">
-              <button class="btn primary" id="acceptBtn" ${t.state!=="offered" ? "disabled" : ""}>Accept</button>
-              <button class="btn" id="completeBtn" ${t.state!=="accepted" ? "disabled" : ""} style="border-color: rgba(225,29,46,.35);">Complete</button>
-              <button class="btn" id="viewTargetBtn">View listing</button>
-            </div>
-            <div class="muted small" style="margin-top:10px;">
-              Real build: accept locks items + creates trade record; completion writes to public ledger.  [oai_citation:11‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)
+<div class="view app" id="v-thread">
+  <div class="thread-wrap">
+    <div class="th-hdr">
+      <button class="th-back" onclick="go('offers')"><svg width="14" height="14"><use href="#ic-arrow-left"/></svg></button>
+      <div class="th-title">Sony WH-1000XM4 ↔ Levi's Jacket</div>
+      <span class="chip chip-gld">Counter received</span>
+    </div>
+    <div class="th-sum">
+      <div class="ts-item"><div class="ts-em">🎧</div><div class="ts-name">Sony WH-1000XM4</div><div class="ts-val">£180 est.</div></div>
+      <div class="ts-arr">↔</div>
+      <div class="ts-item"><div class="ts-em">👕</div><div class="ts-name">Levi's Jacket</div><div class="ts-val">£75 est.</div></div>
+    </div>
+    <div class="t-msgs">
+      <div class="tmsg">
+        <div class="tmav" style="background:#7B61FF">PK</div>
+        <div>
+          <div class="tmfrom">@priya.k · initial offer</div>
+          <div class="tmbub">Love your jacket. My headphones are a great swap — both in excellent condition.
+            <div class="tmd">
+              <div class="tmd-r"><span class="tmd-l">Offering</span><span style="font-weight:600">Sony WH-1000XM4 · £180</span></div>
+              <div class="tmd-r"><span class="tmd-l">For your</span><span style="font-weight:600">Levi's Jacket · £75</span></div>
+              <div class="tmd-r"><span class="tmd-l">Difference</span><span style="font-weight:600;color:var(--grn)">£105 in your favour</span></div>
             </div>
           </div>
-        </div>
-      ` : `<div class="divider"></div><div class="muted">No offer attached yet.</div>`;
-
-      pane.innerHTML = `
-        <div class="pad">
-          <div class="row between">
-            <div class="row">
-              <div class="avatar sm"></div>
-              <div>
-                <div><b>${escapeHtml(t.peer)}</b> <span class="muted small">• ${demoTrader.tier}</span></div>
-                <div class="muted small">Target: ${escapeHtml(target.title)}</div>
-              </div>
-            </div>
-            <span class="chip red">Public ledger</span>
-          </div>
-
-          <div class="divider"></div>
-          <div style="display:grid; gap:10px;">${msgs}</div>
-
-          <div class="divider"></div>
-          <textarea id="msgInput" placeholder="Message…" style="min-height:76px;"></textarea>
-          <div class="row" style="margin-top:10px;">
-            <button class="btn" id="sendMsgBtn">Send</button>
-            <button class="btn primary" id="offerFromChatBtn">Offer</button>
-          </div>
-
-          ${offerCard}
-        </div>
-      `;
-
-      setTimeout(() => {
-        $("sendMsgBtn").onclick = () => {
-          const txt = $("msgInput").value.trim();
-          if(!txt) return;
-          t.messages.push({ from: me.handle, text: txt, at: new Date() });
-          renderThreadPane();
-        };
-        $("offerFromChatBtn").onclick = () => openOffer(t.targetId);
-
-        const v = $("viewTargetBtn");
-        if(v) v.onclick = () => openListing(t.targetId);
-
-        const a = $("acceptBtn");
-        if(a) a.onclick = () => {
-          t.state = "accepted";
-          t.messages.push({ from: t.peer, text: "Accepted. Let’s coordinate meetup/shipping.", at: new Date() });
-          social.unshift({ id:"p_acc_"+Math.random().toString(16).slice(2), type:"accepted", time:"now", title:"Accepted pattern", text:"Accepted an offer — (real build locks items + writes feed event).", listingId: t.targetId, likes:0, comments:0 });
-          toast("Accepted (demo)");
-          renderMessages();
-        };
-
-        const c = $("completeBtn");
-        if(c) c.onclick = () => {
-          t.state = "completed";
-          t.messages.push({ from: t.peer, text: "Trade completed. ⭐", at: new Date() });
-          const cash = t.offer.cash ? ` + ${t.offer.cash.amount} ${t.offer.cash.currency} top-up intent` : "";
-          const offerStr = t.offer.items.map(i => `${i.title} (${i.value})`).join(" + ");
-          ledger.unshift(`Trade completed: ${offerStr} → ${target.title}${cash}`);
-          social.unshift({ id:"p_done_"+Math.random().toString(16).slice(2), type:"win", time:"now", title:"Trade win", text:`Trade completed: ${offerStr} → ${target.title}${cash}.`, listingId: t.targetId, likes:0, comments:0 });
-          toast("Completed (demo)");
-          renderMessages();
-        };
-      }, 0);
-    }
-
-    $("newThreadBtn").onclick = () => {
-      const t = ensureThread();
-      t.messages.push({ from: demoTrader.handle, text: "New thread started. What are you offering?", at: new Date() });
-      toast("Thread created (demo)");
-      renderMessages();
-    };
-
-    // -------- Shop/Profile --------
-    let followed = false;
-    function renderShop(){
-      $("followBtn").textContent = followed ? "Following" : "Follow";
-      $("ledger").innerHTML = ledger.slice(0, 10).map(line => `
-        <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-          <div class="pad">
-            <div class="row between">
-              <span class="chip red">trade_completed</span>
-              <span class="muted small">${new Date().toLocaleDateString()}</span>
-            </div>
-            <div style="margin-top:8px; font-weight:900;">${escapeHtml(line)}</div>
-            <div class="muted small" style="margin-top:6px;">Public ledger event • trust signal</div>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    $("followBtn").onclick = () => { followed = !followed; renderShop(); toast(followed ? "Followed" : "Unfollowed"); };
-    $("messageShopBtn").onclick = () => { ensureThread(); setNav("messages"); };
-
-    // -------- Guide --------
-    $("helpBtn").onclick = () => openDrawer("Guide", "Demo navigation", `
-      <div class="card" style="box-shadow:none; background: rgba(255,255,255,.03);">
-        <div class="pad">
-          <b>How BARTR works</b>
-          <div class="divider"></div>
-          <ol class="muted" style="margin:0; padding-left:18px; line-height:1.6;">
-            <li>Market → open listing → Make offer (trade items + optional top-up intent)</li>
-            <li>Messages → accept → complete (writes to social + public ledger)</li>
-            <li>Shop → profile-as-shop with public trade history</li>
-          </ol>
-          <div class="divider"></div>
-          <div class="muted small">This matches the deck: shops, community/blog, messaging, and trust via profile + history.  [oai_citation:12‡BARTR.pdf](sediment://file_00000000823071fa9f7640282aeb0758)</div>
+          <div class="tmtime">2 days ago</div>
         </div>
       </div>
-    `);
+      <div class="tmsg mine">
+        <div class="tmav" style="background:#C4312A">JM</div>
+        <div>
+          <div class="tmfrom">You · counter</div>
+          <div class="tmbub">Genuine offer, thanks. The headphones are quite a bit more than my jacket though — could you add something to balance it?</div>
+          <div class="tmtime">Yesterday</div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center"><div class="tsys">@priya.k replied</div></div>
+      <div class="tmsg">
+        <div class="tmav" style="background:#7B61FF">PK</div>
+        <div>
+          <div class="tmfrom">@priya.k · counter</div>
+          <div class="tmbub">Fair point — I'll throw in Magnum Contact Sheets. Photography book, used once, worth about £40.
+            <div class="tmd">
+              <div class="tmd-r"><span class="tmd-l">Updated offer</span><span style="font-weight:600">Headphones + Magnum book</span></div>
+              <div class="tmd-r"><span class="tmd-l">Combined</span><span style="font-weight:600">~£220</span></div>
+              <div class="tmd-r"><span class="tmd-l">Difference</span><span style="font-weight:600;color:var(--grn)">£145 in your favour ✓</span></div>
+            </div>
+          </div>
+          <div class="tmtime">6 min ago</div>
+        </div>
+      </div>
+    </div>
+    <div class="t-acts">
+      <div class="t-acts-row">
+        <button class="btn btn-grn btn-sm" style="flex:1" onclick="acceptTrade()">
+          <svg width="13" height="13"><use href="#ic-check"/></svg> Accept deal
+        </button>
+        <button class="btn btn-out btn-sm" onclick="document.getElementById('t-counter').classList.toggle('open')">↩ Counter</button>
+        <button class="btn btn-sm" style="border:1.5px solid var(--rbd);color:var(--red)" onclick="showToast('Offer declined')">
+          <svg width="12" height="12"><use href="#ic-x"/></svg>
+        </button>
+      </div>
+      <div class="t-counter" id="t-counter">
+        <div class="frow" style="margin-top:11px"><label class="fl">Your counter</label><textarea class="fta" style="min-height:68px" placeholder="What would make this work for you?"></textarea></div>
+        <div style="display:flex;gap:7px">
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('t-counter').classList.remove('open')">Cancel</button>
+          <button class="btn btn-red btn-sm" onclick="showToast('Counter sent to @priya.k','grn');document.getElementById('t-counter').classList.remove('open')">Send counter →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    // -------- Init --------
-    function renderAll(){
-      renderSocial();
-      renderMarket();
-      renderMessages();
-      renderShop();
-    }
+<!-- ════════ MESSAGES ════════ -->
 
-    renderAll();
-    setNav("social");
-  </script>
+<div class="view app" id="v-msgs">
+  <div class="msgs-wrap">
+    <div class="msgs-hdr">
+      <div class="msgs-title">Messages</div>
+      <div class="msgs-srch">
+        <svg width="13" height="13" style="flex-shrink:0;color:var(--faint)"><use href="#ic-search"/></svg>
+        <input placeholder="Search conversations…">
+      </div>
+    </div>
+    <div id="msgs-list"></div>
+  </div>
+</div>
+
+<!-- CHAT -->
+
+<div class="view app" id="v-chat">
+  <div class="chat-wrap">
+    <div class="ch-hdr">
+      <button class="ch-back" onclick="go('msgs')"><svg width="14" height="14"><use href="#ic-arrow-left"/></svg></button>
+      <div class="ch-av" id="ch-av" style="background:#7B61FF">PK</div>
+      <div class="ch-inf">
+        <div class="ch-name" id="ch-name">@priya.k</div>
+        <div class="ch-trade" id="ch-trade">↔ Sony WH-1000XM4 / Levi's Jacket</div>
+      </div>
+      <button class="btn btn-out btn-xs" onclick="go('thread')">View offer →</button>
+    </div>
+    <div class="ch-msgs" id="ch-msgs"></div>
+    <div class="ch-inp-row">
+      <input class="ch-inp" id="ch-inp" placeholder="Message…" onkeydown="if(event.key==='Enter')sendMsg()">
+      <button class="ch-send" onclick="sendMsg()"><svg width="13" height="13"><use href="#ic-send"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ LIST ════════ -->
+
+<div class="view app" id="v-list">
+  <div class="list-wrap">
+    <div class="list-prog"><div class="list-fill" id="list-fill" style="width:33%"></div></div>
+    <div class="list-hdr">
+      <div class="list-h" id="list-h">Photos &amp; details</div>
+      <div class="list-sub" id="list-sub">First photo becomes your cover — make it count.</div>
+    </div>
+    <div class="list-step on" id="ls1">
+      <div class="photo-guide">
+        <div class="pg-t">Photo guide</div>
+        <div class="pg-egs">
+          <div class="pg-eg g"><div class="pg-eg-img">☀️</div><div class="pg-eg-lbl">Bright + front-on</div></div>
+          <div class="pg-eg o"><div class="pg-eg-img">🌤</div><div class="pg-eg-lbl">OK but not ideal</div></div>
+          <div class="pg-eg b"><div class="pg-eg-img">🌑</div><div class="pg-eg-lbl">Dark / blurry</div></div>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="upload-z">
+          <input type="file" multiple accept="image/*" onchange="handlePhotos(this)">
+          <div class="upload-z-ico"><svg width="26" height="26" style="color:var(--faint)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          <div class="upload-z-t">Add photos</div>
+          <div class="upload-z-s">Tap to upload · first becomes cover</div>
+        </div>
+        <div class="photo-row" id="photo-row"></div>
+      </div>
+      <div class="frow"><label class="fl">Category</label><select class="fsel" id="l-cat"><option value="">Choose…</option><option>Fashion / Tops</option><option>Fashion / Outerwear</option><option>Fashion / Footwear</option><option>Books / Fiction</option><option>Books / Design &amp; Art</option><option>Tech / Audio</option><option>Tech / Cameras</option><option>Sneakers</option><option>Music / Vinyl</option><option>Homewares</option><option>Other</option></select></div>
+      <div class="frow"><label class="fl">Title</label><input class="fi" id="l-title" placeholder="e.g. Sony WH-1000XM4 — Midnight Black, boxed"></div>
+      <div class="f2 frow"><div><label class="fl">Brand</label><input class="fi" placeholder="Sony, Levi's…"></div><div><label class="fl">Size / spec</label><input class="fi" placeholder="UK10, 128GB…"></div></div>
+      <div class="frow"><label class="fl">Description</label><textarea class="fta" placeholder="How long owned, original price, any wear or flaws. Honest descriptions get better offers — traders can tell."></textarea></div>
+      <div class="frow">
+        <label class="fl">Condition</label>
+        <div class="cond-row">
+          <div class="cond-opt off" title="We only accept Good condition or better"><div class="cond-lbl">Fair</div><div class="cond-d">Not accepted</div></div>
+          <div class="cond-opt" onclick="pickCond(this)"><div class="cond-lbl">Good</div><div class="cond-d">Minor wear</div></div>
+          <div class="cond-opt" onclick="pickCond(this)"><div class="cond-lbl">Like New</div><div class="cond-d">Barely used</div></div>
+        </div>
+      </div>
+      <div class="frow">
+        <label class="fl">Your value estimate (£)</label>
+        <input class="fi" id="l-val" type="number" placeholder="120" oninput="showEst()">
+        <div class="est-reveal" id="est-reveal">
+          <div class="est-num" id="est-num"></div>
+          <div class="est-note">Live estimate from comparable listings. Both figures are shown to other traders — so yours and Bartr's side by side.</div>
+        </div>
+      </div>
+      <div class="frow"><label class="fl">Meet up or post?</label><select class="fsel"><option>📍 Local meetup preferred</option><option>📦 Happy to post (tracked)</option><option>🤝 Either works</option></select></div>
+    </div>
+    <div class="list-step" id="ls2">
+      <div style="font-size:.81rem;color:var(--muted);line-height:1.68;margin-bottom:16px">This powers your matches. The more specific you are, the better offers you'll attract.</div>
+      <div class="frow">
+        <label class="fl">Specific items I'd trade for</label>
+        <div class="want-chips" id="list-wants"></div>
+        <div class="want-add-row">
+          <input class="fi" id="want-inp" placeholder="iPhone 13, Murakami novels, Air Jordan 1…" onkeydown="if(event.key==='Enter')addWant()">
+          <button class="btn btn-out btn-sm" onclick="addWant()" style="flex-shrink:0">Add</button>
+        </div>
+      </div>
+      <div class="frow">
+        <label class="fl">Also open to these categories</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">👕</div><div class="cond-d">Fashion</div></div>
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">📚</div><div class="cond-d">Books</div></div>
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">💻</div><div class="cond-d">Tech</div></div>
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">👟</div><div class="cond-d">Sneakers</div></div>
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">🎵</div><div class="cond-d">Vinyl</div></div>
+          <div class="cond-opt" onclick="this.classList.toggle('on')"><div class="cond-lbl">📷</div><div class="cond-d">Cameras</div></div>
+        </div>
+      </div>
+      <div class="frow"><label class="fl">Value flexibility</label><select class="fsel"><option>Roughly equal (±20%)</option><option>Flexible (±40%)</option><option>Open to anything</option></select></div>
+    </div>
+    <div class="list-step" id="ls3">
+      <div style="font-size:.81rem;color:var(--muted);line-height:1.68;margin-bottom:14px">This is exactly what other traders will see.</div>
+      <div style="background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);overflow:hidden;margin-bottom:16px">
+        <div style="aspect-ratio:1/1;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:3.8rem;max-height:180px">📦</div>
+        <div style="padding:13px">
+          <div class="lbl" style="margin-bottom:4px">Preview</div>
+          <div style="font-weight:600;font-size:.92rem;margin-bottom:3px" id="prev-title">Your listing title</div>
+          <div style="font-size:.79rem;color:var(--muted)" id="prev-sub">Your description will appear here.</div>
+        </div>
+      </div>
+      <div style="background:var(--gbg);border:1px solid var(--gbd);border-radius:var(--r);padding:11px 12px;font-size:.79rem;color:var(--grn);line-height:1.6">
+        <strong>Your listing will go live immediately.</strong> You'll get a notification when someone makes an offer.
+      </div>
+    </div>
+    <div class="step-footer">
+      <button class="step-bk" id="step-back" onclick="listBack()" style="visibility:hidden">
+        <svg width="13" height="13" style="vertical-align:middle"><use href="#ic-arrow-left"/></svg> Back
+      </button>
+      <button class="btn btn-red" id="step-next" onclick="listNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PROFILE ════════ -->
+
+<div class="view app" id="v-profile">
+  <div class="profile-wrap">
+    <div class="ph-hero">
+      <div class="ph-top">
+        <div class="ph-av" style="background:#C4312A">JM</div>
+        <div>
+          <div class="ph-name">Jordan McAllister</div>
+          <div class="ph-handle">@jordanmc</div>
+          <div class="ph-badges"><span class="rep rep-s">🥈 Silver</span><span style="font-size:.68rem;color:var(--faint);margin-left:4px">· Sydney CBD</span></div>
+        </div>
+      </div>
+      <div class="ph-nudge" onclick="showToast('Complete your profile to get more offers')">
+        <div class="ph-nudge-t">Complete your profile — 65%</div>
+        <div class="ph-nudge-bar"><div class="ph-nudge-fill" style="width:65%"></div></div>
+        <div class="ph-nudge-note">Add a bio and location to get 2× more offers →</div>
+      </div>
+      <div class="ph-bio">Into photography, vintage fashion, and well-made things. Happy to post or meet in Sydney CBD.</div>
+      <div class="ph-taste"><span class="chip">Fashion</span><span class="chip">Books</span><span class="chip">Cameras</span><span class="chip">Vinyl</span><span class="chip">Tech</span></div>
+      <div class="ph-stats">
+        <div class="ph-stat"><div class="ph-stat-val">14</div><div class="ph-stat-lbl">Trades</div></div>
+        <div class="ph-stat"><div class="ph-stat-val">4.8★</div><div class="ph-stat-lbl">Rating</div></div>
+        <div class="ph-stat"><div class="ph-stat-val">847</div><div class="ph-stat-lbl">Followers</div></div>
+        <div class="ph-stat"><div class="ph-stat-val">6</div><div class="ph-stat-lbl">Listed</div></div>
+      </div>
+      <div class="ph-btns">
+        <button class="btn btn-out btn-sm" onclick="go('settings')">Edit profile</button>
+        <button class="btn btn-out btn-sm" onclick="go('list')">+ List item</button>
+      </div>
+    </div>
+    <div class="p-tabs">
+      <button class="ptab on" onclick="switchPTab('listings',this)">Items</button>
+      <button class="ptab" onclick="switchPTab('history',this)">Trades</button>
+      <button class="ptab" onclick="switchPTab('wishlist',this)">Wishlist</button>
+    </div>
+    <div id="tab-listings"><div class="p-grid" id="p-grid"></div></div>
+    <div id="tab-history" style="display:none">
+      <div class="trade-row2"><div class="tr2-imgs"><div class="tr2-img">📚</div><div class="tr2-arr">→</div><div class="tr2-img">🎧</div></div><div class="tr2-inf"><div class="tr2-t">Design Books → Sony WH-1000XM4</div><div class="tr2-m">@priya.k · 14 Feb 2026 · Local meetup</div></div><div class="tr2-stars">★★★★★</div></div>
+      <div class="trade-row2"><div class="tr2-imgs"><div class="tr2-img">👕</div><div class="tr2-arr">→</div><div class="tr2-img">⌨️</div></div><div class="tr2-inf"><div class="tr2-t">Levi's Jacket → Keychron Q1 Pro</div><div class="tr2-m">@alexwren · 2 Jan 2026 · Posted</div></div><div class="tr2-stars">★★★★★</div></div>
+      <div class="trade-row2"><div class="tr2-imgs"><div class="tr2-img">📷</div><div class="tr2-arr">→</div><div class="tr2-img">📚</div></div><div class="tr2-inf"><div class="tr2-t">Polaroid 600 → Photography books</div><div class="tr2-m">@canvas.jo · 18 Dec 2025 · Local</div></div><div class="tr2-stars">★★★★☆</div></div>
+    </div>
+    <div id="tab-wishlist" style="display:none">
+      <div class="wl-wrap">
+        <div class="wl-i"><svg width="12" height="12"><use href="#ic-map-pin"/></svg> Canon AE-1</div>
+        <div class="wl-i">📚 Murakami set</div>
+        <div class="wl-i">⌨️ Mechanical keyboard TKL</div>
+        <div class="wl-i">👟 Air Jordan 1 Low UK9</div>
+        <div class="wl-i">🎵 Jazz vinyl</div>
+        <div class="wl-i">🎒 Patagonia Black Hole 25L</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ TRADE COMPLETE ════════ -->
+
+<div class="view app" id="v-trade">
+  <div class="trade-wrap">
+    <div class="trade-h">Complete your trade.</div>
+    <div class="trade-sub">Sony WH-1000XM4 ↔ Levi's Jacket · with @priya.k</div>
+    <div class="trade-items">
+      <div class="ti-c"><div class="ti-img">🎧</div><div class="ti-inf"><div class="ti-role">You receive</div><div class="ti-name">Sony WH-1000XM4</div><div class="ti-val">£180 est.</div></div></div>
+      <div class="ti-arr">↔</div>
+      <div class="ti-c"><div class="ti-img">👕</div><div class="ti-inf"><div class="ti-role">You send</div><div class="ti-name">Levi's Jacket</div><div class="ti-val">£75 est.</div></div></div>
+    </div>
+    <div class="t-timeline" id="t-timeline">
+      <div class="tstep done"><div class="tstep-ico"><svg width="12" height="12"><use href="#ic-check"/></svg></div><div class="tstep-inf"><div class="tstep-t">Offer accepted</div><div class="tstep-d">Both parties agreed to the terms.</div></div><div class="tstep-st">Done</div></div>
+      <div class="tstep active"><div class="tstep-ico">📦</div><div class="tstep-inf"><div class="tstep-t">Exchange in progress</div><div class="tstep-d">Items handed over or shipped. Confirm when you've received yours.</div></div><div class="tstep-st">Action needed</div></div>
+      <div class="tstep"><div class="tstep-ico">⭐</div><div class="tstep-inf"><div class="tstep-t">Rate @priya.k</div><div class="tstep-d">Leave a review after confirming receipt.</div></div><div class="tstep-st">Pending</div></div>
+    </div>
+    <div id="confirm-box" style="background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);padding:15px;margin-bottom:11px">
+      <div class="lbl" style="margin-bottom:6px">Confirm receipt</div>
+      <div style="font-size:.8rem;color:var(--muted);line-height:1.65;margin-bottom:12px">Once you confirm, @priya.k is notified. When both sides confirm, the trade is marked complete and your reputations update.</div>
+      <button class="btn btn-grn btn-w" onclick="confirmReceipt()"><svg width="12" height="12"><use href="#ic-check"/></svg> I've received my item</button>
+    </div>
+    <div id="review-box" style="background:var(--surf);border:1px solid var(--brd);border-radius:var(--rl);padding:15px;margin-bottom:11px">
+      <div class="lbl" style="margin-bottom:9px">Rate @priya.k</div>
+      <div class="stars-row" id="stars-row"></div>
+      <textarea class="fta" style="min-height:70px" placeholder="Would you trade with them again? Honest reviews help everyone."></textarea>
+      <button class="btn btn-red btn-w" style="margin-top:10px" onclick="submitReview()">Submit review →</button>
+    </div>
+    <div style="background:var(--rbg);border:1px solid var(--rbd);border-radius:var(--rl);padding:13px">
+      <div class="lbl" style="color:var(--red);margin-bottom:4px">Something went wrong?</div>
+      <div style="font-size:.79rem;color:var(--muted);margin-bottom:10px">Item didn't arrive, arrived damaged, or isn't as described?</div>
+      <button class="btn btn-sm" style="border:1.5px solid var(--rbd);color:var(--red)" onclick="showToast('Dispute raised — we\'ll review within 48 hours')">Raise a dispute →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ SETTINGS ════════ -->
+
+<div class="view app" id="v-settings">
+  <div class="settings-wrap">
+    <div class="settings-hdr">Settings</div>
+    <span class="ss-group">Trader reputation</span>
+    <div class="rep-card">
+      <div class="rc-bar"><div class="rc-fill" style="width:70%"></div></div>
+      <div class="rc-nums">
+        <div class="rc-num"><div class="rc-val">14</div><div class="rc-lbl">Trades</div></div>
+        <div class="rc-num"><div class="rc-val">🥈</div><div class="rc-lbl">Silver</div></div>
+        <div class="rc-num"><div class="rc-val">6 more</div><div class="rc-lbl">For Gold</div></div>
+      </div>
+    </div>
+    <div style="padding:0 15px 12px;font-size:.75rem;color:var(--muted);line-height:1.65">6 more trades to reach 🥇 Gold — priority placement in search and a gold badge on your profile.</div>
+    <span class="ss-group">Account</span>
+    <div class="ss-row"><div><div class="ss-lbl">Full name</div><div class="ss-d">Jordan McAllister</div></div><button class="btn btn-out btn-xs">Edit</button></div>
+    <div class="ss-row"><div><div class="ss-lbl">@handle</div><div class="ss-d">@jordanmc</div></div><button class="btn btn-out btn-xs">Edit</button></div>
+    <div class="ss-row"><div><div class="ss-lbl">Email</div><div class="ss-d">jordan@email.com</div></div><button class="btn btn-out btn-xs">Edit</button></div>
+    <div class="ss-row"><div><div class="ss-lbl">Location</div><div class="ss-d">Sydney CBD, 2000</div></div><button class="btn btn-out btn-xs">Edit</button></div>
+    <span class="ss-group">Notifications</span>
+    <div class="ss-row"><div><div class="ss-lbl">New offers</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+    <div class="ss-row"><div><div class="ss-lbl">Wishlist matches</div><div class="ss-d">When a new listing matches your wishlist</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+    <div class="ss-row"><div><div class="ss-lbl">Messages</div></div><button class="toggle on" onclick="this.classList.toggle('on')"></button></div>
+    <div class="ss-row"><div><div class="ss-lbl">New followers</div></div><button class="toggle" onclick="this.classList.toggle('on')"></button></div>
+    <span class="ss-group">Data</span>
+    <div class="ss-row"><div><div class="ss-lbl">Export my data</div><div class="ss-d">Download everything (GDPR)</div></div><button class="btn btn-out btn-xs" onclick="showToast('Export emailed to you ✓')">Export</button></div>
+    <div class="ss-row"><div><div class="ss-lbl">Delete account</div><div class="ss-d">Permanent — cannot be undone</div></div><button class="btn btn-xs" style="border:1.5px solid var(--rbd);color:var(--red)">Delete</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════
+const LISTINGS = [
+  {id:1,e:'👕',t:"Vintage Levi's 501 Jacket",cat:'Fashion',cond:'Good',v:75,u:'jordanmc',i:'JM',c:'#C4312A',rep:'s',dist:'1.4km',w:['Photography books','Film camera','Vinyl'],d:"Classic 80s Levi's trucker, size M. Faded wash, natural collar wear. No rips or stains. Bought secondhand, worn five times since.",m:95,watchers:3,views:14},
+  {id:2,e:'🎧',t:"Sony WH-1000XM4 Headphones",cat:'Tech',cond:'Like New',v:180,u:'priya.k',i:'PK',c:'#7B61FF',rep:'g',dist:'2.1km',w:['Vintage fashion','Photography books'],d:"8 months old, lightly used. Original box, all cables and case included. ANC is genuinely exceptional. Switching to earbuds.",m:82,watchers:7,views:32},
+  {id:3,e:'📚',t:"Design Theory — 12 Books",cat:'Books',cond:'Good',v:55,u:'canvas.jo',i:'CJ',c:'#3B82C4',rep:'s',dist:'3.2km',w:['Polaroid camera','Vintage clothing'],d:"Thinking with Type, Grid Systems, Dieter Rams monograph, and 9 more. All great condition — pencil annotations in Rams book only.",m:78,watchers:4,views:22},
+  {id:4,e:'📱',t:"iPhone 14 Pro 128GB Deep Purple",cat:'Tech',cond:'Good',v:480,u:'techswap',i:'TS',c:'#059669',rep:'g',dist:'5.8km',w:['MacBook Air M1','iPad Pro'],d:"Excellent condition, always screen-protected and cased. Battery health 94%. Unlocked. Box included. Prefer local.",m:45,watchers:12,views:67},
+  {id:5,e:'📖',t:"Magnum Contact Sheets — 1st Ed.",cat:'Books',cond:'Like New',v:45,u:'quietframe',i:'QF',c:'#C49A3C',rep:'b',dist:'0.6km',w:['Film camera','Photography zines'],d:"Hardback, first edition, spine uncreased. Received as a gift — I already own a copy.",m:88,watchers:5,views:18},
+  {id:6,e:'🧥',t:"Arc'teryx Beta LT Jacket — Navy S",cat:'Fashion',cond:'Good',v:280,u:'outdoorpal',i:'OP',c:'#E8833A',rep:'s',dist:'Posts',w:['Patagonia gear','Merino base layer'],d:"One ski season of use. No tears, all zips work perfectly. Gore-Tex membrane fully intact and waterproof.",m:52,watchers:6,views:29},
+  {id:7,e:'📕',t:"Murakami Complete Fiction — ×8",cat:'Books',cond:'Good',v:65,u:'bookish',i:'BK',c:'#8B5CF6',rep:'s',dist:'4.1km',w:['Vinyl','Film camera','Design books'],d:"Norwegian Wood, Kafka on the Shore, 1Q84, Wind-Up Bird Chronicle, and four more. Vintage paperback editions.",m:90,watchers:9,views:41},
+  {id:8,e:'⌨️',t:"Keychron Q1 Pro — Red switches",cat:'Tech',cond:'Like New',v:160,u:'typist75',i:'TY',c:'#059669',rep:'s',dist:'1.9km',w:['Vintage denim','Film camera'],d:"Aluminium body, used three months at home. Red switches, no shine on keycaps. Original box included.",m:85,watchers:8,views:35},
+  {id:9,e:'👟',t:"Travis Scott Jordan 1 Low Olive",cat:'Sneakers',cond:'Like New',v:800,u:'dropzone',i:'DZ',c:'#2A9D5C',rep:'g',dist:'Posts',w:['MacBook','Supreme hoodie'],d:"UK9. Worn once indoors to check fit — runs small. Near-deadstock condition. OG box and all accessories.",m:62,watchers:19,views:114},
+  {id:10,e:'📷',t:"Canon AE-1 Chrome + 50mm f/1.8",cat:'Cameras',cond:'Good',v:120,u:'silverprint',i:'SP',c:'#6366F1',rep:'s',dist:'2.7km',w:['Vintage fashion','Photography books'],d:"Great working order. Light seals replaced 6 months ago. Meter accurate, all speeds correct. Lens included.",m:92,watchers:6,views:27},
+  {id:11,e:'🎵',t:"Jazz & Soul Vinyl — 18 Records",cat:'Music',cond:'Good',v:90,u:'waxwork',i:'WW',c:'#D97706',rep:'b',dist:'6.3km',w:['Books','Vintage clothing'],d:"Miles Davis, Coltrane, Marvin Gaye, Stevie Wonder, Curtis Mayfield. All play clean with no skips.",m:71,watchers:4,views:19},
+  {id:12,e:'🎒',t:"New Balance 550 White/Green UK9",cat:'Sneakers',cond:'Good',v:90,u:'sneakerhead',i:'SH',c:'#7C3AED',rep:'b',dist:'Posts',w:['Vintage clothing','Books'],d:"Worn ~8 times, cleaned after each wear. Small scuff on right toe cap. No box but have receipt.",m:68,watchers:2,views:16},
+];
+
+const MY_ITEMS = [
+  {id:1,e:'👕',t:"Vintage Levi's Jacket",v:75},
+  {id:2,e:'🎸',t:"Fender Telecaster (Squier)",v:220},
+  {id:3,e:'📚',t:"Philosophy Books ×6",v:40},
+];
+
+const MSGS_DATA = [
+  {u:'canvas.jo',i:'CJ',c:'#3B82C4',trade:"Levi's Jacket ↔ Oil Painting",preview:"Can we meet in Hackney? Free Saturday…",time:'1m',unread:true},
+  {u:'dropzone',i:'DZ',c:'#2A9D5C',trade:'Dell Monitor ↔ Supreme Hoodie',preview:"Would you add something small to bridge it?",time:'1h',unread:true},
+  {u:'alexwren',i:'AW',c:'#C49A3C',trade:'Design Books ↔ Kindle',preview:"Deal confirmed ✓ — I'll post Monday",time:'2d',unread:false},
+  {u:'priya.k',i:'PK',c:'#7B61FF',trade:"Levi's Jacket ↔ Sony Headphones",preview:"I'll throw in the photography book too",time:'4d',unread:false},
+];
+
+const CHAT_MSGS = {
+  'canvas.jo':[
+    {f:'them',t:"Hey! Really interested in your Levi's jacket. I have an abstract oil painting that might make a great swap — A3, framed."},
+    {f:'me',t:"Love the painting. I think that could work. What's the story with it?"},
+    {f:'them',t:"Painted it myself, been hanging in my flat for 2 years. Selling everything before I move. Can we meet in Hackney?",offer:{item:"Abstract Oil Painting (A3, framed)",val:"£80 est."}},
+  ],
+  'dropzone':[
+    {f:'me',t:"Interested in the Travis Scotts. Offering my Dell UltraSharp 27\" — excellent condition, worth about £280."},
+    {f:'them',t:"Monitor is interesting. The Jordans are £800 though — big gap. Would you add something to bridge it?"},
+  ],
+  'alexwren':[
+    {f:'them',t:"Your design book set is exactly what I need for a project."},
+    {f:'me',t:"What would you offer?"},
+    {f:'them',t:"Kindle Paperwhite — barely used, worth about £70."},
+    {f:'me',t:"Deal. Let's do it."},
+    {f:'them',t:"Confirmed ✓ I'll post Monday with tracking — I'll send you the number."},
+  ],
+};
+
+const OFFERS_DATA = [
+  {id:1,in:true,unread:true,u:'priya.k',i:'PK',c:'#7B61FF',give:'Sony WH-1000XM4',ge:'🎧',gv:180,want:"Levi's Jacket",we:'👕',wv:75,status:'counter',latest:"I'll add Magnum Contact Sheets — photography book, used once, worth about £40.",time:'6 min ago',expiry:'Expires in 42h'},
+  {id:2,in:false,unread:false,u:'dropzone',i:'DZ',c:'#2A9D5C',give:'Dell Monitor',ge:'🖥',gv:280,want:'Supreme Hoodie',we:'🧥',wv:350,status:'waiting',latest:"You made an offer 3 days ago. Waiting for @dropzone to respond.",time:'3 days ago',expiry:'Expires in 21h — urgent'},
+];
+
+// ════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════
+let curListing = null;
+let watching = new Set();
+let listStepN = 1;
+let listWants = [];
+let starRating = 0;
+let feedTab = 'all';
+let selItemId = null;
+let toastTimer;
+
+// ════════════════════════════════════════
+// NAV
+// ════════════════════════════════════════
+const VIEWS = ['land','auth','feed','detail','offers','thread','msgs','chat','list','profile','trade','settings'];
+const APP_VIEWS = ['feed','detail','offers','thread','msgs','chat','list','profile','trade','settings'];
+const BN_MAP = {feed:'feed',detail:'feed',offers:'offers',thread:'offers',msgs:'msgs',chat:'msgs',profile:'me',settings:'me'};
+
+function go(v) {
+  VIEWS.forEach(id => { const el = document.getElementById('v-'+id); if(el) el.classList.remove('on'); });
+  const el = document.getElementById('v-'+v);
+  if(el) el.classList.add('on');
+  const isApp = APP_VIEWS.includes(v);
+  document.getElementById('tnav').style.display = isApp ? 'flex' : 'none';
+  document.getElementById('bnav').style.display = isApp ? 'flex' : 'none';
+  document.querySelectorAll('.bni').forEach(b => b.classList.remove('on'));
+  const bn = BN_MAP[v];
+  if(bn) { const b = document.getElementById('bn-'+bn); if(b) b.classList.add('on'); }
+  if(v==='feed')    { renderFeed(); renderLandScroll(); }
+  if(v==='profile') renderProfile();
+  if(v==='offers')  renderOffers();
+  if(v==='msgs')    renderMsgs();
+  if(v==='trade')   buildStars();
+  window.scrollTo(0,0);
+}
+
+// ════════════════════════════════════════
+// LANDING
+// ════════════════════════════════════════
+window.addEventListener('scroll',()=>{
+  const ln = document.getElementById('lnav');
+  if(ln) ln.classList.toggle('ink', window.scrollY > 20);
+});
+
+function renderLandScroll() {
+  const el = document.getElementById('lf-scroll');
+  if(!el || el.children.length > 0) return;
+  LISTINGS.slice(0,8).forEach(l => {
+    const d = document.createElement('div');
+    d.className = 'lf-card';
+    d.innerHTML = `<div class="lf-photo">${l.e}</div>
+      <div class="lf-info">
+        <div class="lf-title">${l.t}</div>
+        <div class="lf-bottom">
+          <div class="lf-price">£${l.v}</div>
+          <span class="rep rep-${l.rep}">${l.rep==='g'?'🥇':l.rep==='s'?'🥈':'🥉'}</span>
+        </div>
+        <button class="lf-btn" onclick="event.stopPropagation();document.getElementById('gate').classList.add('on')">Make offer</button>
+      </div>`;
+    d.onclick = () => { curListing = l; openDetail(l.id); };
+    el.appendChild(d);
+  });
+}
+
+// ════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════
+function authGo(step) {
+  document.getElementById('as-1').style.display = step===1 ? 'block' : 'none';
+  document.getElementById('as-2').style.display = step===2 ? 'block' : 'none';
+  document.querySelectorAll('#auth-pips .auth-pip').forEach((p,i) => p.classList.toggle('on', i < step));
+}
+
+// ════════════════════════════════════════
+// FEED
+// ════════════════════════════════════════
+function setFeedTab(tab, el) {
+  feedTab = tab;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  renderFeed();
+}
+
+function filterSearch(q) { renderFeed(q); }
+
+function renderFeed(q='') {
+  let items = LISTINGS.filter(l => {
+    if(q && !l.t.toLowerCase().includes(q.toLowerCase()) && !l.cat.toLowerCase().includes(q.toLowerCase())) return false;
+    if(feedTab==='match')    return l.m >= 75;
+    if(feedTab==='fashion')  return l.cat==='Fashion';
+    if(feedTab==='books')    return l.cat==='Books';
+    if(feedTab==='tech')     return l.cat==='Tech';
+    if(feedTab==='sneakers') return l.cat==='Sneakers';
+    return true;
+  });
+  const cont = document.getElementById('feed-cards');
+  if(!cont) return;
+  cont.innerHTML = items.map((l,idx) => `
+    <div class="card" style="animation:fadeUp .3s ${idx*40}ms both">
+      <div class="card-person" onclick="openDetail(${l.id})">
+        <div class="card-av" style="background:${l.c}">${l.i}</div>
+        <div>
+          <div class="card-handle">@${l.u}</div>
+          <div class="card-loc">${l.dist==='Posts'?'<svg width="11" height="11" style="vertical-align:middle;color:var(--faint)"><use href="#ic-pkg"/></svg> Posts':'<svg width="11" height="11" style="vertical-align:middle;color:var(--faint)"><use href="#ic-map-pin"/></svg> '+l.dist}</div>
+        </div>
+        ${l.m>=75?`<div class="card-match">${l.m}% match</div>`:''}
+      </div>
+      <div class="card-photo" onclick="openDetail(${l.id})"><div class="card-photo-inner">${l.e}</div></div>
+      <div class="card-info" onclick="openDetail(${l.id})">
+        <div class="card-title">${l.t}</div>
+        <div class="card-row">
+          <div class="card-price">£${l.v}</div>
+          <div class="card-want">wants: ${l.w[0]}</div>
+        </div>
+      </div>
+      <div class="card-acts">
+        <button class="card-offer-btn" onclick="curListing=LISTINGS.find(x=>x.id===${l.id});openOfferSheet()">Make offer</button>
+        <button class="card-msg-btn" onclick="openChat('${l.u}','${l.i}','${l.t}','${l.c}')" title="Message"><svg width="14" height="14"><use href="#ic-mail"/></svg></button>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+// DETAIL
+// ════════════════════════════════════════
+function openDetail(id) {
+  const l = LISTINGS.find(x=>x.id===id);
+  if(!l) return;
+  curListing = l;
+  const emojis = [l.e,'📦','🏷','✨'];
+
+  // photo with dot indicators
+  document.getElementById('d-main').textContent = l.e;
+  document.getElementById('d-main').className = 'd-photo-main';
+  const dotsEl = document.getElementById('d-dots');
+  dotsEl.innerHTML = emojis.map((_,i) => `<div class="d-dot${i===0?' on':''}"></div>`).join('');
+  document.getElementById('d-thumbs').innerHTML = emojis.map((e,i) =>
+    `<div class="d-thumb${i===0?' on':''}" onclick="switchThumb(this,'${e}',${i})">${e}</div>`).join('');
+
+  document.getElementById('d-cat').textContent = `${l.cat} · ${l.cond}`;
+  document.getElementById('d-title').textContent = l.t;
+  document.getElementById('d-price').textContent = '£'+l.v;
+  document.getElementById('d-est').textContent = '£'+Math.round(l.v*(0.9+Math.random()*.2));
+  document.getElementById('d-watching').textContent = `${l.watchers} people watching · ${l.views} views`;
+  document.getElementById('d-chips').innerHTML =
+    `<span class="chip">${l.cond}</span><span class="chip">${l.cat}</span>`+
+    (l.dist!=='Posts'?`<span class="chip chip-grn"><svg width="10" height="10"><use href="#ic-map-pin"/></svg> ${l.dist}</span>`:
+    `<span class="chip"><svg width="10" height="10"><use href="#ic-pkg"/></svg> Posts</span>`)+
+    `<span class="rep rep-${l.rep}">${l.rep==='g'?'🥇 Gold':l.rep==='s'?'🥈 Silver':'🥉 Bronze'}</span>`;
+
+  const desc = document.getElementById('d-desc');
+  desc.textContent = l.d; desc.classList.add('clamped');
+  document.getElementById('d-more').style.display = 'inline-block';
+
+  document.getElementById('d-wants').innerHTML =
+    `<div class="d-wants-lbl">What @${l.u} wants</div><div class="d-want-tags">${l.w.map(w=>`<span class="d-want-tag">${w}</span>`).join('')}</div>`;
+
+  const trades = Math.floor(Math.random()*18)+4;
+  const rating = (4+Math.random()*.9).toFixed(1);
+  document.getElementById('d-seller').innerHTML = `
+    <div class="ds-top">
+      <div class="ds-av" style="background:${l.c}">${l.i}</div>
+      <div><div class="ds-name">@${l.u}</div><div class="ds-meta"><span class="rep rep-${l.rep}">${l.rep==='g'?'🥇 Gold':l.rep==='s'?'🥈 Silver':'🥉 Bronze'}</span></div></div>
+      <div class="ds-arr"><svg width="13" height="13"><use href="#ic-chevron-right"/></svg></div>
+    </div>
+    <div class="ds-stats">
+      <div class="ds-stat"><div class="ds-val">${trades}</div><div class="ds-lbl">Trades</div></div>
+      <div class="ds-stat"><div class="ds-val">${rating}★</div><div class="ds-lbl">Rating</div></div>
+      <div class="ds-stat"><div class="ds-val">${Math.floor(Math.random()*4)+2}</div><div class="ds-lbl">Listed</div></div>
+    </div>`;
+
+  // similar items
+  const similar = LISTINGS.filter(x => x.cat===l.cat && x.id!==l.id).slice(0,5);
+  document.getElementById('similar').innerHTML = similar.length ? `
+    <div class="sim-lbl">More ${l.cat.toLowerCase()}</div>
+    <div class="sim-scroll">${similar.map(s=>`
+      <div class="sim-card" onclick="openDetail(${s.id})">
+        <div class="sim-photo">${s.e}</div>
+        <div class="sim-info"><div class="sim-name">${s.t}</div><div class="sim-price">£${s.v}</div></div>
+      </div>`).join('')}</div>` : '';
+
+  document.getElementById('dsi-title').textContent = l.t;
+  document.getElementById('dsi-price').textContent = '£'+l.v;
+  const dw = document.getElementById('d-watch');
+  if(dw) { dw.classList.toggle('on', watching.has(l.id)); }
+  go('detail');
+}
+
+function switchThumb(el, emoji, idx) {
+  document.querySelectorAll('.d-thumb').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.d-dot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+  const main = document.getElementById('d-main');
+  if(main) { main.classList.add('switching'); setTimeout(()=>{ main.textContent=emoji; main.classList.remove('switching'); },180); }
+}
+
+function expandDesc() {
+  document.getElementById('d-desc').classList.remove('clamped');
+  document.getElementById('d-more').style.display='none';
+}
+
+function toggleWatch() {
+  if(!curListing) return;
+  const id = curListing.id;
+  const btn = document.getElementById('d-watch');
+  if(watching.has(id)) {
+    watching.delete(id); btn.classList.remove('on');
+    showToast('Removed from watching');
+  } else {
+    watching.add(id); btn.classList.add('on');
+    showToast("Watching — you'll be notified if relisted",'gld');
+  }
+}
+
+// ════════════════════════════════════════
+// OFFER SHEET — bidirectional value logic
+// ════════════════════════════════════════
+function openOfferSheet() {
+  const l = curListing;
+  if(!l) return;
+  selItemId = null;
+  document.getElementById('sheet-body').innerHTML = `
+    <div style="font-family:'Instrument Serif',serif;font-size:1.3rem;margin-bottom:2px">Make an offer</div>
+    <div style="font-size:.79rem;color:var(--muted);margin-bottom:15px">for ${l.t}</div>
+
+    <div class="o-step on" id="os1">
+      <div class="offer-recv">
+        <div class="or-img">${l.e}</div>
+        <div><div class="or-getting">You'd receive</div><div class="or-name">${l.t}</div><div class="or-val">£${l.v} est.</div></div>
+      </div>
+      <div class="lbl" style="margin-bottom:7px">What are you offering?</div>
+      <div class="item-grid">
+        ${MY_ITEMS.map(item=>`
+          <div class="item-card" id="ic-${item.id}" onclick='pickItem(${JSON.stringify(item)})'>
+            <div class="ic-img">${item.e}</div>
+            <div class="ic-name">${item.t}</div>
+            <div class="ic-val">£${item.v}</div>
+          </div>`).join('')}
+        <div class="item-card" onclick="go('list');closeSheet()" style="background:var(--rbg);border-color:var(--rbd)">
+          <div class="ic-img" style="color:var(--red)"><svg width="18" height="18"><use href="#ic-plus"/></svg></div>
+          <div class="ic-name" style="color:var(--red)">List new</div>
+          <div class="ic-val"> </div>
+        </div>
+      </div>
+      <div class="val-bal" id="val-bal">
+        <div class="vb-items">
+          <div class="vb-item" id="vb-mine"></div>
+          <div class="vb-arr">↔</div>
+          <div class="vb-item">
+            <div class="vb-em">${l.e}</div>
+            <div class="vb-name">${l.t}</div>
+            <div class="vb-val">£${l.v}</div>
+          </div>
+        </div>
+        <div class="vb-bar-wrap">
+          <div class="vb-bar-bg">
+            <div class="vb-bar-fill" id="vb-fill"></div>
+            <div class="vb-midline"></div>
+          </div>
+        </div>
+        <div class="vb-msg" id="vb-msg"></div>
+        <div id="vb-action"></div>
+        <div class="cash-expand" id="cash-expand">
+          <div class="lbl" style="margin-bottom:5px">Add cash to your offer</div>
+          <div style="position:relative"><span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted)">£</span><input class="fi" type="number" min="0" placeholder="0" id="cash-inp" style="padding-left:24px" oninput="updateBalance()"></div>
+        </div>
+        <div class="req-expand" id="req-expand">
+          <div class="lbl" style="margin-bottom:5px">Request something extra from @${l.u}</div>
+          <input class="fi" placeholder="e.g. charging cable, carry case, book…" id="req-inp">
+          <div class="fnote">This is a suggestion — they can accept or decline when they respond.</div>
+        </div>
+        <div class="offer-expiry">Offer expires 48 hours after sending</div>
+      </div>
+      <div id="os1-next" style="display:none;margin-top:4px">
+        <button class="btn btn-red btn-w" onclick="offerStep2()">Next — add a message →</button>
+        <button class="btn btn-ghost btn-w btn-sm" style="margin-top:6px" onclick="saveDraft()">Save as draft</button>
+      </div>
+    </div>
+
+    <div class="o-step" id="os2">
+      <div class="offer-recv">
+        <div class="or-img" id="os2-e" style="font-size:1.35rem"></div>
+        <div><div class="or-getting">You're offering</div><div class="or-name" id="os2-name"></div><div class="or-val" id="os2-val"></div></div>
+      </div>
+      <div class="frow">
+        <label class="fl">Message to @${l.u}</label>
+        <textarea class="fta" id="offer-msg" style="min-height:78px" placeholder="Tell @${l.u} why this is a good trade. Friendly, specific messages get the best responses."></textarea>
+
+```
+  </div>
+  <div class="frow"><label class="fl">Meet up or post?</label>
+    <select class="fsel">${l.dist!=='Posts'?'<option>📍 Local meetup (recommended)</option>':''}<option>📦 Post (tracked)</option><option>🤝 Either works for me</option></select>
+  </div>
+  <div style="display:flex;gap:7px">
+    <button class="btn btn-out btn-sm" onclick="offerStep1()"><svg width="12" height="12"><use href="#ic-arrow-left"/></svg> Back</button>
+    <button class="btn btn-red" style="flex:1" onclick="sendOffer()">Send offer →</button>
+  </div>
+</div>`;
+```
+
+openSheet();
+}
+
+function pickItem(item) {
+selItemId = item.id;
+document.querySelectorAll(’.item-card’).forEach(el=>el.classList.remove(‘on’));
+const el = document.getElementById(‘ic-’+item.id);
+if(el) el.classList.add(‘on’);
+document.getElementById(‘val-bal’).classList.add(‘show’);
+document.getElementById(‘os1-next’).style.display = ‘block’;
+// set mine side
+document.getElementById(‘vb-mine’).innerHTML = `<div class="vb-em">${item.e}</div><div class="vb-name">${item.t}</div><div class="vb-val">£${item.v}</div>`;
+updateBalance(item.v);
+}
+
+function updateBalance(baseVal) {
+if(!curListing) return;
+const item = MY_ITEMS.find(x=>x.id===selItemId);
+const base = baseVal!==undefined ? baseVal : (item ? item.v : 0);
+const cashEl = document.getElementById(‘cash-inp’);
+const cash = cashEl ? (parseFloat(cashEl.value)||0) : 0;
+const total = base + cash;
+const target = curListing.v;
+const diff = total - target; // positive = I’m offering more
+const pct = total / target; // ratio
+
+const fill = document.getElementById(‘vb-fill’);
+const msg = document.getElementById(‘vb-msg’);
+const action = document.getElementById(‘vb-action’);
+
+// bar: 50% = equal. left half = my offer, right = theirs
+// position fill from left, width = pct/2 * 100 capped at 100%
+const barW = Math.min(100, Math.round(pct * 50));
+const barLeft = pct >= 1 ? 50 : barW; // anchor from left
+
+if(fill) {
+fill.style.left = ‘0’;
+fill.style.width = Math.min(100, barW * 2) + ‘%’;
+}
+
+let msgClass, msgText, actionHtml = ‘’;
+
+if(Math.abs(diff) <= target * 0.15) {
+// ±15% — fair
+msgClass = ‘fair’;
+msgText = ‘✓ Values are well matched — this is a fair trade.’;
+if(fill) { fill.style.background=‘var(–grn)’; fill.style.left=‘25%’; fill.style.width=‘50%’; }
+} else if(diff < 0 && diff > -target*0.4) {
+// short by 15–40%
+const gap = Math.abs(diff);
+msgClass = ‘short’;
+msgText = `Your offer is £${gap} below theirs. Consider adding cash or listing a higher-value item.`;
+actionHtml = `<div class="cash-link" onclick="document.getElementById('cash-expand').classList.toggle('open')">+ Add £${gap} cash to bridge the gap</div>`;
+if(fill) { fill.style.background=’#F59E0B’; fill.style.left=‘0’; fill.style.width=Math.max(10,barW*2)+’%’; }
+} else if(diff < -target*0.4) {
+// way short
+const gap = Math.abs(diff);
+msgClass = ‘way-short’;
+msgText = `Big gap — you're offering £${gap} less. Adding cash or choosing a higher-value item would help a lot.`;
+actionHtml = `<div class="cash-link" onclick="document.getElementById('cash-expand').classList.toggle('open')">+ Add cash to your offer</div>`;
+if(fill) { fill.style.background=‘var(–red)’; fill.style.left=‘0’; fill.style.width=Math.max(5,barW*2)+’%’; }
+} else if(diff > 0 && diff <= target*0.4) {
+// offering more — ask for something back
+msgClass = ‘over’;
+msgText = `Your item is worth £${diff} more than theirs. You can ask them to add something to balance the trade.`;
+actionHtml = `<div class="req-link" onclick="document.getElementById('req-expand').classList.toggle('open')">Request something extra from @${curListing.u}</div>`;
+if(fill) { fill.style.background=‘var(–blu)’; fill.style.left=‘0’; fill.style.width=‘75%’; }
+} else {
+// way more
+msgClass = ‘way-over’;
+msgText = `You're offering significantly more. Ask @${curListing.u} to add something — or note that you're making a generous offer.`;
+actionHtml = `<div class="req-link" onclick="document.getElementById('req-expand').classList.toggle('open')">Request something to balance it</div>`;
+if(fill) { fill.style.background=‘var(–gld)’; fill.style.left=‘0’; fill.style.width=‘90%’; }
+}
+
+if(msg) { msg.className = ’vb-msg ’+msgClass; msg.textContent = msgText; }
+if(action) action.innerHTML = actionHtml;
+}
+
+function offerStep2() {
+const item = MY_ITEMS.find(x=>x.id===selItemId);
+if(!item) return;
+const cashEl = document.getElementById(‘cash-inp’);
+const cash = cashEl ? (parseFloat(cashEl.value)||0) : 0;
+const reqInp = document.getElementById(‘req-inp’);
+const req = reqInp ? reqInp.value.trim() : ‘’;
+document.getElementById(‘os1’).classList.remove(‘on’);
+document.getElementById(‘os2’).classList.add(‘on’);
+document.getElementById(‘os2-e’).textContent = item.e;
+document.getElementById(‘os2-name’).textContent = item.t + (cash>0?` + £${cash} cash`:’’) + (req?` + "${req}"` : ‘’);
+document.getElementById(‘os2-val’).textContent = ‘£’+(item.v+cash)+’ total’;
+}
+
+function offerStep1() {
+document.getElementById(‘os2’).classList.remove(‘on’);
+document.getElementById(‘os1’).classList.add(‘on’);
+}
+
+function sendOffer() {
+closeSheet();
+showToast(‘Offer sent! 🤝’,‘grn’);
+setTimeout(()=>go(‘offers’),1500);
+}
+
+function saveDraft() {
+closeSheet();
+showToast(‘Saved as draft’,‘blu’);
+}
+
+// ════════════════════════════════════════
+// OFFERS
+// ════════════════════════════════════════
+function setOfferTab(tab, el) {
+document.querySelectorAll(’.otab’).forEach(t=>t.classList.remove(‘on’));
+el.classList.add(‘on’);
+renderOffers(tab);
+}
+
+function renderOffers(tab=‘all’) {
+let items = OFFERS_DATA;
+if(tab===‘in’)  items = OFFERS_DATA.filter(o=>o.in);
+if(tab===‘out’) items = OFFERS_DATA.filter(o=>!o.in);
+const cont = document.getElementById(‘offers-list’);
+if(!cont) return;
+cont.innerHTML = items.map(o=>` <div class="offer-row${o.unread?' unread':''}" onclick="go('thread')"> <div class="or2-top"> <div class="or2-imgs"> <div class="or2-img">${o.ge}</div> <svg width="11" height="11" style="color:var(--faint)"><use href="#ic-swap"/></svg> <div class="or2-img">${o.we}</div> </div> <div class="or2-inf"> <div class="or2-title">${o.give} ↔ ${o.want}</div> <div class="or2-meta">${o.in?'From':'To'} @${o.u} · ${o.time}</div> <div class="expiry-badge${o.expiry.includes('urgent')?' urgent':''}">${o.expiry}</div> </div> <div>${o.status==='counter'?'<span class="chip chip-gld">Counter</span>':'<span class="chip">Waiting</span>'}</div> </div> <div class="or2-latest">${o.latest}</div> ${o.status==='counter'?`<div class="or2-acts">
+<button class="btn btn-grn btn-xs" onclick="event.stopPropagation();acceptTrade()"><svg width="11" height="11"><use href="#ic-check"/></svg> Accept</button>
+<button class="btn btn-out btn-xs" onclick="event.stopPropagation();go('thread')">↩ Counter</button>
+<button class="btn btn-xs" style="border:1.5px solid var(--rbd);color:var(--red)" onclick="event.stopPropagation();showToast('Offer declined')"><svg width="11" height="11"><use href="#ic-x"/></svg></button>
+</div>`:''} </div>`).join(’’);
+}
+
+function acceptTrade() {
+showToast(‘Trade accepted! 🎉’,‘grn’);
+spawnConfetti();
+setTimeout(()=>go(‘trade’),1600);
+}
+
+// ════════════════════════════════════════
+// MESSAGES
+// ════════════════════════════════════════
+function renderMsgs() {
+const cont = document.getElementById(‘msgs-list’);
+if(!cont) return;
+cont.innerHTML = MSGS_DATA.map(m=>` <div class="msg-row${m.unread?' unread':''}" onclick="openChat('${m.u}','${m.i}','${m.trade}','${m.c}')"> <div class="msg-av" style="background:${m.c}">${m.i}${m.unread?'<div class="msg-dot"></div>':''}</div> <div class="msg-body"> <div class="msg-top"><span class="msg-name">@${m.u}</span><span class="msg-time">${m.time}</span></div> <div class="msg-trade">↔ ${m.trade}</div> <div class="msg-prev">${m.preview}</div> </div> </div>`).join(’’);
+}
+
+function openChat(user, init, trade, col) {
+document.getElementById(‘ch-av’).style.background = col;
+document.getElementById(‘ch-av’).textContent = init;
+document.getElementById(‘ch-name’).textContent = ‘@’+user;
+document.getElementById(‘ch-trade’).textContent = ‘↔ ‘+trade;
+const msgs = CHAT_MSGS[user]||[];
+const cont = document.getElementById(‘ch-msgs’);
+cont.innerHTML = `<div class="csys">${trade}</div>`+msgs.map(m=>{
+if(m.offer) return `<div class="cmsg ${m.f==='me'?'mine':''}"> <div class="cav" style="background:${m.f==='me'?'#C4312A':col}">${m.f==='me'?'JM':init}</div> <div><div class="cbub">${m.t} <div class="chat-offer"> <div class="cof-hdr">Trade Offer</div> <div class="cof-body"> <div class="cof-r"><span class="cof-l">Item</span><span style="font-weight:600">${m.offer.item}</span></div> <div class="cof-r"><span class="cof-l">Value</span><span style="font-weight:600">${m.offer.val}</span></div> <div class="cof-acts"> <button class="cof-acc" onclick="showToast('Offer accepted!','grn')"><svg width="11" height="11"><use href="#ic-check"/></svg> Accept</button> <button class="cof-cnt" onclick="showToast('Counter sent')">↩ Counter</button> </div> </div> </div> </div><div class="ctime">just now</div></div></div>`;
+return `<div class="cmsg ${m.f==='me'?'mine':''}"> <div class="cav" style="background:${m.f==='me'?'#C4312A':col}">${m.f==='me'?'JM':init}</div> <div><div class="cbub">${m.t}</div><div class="ctime">just now</div></div> </div>`;
+}).join(’’);
+go(‘chat’);
+setTimeout(()=>{ cont.scrollTop=cont.scrollHeight; },80);
+}
+
+function sendMsg() {
+const inp = document.getElementById(‘ch-inp’);
+if(!inp||!inp.value.trim()) return;
+const cont = document.getElementById(‘ch-msgs’);
+const d = document.createElement(‘div’);
+d.className=‘cmsg mine’;
+d.innerHTML=`<div class="cav" style="background:#C4312A">JM</div><div><div class="cbub">${inp.value}</div><div class="ctime">just now</div></div>`;
+cont.appendChild(d);
+inp.value=’’;
+cont.scrollTop=cont.scrollHeight;
+}
+
+// ════════════════════════════════════════
+// LIST FLOW
+// ════════════════════════════════════════
+const STEP_META=[
+{h:‘Photos & details’,s:‘First photo becomes your cover — make it count.’},
+{h:‘What you want’,s:‘This powers your matches. Specific wants get better offers.’},
+{h:‘Review & go live’,s:‘This is exactly what other traders will see.’},
+];
+
+function listNext() {
+if(listStepN===3){publishListing();return;}
+listStepN=Math.min(3,listStepN+1);
+updateListStep();
+}
+function listBack() {
+listStepN=Math.max(1,listStepN-1);
+updateListStep();
+}
+function updateListStep() {
+[1,2,3].forEach(i=>{ const el=document.getElementById(‘ls’+i); if(el) el.classList.toggle(‘on’,i===listStepN); });
+document.getElementById(‘list-fill’).style.width=[33,66,100][listStepN-1]+’%’;
+const m=STEP_META[listStepN-1];
+document.getElementById(‘list-h’).textContent=m.h;
+document.getElementById(‘list-sub’).textContent=m.s;
+const bk=document.getElementById(‘step-back’);
+const nx=document.getElementById(‘step-next’);
+if(bk) bk.style.visibility=listStepN>1?‘visible’:‘hidden’;
+if(nx) nx.textContent=listStepN===3?‘Go live →’:‘Next →’;
+if(listStepN===3){
+const t=document.getElementById(‘l-title’);
+const desc=document.querySelector(’#ls1 .fta’);
+const pt=document.getElementById(‘prev-title’);
+const ps=document.getElementById(‘prev-sub’);
+if(pt&&t) pt.textContent=t.value||‘Your listing title’;
+if(ps&&desc) ps.textContent=(desc.value||‘Your description will appear here.’).substring(0,100);
+}
+window.scrollTo(0,0);
+}
+function pickCond(el){ document.querySelectorAll(’.cond-opt:not(.off)’).forEach(c=>c.classList.remove(‘on’)); el.classList.add(‘on’); }
+function showEst(){
+const v=parseFloat(document.getElementById(‘l-val’)?.value);
+const card=document.getElementById(‘est-reveal’);
+const num=document.getElementById(‘est-num’);
+if(!card||!num) return;
+if(v>0){ card.classList.add(‘show’); num.textContent=‘£’+Math.round(v*(0.88+Math.random()*.26)); }
+else card.classList.remove(‘show’);
+}
+function addWant(){
+const inp=document.getElementById(‘want-inp’);
+if(!inp||!inp.value.trim()) return;
+listWants.push(inp.value.trim());
+renderWants(); inp.value=’’;
+}
+function renderWants(){
+const el=document.getElementById(‘list-wants’);
+if(!el) return;
+el.innerHTML=listWants.map((w,i)=>`<div class="want-chip">${w}<button class="want-chip-rm" onclick="listWants.splice(${i},1);renderWants()"><svg width="10" height="10"><use href="#ic-x"/></svg></button></div>`).join(’’);
+}
+function handlePhotos(input){
+const row=document.getElementById(‘photo-row’);
+if(!row||!input.files) return;
+row.innerHTML=’’;
+Array.from(input.files).slice(0,8).forEach((f,i)=>{
+const r=new FileReader();
+r.onload=e=>{
+const d=document.createElement(‘div’);
+d.className=‘ph-th’;
+d.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover"><button class="ph-th-rm" onclick="this.parentElement.remove()"><svg width="8" height="8"><use href="#ic-x"/></svg></button>${i===0?'<div class="ph-th-cover">COVER</div>':''}`;
+row.appendChild(d);
+};
+r.readAsDataURL(f);
+});
+}
+function publishListing(){
+showToast(‘Your listing is live! 🎉’,‘grn’);
+spawnConfetti();
+setTimeout(()=>go(‘feed’),1600);
+}
+
+// ════════════════════════════════════════
+// PROFILE
+// ════════════════════════════════════════
+function renderProfile(){
+const grid=document.getElementById(‘p-grid’);
+if(!grid) return;
+const mine=LISTINGS.filter(l=>l.u===‘jordanmc’);
+grid.innerHTML=mine.length?mine.map(l=>` <div class="p-item" onclick="openDetail(${l.id})">${l.e} <div class="p-item-ov"><span class="p-item-val">£${l.v}</span></div> </div>`).join(’’):`<div style="padding:20px;color:var(--muted);font-size:.8rem;grid-column:1/-1">No items listed yet. <span style="color:var(--red);cursor:pointer" onclick="go('list')">List your first →</span></div>`;
+}
+function switchPTab(tab,el){
+[‘listings’,‘history’,‘wishlist’].forEach(t=>{ const d=document.getElementById(‘tab-’+t); if(d) d.style.display=t===tab?‘block’:‘none’; });
+document.querySelectorAll(’.ptab’).forEach(t=>t.classList.remove(‘on’));
+el.classList.add(‘on’);
+}
+
+// ════════════════════════════════════════
+// TRADE COMPLETE
+// ════════════════════════════════════════
+function buildStars(){
+const el=document.getElementById(‘stars-row’);
+if(!el||el.children.length>0) return;
+el.innerHTML=[1,2,3,4,5].map(n=>`<span class="star" onclick="rateStar(${n})">★</span>`).join(’’);
+}
+function rateStar(n){
+starRating=n;
+document.querySelectorAll(’.star’).forEach((s,i)=>s.classList.toggle(‘on’,i<n));
+}
+function confirmReceipt(){
+const box=document.getElementById(‘confirm-box’);
+if(box){ box.innerHTML=`<div style="text-align:center;padding:12px"><div style="font-size:1.6rem;margin-bottom:6px;color:var(--grn)">✓</div><div style="font-weight:600;font-size:.88rem">Confirmed. Waiting for @priya.k to confirm their side.</div></div>`; showToast(‘Receipt confirmed’,‘grn’); }
+}
+function submitReview(){
+const box=document.getElementById(‘review-box’);
+if(box){ box.innerHTML=`<div style="text-align:center;padding:14px"><div style="font-size:1.6rem;margin-bottom:6px">⭐</div><div style="font-weight:600;font-size:.88rem;color:var(--grn)">Review submitted. Trade complete!</div></div>`; showToast(‘Review submitted — trade complete!’,‘gld’); spawnConfetti(); }
+}
+
+// ════════════════════════════════════════
+// NOTIFICATIONS
+// ════════════════════════════════════════
+function openNotifs(){
+document.getElementById(‘sheet-body’).innerHTML=` <div style="font-family:'Instrument Serif',serif;font-size:1.3rem;margin-bottom:13px">Notifications</div> <div> <div style="padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer" onclick="go('offers');closeSheet()"> <div style="font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:2px">New offer</div> <div style="font-size:.82rem;font-weight:500;margin-bottom:2px">@canvas.jo made an offer on your Levi's Jacket</div> <div style="font-family:'DM Mono',monospace;font-size:.46rem;color:var(--faint)">12 min ago</div> </div> <div style="padding:12px 0;border-bottom:1px solid var(--brd);cursor:pointer" onclick="go('msgs');closeSheet()"> <div style="font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin-bottom:2px">Message</div> <div style="font-size:.82rem;font-weight:500;margin-bottom:2px">@dropzone: "Would you add something small to bridge it?"</div> <div style="font-family:'DM Mono',monospace;font-size:.46rem;color:var(--faint)">1 hour ago</div> </div> <div style="padding:12px 0;cursor:pointer" onclick="go('feed');closeSheet()"> <div style="font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gld);margin-bottom:2px">🎯 Wishlist match</div> <div style="font-size:.82rem;font-weight:500;margin-bottom:2px">New Canon AE-1 listed — matches your wishlist</div> <div style="font-family:'DM Mono',monospace;font-size:.46rem;color:var(--faint)">2 hours ago</div> </div> </div>`;
+openSheet();
+}
+
+// ════════════════════════════════════════
+// SHEET / TOAST / CONFETTI
+// ════════════════════════════════════════
+function openSheet(){ document.getElementById(‘sov’).classList.add(‘on’); document.body.style.overflow=‘hidden’; }
+function closeSheet(){ document.getElementById(‘sov’).classList.remove(‘on’); document.body.style.overflow=’’; }
+function showToast(msg,type=’’){
+const el=document.getElementById(‘toast’);
+el.textContent=msg; el.className=‘toast up’+(type?’ ‘+type:’’);
+clearTimeout(toastTimer);
+toastTimer=setTimeout(()=>el.classList.remove(‘up’),3000);
+}
+function spawnConfetti(){
+const emojis=[‘🎉’,‘✨’,‘🤝’,‘🔥’,‘⭐’,‘🎊’,‘💫’];
+for(let i=0;i<12;i++){
+const el=document.createElement(‘div’);
+el.className=‘conf’;
+el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+el.style.cssText=`left:${15+Math.random()*70}%;bottom:25%;font-size:${1+Math.random()*.6}rem;animation-delay:${Math.random()*.35}s;animation-duration:${.55+Math.random()*.4}s`;
+document.body.appendChild(el);
+setTimeout(()=>el.remove(),1100);
+}
+}
+
+// init
+renderLandScroll();
+</script>
+
 </body>
 </html>
