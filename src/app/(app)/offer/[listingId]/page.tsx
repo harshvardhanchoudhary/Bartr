@@ -5,14 +5,20 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
-import { ValueGapBadge } from '@/components/ui/ValueGapBadge'
-import { Chip } from '@/components/ui/Chip'
-import { formatValueRange } from '@/lib/utils'
+import { formatValueRange, getValueGapState } from '@/lib/utils'
 import toast from 'react-hot-toast'
-import type { Listing } from '@/types'
+import type { Listing, ValueGapState } from '@/types'
 
 interface Props {
   params: { listingId: string }
+}
+
+const GAP_STYLES: Record<ValueGapState, { bg: string; border: string; color: string; label: string; icon: string }> = {
+  fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', label: 'Fair trade',            icon: '✓' },
+  short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: "You're offering less",   icon: '↓' },
+  way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: 'Big value gap',          icon: '↓↓' },
+  over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', label: 'You\'re offering more — request something extra?', icon: '↑' },
+  way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', label: 'You\'re offering a lot more — request something extra', icon: '↑↑' },
 }
 
 export default function OfferPage({ params }: Props) {
@@ -26,7 +32,7 @@ export default function OfferPage({ params }: Props) {
   const [topupCurrency, setTopupCurrency] = useState('GBP')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
-  const [preview, setPreview] = useState<string | null>(null)
+  const [showTopup, setShowTopup] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -53,33 +59,25 @@ export default function OfferPage({ params }: Props) {
       setMyListings((myData ?? []) as Listing[])
     }
     load()
-  }, [params.listingId])
+  }, [params.listingId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Compute value gap
   const offeredMid = selectedItems.reduce((sum, id) => {
     const l = myListings.find(x => x.id === id)
     if (!l) return sum
-    const lo = l.value_estimate_low ?? 0
-    const hi = l.value_estimate_high ?? lo
-    return sum + (lo + hi) / 2
+    return sum + ((l.value_estimate_low ?? 0) + (l.value_estimate_high ?? l.value_estimate_low ?? 0)) / 2
   }, 0) + (parseFloat(topupAmount) || 0)
 
   const targetMid = target
     ? ((target.value_estimate_low ?? 0) + (target.value_estimate_high ?? target.value_estimate_low ?? 0)) / 2
     : 0
 
+  const gapState = offeredMid > 0 && targetMid > 0 ? getValueGapState(offeredMid, targetMid) : null
+  const balancePct = targetMid > 0 ? Math.min(offeredMid / targetMid, 2) * 50 : 0  // 50% = even, 0% = nothing, 100% = 2x
+
   function toggleItem(id: string) {
     setSelectedItems(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     )
-    setPreview(null)
-  }
-
-  function buildPreview(): string {
-    const items = selectedItems.map(id => myListings.find(x => x.id === id)?.title).filter(Boolean)
-    const cashStr = topupAmount ? ` + ${topupAmount} ${topupCurrency} top-up intent` : ''
-    const msgStr = message ? ` — "${message}"` : ''
-    return `Offering: ${items.join(' + ') || '(none)'}${cashStr}${msgStr}`
   }
 
   async function sendOffer() {
@@ -93,7 +91,6 @@ export default function OfferPage({ params }: Props) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user || !target) return
 
-      // Create thread first
       const { data: thread, error: threadErr } = await supabase
         .from('threads')
         .insert({
@@ -105,18 +102,14 @@ export default function OfferPage({ params }: Props) {
 
       if (threadErr) throw threadErr
 
-      // Offered items payload
       const offeredItems = selectedItems.map(id => {
         const l = myListings.find(x => x.id === id)!
         return {
-          listing_id: id,
-          title: l.title,
-          value_low: l.value_estimate_low,
-          value_high: l.value_estimate_high,
+          listing_id: id, title: l.title,
+          value_low: l.value_estimate_low, value_high: l.value_estimate_high,
         }
       })
 
-      // Create offer
       const { error: offerErr } = await supabase.from('offers').insert({
         thread_id: thread.id,
         from_user_id: user.id,
@@ -131,18 +124,20 @@ export default function OfferPage({ params }: Props) {
 
       if (offerErr) throw offerErr
 
-      // Initial message
+      const itemNames = selectedItems.map(id => myListings.find(x => x.id === id)?.title).filter(Boolean).join(' + ')
+      const topupStr = topupAmount ? ` + ${topupAmount} ${topupCurrency} top-up` : ''
+      const msgStr = message ? `\n\n${message}` : ''
+
       await supabase.from('messages').insert({
         thread_id: thread.id,
         from_user_id: user.id,
-        content: buildPreview(),
+        content: `Offer: ${itemNames}${topupStr}${msgStr}`,
       })
 
       toast.success('Offer sent!')
       router.push(`/messages/${thread.id}`)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send offer'
-      toast.error(msg)
+      toast.error(err instanceof Error ? err.message : 'Failed to send offer')
     } finally {
       setSending(false)
     }
@@ -150,8 +145,8 @@ export default function OfferPage({ params }: Props) {
 
   if (!target) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-muted text-sm">Loading…</div>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
+        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 12, color: 'var(--faint)' }}>Loading…</span>
       </div>
     )
   }
@@ -160,137 +155,247 @@ export default function OfferPage({ params }: Props) {
 
   return (
     <>
-      <TopBar title="Make offer" />
+      <TopBar title="Make offer" back />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 pb-32 space-y-4">
-        {/* Target listing summary */}
-        <div className="card p-4">
-          <div className="label">You want</div>
-          <div className="flex items-center justify-between gap-3">
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 120px' }}>
+
+        {/* You want — target listing summary */}
+        <div style={{
+          background: 'var(--surf)', border: '1px solid var(--brd)',
+          borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 6 }}>
+            You want
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div>
-              <div className="font-semibold">{target.title}</div>
-              <div className="text-muted text-sm mt-0.5">{target.profile?.handle}</div>
+              <div style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 15 }}>{target.title}</div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                from {target.profile?.handle}
+              </div>
             </div>
-            <div className="text-red-light font-mono text-sm flex-shrink-0">{targetValue}</div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 16, fontWeight: 500, color: 'var(--red)', flexShrink: 0 }}>
+              {targetValue}
+            </div>
           </div>
         </div>
 
-        {/* Value gap indicator */}
-        {offeredMid > 0 && targetMid > 0 && (
-          <ValueGapBadge offeredMid={offeredMid} targetMid={targetMid} />
+        {/* Value balance bar */}
+        {(offeredMid > 0 || selectedItems.length > 0) && (
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>
+                Your offer: ~£{offeredMid.toFixed(0)}
+              </span>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>
+                Their item: {targetValue}
+              </span>
+            </div>
+
+            {/* Bar */}
+            <div style={{ height: 6, background: 'var(--brd)', borderRadius: 99, overflow: 'hidden', marginBottom: 8 }}>
+              <div style={{
+                height: '100%', borderRadius: 99, transition: 'width 0.3s ease',
+                width: `${Math.min(balancePct * 2, 100)}%`,
+                background: gapState === 'fair' ? 'var(--grn)'
+                           : (gapState === 'short' || gapState === 'way_short') ? 'var(--red)'
+                           : gapState === 'way_over' ? 'var(--gld)'
+                           : 'var(--blu)',
+              }} />
+            </div>
+
+            {/* Gap badge */}
+            {gapState && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '5px 10px', borderRadius: 99,
+                fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                background: GAP_STYLES[gapState].bg,
+                border: `1px solid ${GAP_STYLES[gapState].border}`,
+                color: GAP_STYLES[gapState].color,
+              }}>
+                {GAP_STYLES[gapState].icon} {GAP_STYLES[gapState].label}
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Pick items from your listings */}
-        <div className="card p-4">
-          <div className="label mb-3">Your items to offer</div>
+        {/* Item picker — 3-column grid */}
+        <div style={{
+          background: 'var(--surf)', border: '1px solid var(--brd)',
+          borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 12 }}>
+            Choose items to offer
+          </div>
 
           {myListings.length > 0 ? (
-            <div className="space-y-2">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {myListings.map(l => {
                 const selected = selectedItems.includes(l.id)
+                const itemValue = formatValueRange(l.value_estimate_low, l.value_estimate_high)
                 return (
                   <button
                     key={l.id}
                     onClick={() => toggleItem(l.id)}
-                    className={`w-full flex items-center justify-between gap-3 p-3 rounded border text-left transition-colors ${
-                      selected
-                        ? 'border-red-border bg-red-muted'
-                        : 'border-stroke bg-surface-2 hover:border-stroke-2'
-                    }`}
+                    style={{
+                      padding: '10px 8px', borderRadius: 'var(--r)',
+                      border: `1px solid ${selected ? '#A8251F' : 'var(--brd)'}`,
+                      background: selected ? 'var(--rbg)' : 'var(--bg)',
+                      cursor: 'pointer', textAlign: 'left',
+                      transition: 'all 0.12s', position: 'relative',
+                    }}
                   >
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium line-clamp-1">{l.title}</div>
-                      <div className="flex gap-2 mt-1">
-                        <Chip>{l.category}</Chip>
-                        <span className="text-xs font-mono text-muted">
-                          {formatValueRange(l.value_estimate_low, l.value_estimate_high)}
-                        </span>
+                    {selected && (
+                      <div style={{
+                        position: 'absolute', top: 6, right: 6,
+                        width: 16, height: 16, borderRadius: '50%',
+                        background: 'var(--red)', color: 'white',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 9,
+                      }}>
+                        ✓
                       </div>
+                    )}
+                    <div style={{
+                      fontSize: 11, fontWeight: 500, color: 'var(--ink)',
+                      lineHeight: 1.3, marginBottom: 4,
+                      display: '-webkit-box', WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                    }}>
+                      {l.title}
                     </div>
-                    <div className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center text-xs ${
-                      selected ? 'bg-red-light border-red-light text-white' : 'border-stroke'
-                    }`}>
-                      {selected ? '✓' : ''}
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)' }}>
+                      {itemValue}
                     </div>
                   </button>
                 )
               })}
             </div>
           ) : (
-            <div className="text-center py-6">
-              <p className="text-muted text-sm mb-3">You have no active listings to offer.</p>
-              <Link href="/list" className="btn btn-primary text-sm">
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
+                You have no active listings to offer.
+              </p>
+              <Link href="/list" style={{
+                display: 'inline-flex', padding: '9px 20px', borderRadius: 99,
+                background: 'var(--red)', color: 'white', fontSize: 13,
+                border: '1px solid #A8251F', textDecoration: 'none',
+              }}>
                 List an item first
               </Link>
             </div>
           )}
         </div>
 
-        {/* Top-up intent (off-platform) */}
-        <div className="card p-4">
-          <div className="label mb-3">Top-up intent (optional)</div>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              value={topupAmount}
-              onChange={e => setTopupAmount(e.target.value)}
-              placeholder="e.g. 10"
-              className="input flex-1"
-              min="0"
-              step="0.01"
-            />
-            <select
-              value={topupCurrency}
-              onChange={e => setTopupCurrency(e.target.value)}
-              className="select w-24"
-            >
-              <option>GBP</option>
-              <option>EUR</option>
-              <option>USD</option>
-              <option>AUD</option>
-            </select>
+        {/* Top-up / cash bridge (collapsed by default, shows when value is short) */}
+        {(gapState === 'short' || gapState === 'way_short' || showTopup) && (
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 10 }}>
+              Bridge the gap — add cash intent
+            </div>
+            <p style={{ fontSize: 12, color: 'var(--faint)', marginBottom: 10, lineHeight: 1.5 }}>
+              Not paid through Bartr — just tells the other person you&apos;ll add cash off-platform.
+            </p>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <input
+                type="number"
+                value={topupAmount}
+                onChange={e => setTopupAmount(e.target.value)}
+                placeholder="Amount (e.g. 20)"
+                min="0" step="1"
+                style={{
+                  flex: 1, padding: '10px 12px',
+                  border: '1px solid var(--brd)', borderRadius: 'var(--r)',
+                  background: 'var(--surf)', color: 'var(--ink)',
+                  fontSize: 14, outline: 'none',
+                }}
+              />
+              <select
+                value={topupCurrency}
+                onChange={e => setTopupCurrency(e.target.value)}
+                style={{
+                  width: 72, padding: '10px 8px',
+                  border: '1px solid var(--brd)', borderRadius: 'var(--r)',
+                  background: 'var(--surf)', color: 'var(--ink)',
+                  fontSize: 13, outline: 'none',
+                }}
+              >
+                <option>GBP</option><option>EUR</option><option>USD</option><option>AUD</option>
+              </select>
+            </div>
           </div>
-          <p className="text-xs text-muted-2 mt-2">
-            Top-up amounts are recorded as intent only — payment happens off-platform between traders.
-          </p>
-        </div>
+        )}
+
+        {!showTopup && gapState !== 'short' && gapState !== 'way_short' && (
+          <button
+            onClick={() => setShowTopup(true)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              fontFamily: 'var(--font-dm-mono)', fontSize: 11,
+              color: 'var(--muted)', textDecoration: 'underline', textUnderlineOffset: 3,
+              marginBottom: 12, padding: '0 2px',
+            }}
+          >
+            + Add cash top-up intent
+          </button>
+        )}
 
         {/* Message */}
-        <div className="card p-4">
-          <div className="label mb-2">Message (optional)</div>
+        <div style={{
+          background: 'var(--surf)', border: '1px solid var(--brd)',
+          borderRadius: 'var(--rl)', padding: '14px 16px',
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 8 }}>
+            Message (optional)
+          </div>
           <textarea
             value={message}
             onChange={e => setMessage(e.target.value)}
             placeholder="Meetup preference, timing, condition notes…"
-            className="textarea"
             rows={3}
+            style={{
+              width: '100%', padding: '10px 12px', resize: 'none',
+              border: '1px solid var(--brd)', borderRadius: 'var(--r)',
+              background: 'var(--bg)', color: 'var(--ink)',
+              fontSize: 14, outline: 'none', lineHeight: 1.5,
+              fontFamily: 'var(--font-dm-sans)',
+            }}
           />
         </div>
-
-        {/* Preview */}
-        {preview && (
-          <div className="card p-4 border-stroke-2">
-            <div className="label mb-1">Preview</div>
-            <p className="text-sm text-muted">{preview}</p>
-          </div>
-        )}
       </main>
 
-      {/* Sticky CTA */}
-      <div className="fixed bottom-20 left-0 right-0 px-4 pb-4 bg-gradient-to-t from-bg via-bg/90 to-transparent">
-        <div className="max-w-2xl mx-auto flex gap-3">
-          <button
-            onClick={() => setPreview(buildPreview())}
-            className="btn flex-1"
-          >
-            Preview
-          </button>
+      {/* Sticky send bar */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+        padding: '12px 16px 24px',
+        background: 'rgba(246,244,241,0.97)',
+        backdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--brd)',
+      }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
           <button
             onClick={sendOffer}
             disabled={sending || selectedItems.length === 0}
-            className="btn btn-primary flex-1 text-base"
+            style={{
+              width: '100%', padding: '14px',
+              borderRadius: 99,
+              background: selectedItems.length === 0 ? 'var(--brd2)' : 'var(--red)',
+              border: `1px solid ${selectedItems.length === 0 ? 'var(--brd2)' : '#A8251F'}`,
+              color: 'white', fontSize: 16, fontWeight: 500,
+              cursor: selectedItems.length === 0 ? 'not-allowed' : 'pointer',
+              transition: 'background 0.15s',
+            }}
           >
-            {sending ? 'Sending…' : 'Send offer'}
+            {sending ? 'Sending…'
+              : selectedItems.length === 0 ? 'Select items to offer'
+              : `Send offer (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''})`}
           </button>
         </div>
       </div>

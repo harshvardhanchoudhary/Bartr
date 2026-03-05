@@ -15,24 +15,14 @@ interface Props {
 
 async function getListings(q?: string, cat?: string): Promise<ServiceListing[]> {
   const supabase = await createClient()
-
   let query = supabase
     .from('service_listings')
-    .select(`
-      *,
-      profile:profiles(id, handle, display_name, avatar_url, tier, trade_count)
-    `)
+    .select('*, profile:profiles(id, handle, display_name, avatar_url, tier, trade_count)')
     .eq('is_available', true)
     .order('created_at', { ascending: false })
     .limit(48)
-
-  if (q) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
-  }
-  if (cat && cat !== 'All') {
-    query = query.eq('category', cat)
-  }
-
+  if (q) query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%`)
+  if (cat && cat !== 'All') query = query.eq('category', cat)
   const { data } = await query
   return (data ?? []) as ServiceListing[]
 }
@@ -46,84 +36,82 @@ export default async function BBrowsePage({ searchParams }: Props) {
     <>
       <BTopBar
         right={
-          <Link
-            href="/b/list"
-            className="text-xs px-3 py-2 rounded-full border font-medium transition-colors"
-            style={{
-              background: 'rgba(45,106,79,0.80)',
-              borderColor: 'rgba(45,106,79,0.55)',
-              color: 'white',
-            }}
-          >
+          <Link href="/b/list" style={{
+            padding: '5px 12px', borderRadius: 99,
+            background: 'var(--grn)', color: 'white',
+            fontFamily: 'var(--font-dm-sans)', fontSize: 12,
+            border: '1px solid #136038', textDecoration: 'none',
+          }}>
             + Offer skill
           </Link>
         }
       />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 w-full">
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px' }}>
+
         {/* Search */}
-        <form className="mb-4">
+        <form style={{ marginBottom: 12 }}>
           <input
-            type="search"
-            name="q"
-            defaultValue={q}
+            type="search" name="q" defaultValue={q}
             placeholder="Search skills, e.g. logo design, React dev, copywriting…"
-            className="input text-sm"
-            style={{ borderColor: 'rgba(45,106,79,0.25)', background: 'rgba(45,106,79,0.05)' }}
+            style={{
+              width: '100%', padding: '11px 14px',
+              border: '1px solid var(--brd)', borderRadius: 'var(--rl)',
+              background: 'var(--surf)', color: 'var(--ink)',
+              fontSize: 14, outline: 'none', fontFamily: 'var(--font-dm-sans)',
+            }}
           />
         </form>
 
-        {/* Category filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex', gap: 6, overflowX: 'auto',
+          paddingBottom: 8, marginBottom: 16, scrollbarWidth: 'none',
+        }}>
           {CATEGORIES.map(c => (
-            <Link
-              key={c}
+            <Link key={c}
               href={`/b/browse?${q ? `q=${q}&` : ''}cat=${c}`}
-              className="flex-shrink-0 inline-flex items-center px-3 py-1.5 rounded-full text-xs font-mono border whitespace-nowrap transition-colors"
-              style={
-                cat === c
-                  ? { background: 'rgba(45,106,79,0.80)', borderColor: 'rgba(45,106,79,0.55)', color: 'white' }
-                  : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.62)' }
-              }
+              style={{
+                flexShrink: 0, padding: '5px 12px', borderRadius: 99,
+                fontFamily: 'var(--font-dm-mono)', fontSize: 11, letterSpacing: '0.04em',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+                background: cat === c ? 'var(--grn)' : 'var(--surf)',
+                border: `1px solid ${cat === c ? '#136038' : 'var(--brd)'}`,
+                color: cat === c ? 'white' : 'var(--ink2)',
+              }}
             >
               {c}
             </Link>
           ))}
         </div>
 
-        {/* Count + brief link */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-muted text-sm font-mono">
-            {listings.length} skill{listings.length !== 1 ? 's' : ''}
-            {cat !== 'All' && ` in ${cat}`}
+        {/* Count */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)' }}>
+            {listings.length} skill{listings.length !== 1 ? 's' : ''}{cat !== 'All' ? ` in ${cat}` : ''}
           </span>
-          <Link href="/b/briefs" className="text-xs text-muted hover:text-text transition-colors">
+          <Link href="/b/briefs" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)', textDecoration: 'none' }}>
             View open briefs →
           </Link>
         </div>
 
         {/* Grid */}
         {listings.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
-            {listings.map(listing => (
-              <ServiceCard key={listing.id} listing={listing} />
-            ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+            {listings.map(listing => <ServiceCard key={listing.id} listing={listing} />)}
           </div>
         ) : (
-          <div className="text-center py-16 text-muted">
-            <div className="text-4xl mb-4" style={{ color: 'rgba(45,106,79,0.6)' }}>◎</div>
-            <p className="text-sm">
+          <div style={{ textAlign: 'center', padding: '64px 0' }}>
+            <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--grn)', opacity: 0.4 }}>◎</div>
+            <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20 }}>
               {q ? `No skills matching "${q}"` : 'No skills listed yet — be the first!'}
             </p>
-            <Link
-              href="/b/list"
-              className="inline-flex items-center mt-4 px-5 py-2.5 rounded-full text-sm border font-medium"
-              style={{
-                background: 'rgba(45,106,79,0.80)',
-                borderColor: 'rgba(45,106,79,0.55)',
-                color: 'white',
-              }}
-            >
+            <Link href="/b/list" style={{
+              display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
+              background: 'var(--grn)', color: 'white',
+              fontSize: 14, fontWeight: 500, textDecoration: 'none',
+              border: '1px solid #136038',
+            }}>
               Offer your skill
             </Link>
           </div>

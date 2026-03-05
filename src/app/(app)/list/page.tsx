@@ -6,32 +6,37 @@ import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import toast from 'react-hot-toast'
 
-const CATEGORIES = [
-  'Fashion', 'Electronics', 'Books', 'Art',
-  'Collectibles', 'Home', 'Sports', 'Music', 'Other',
-]
-
+const CATEGORIES = ['Fashion', 'Electronics', 'Books', 'Art', 'Collectibles', 'Home', 'Sports', 'Music', 'Other']
 const CONDITIONS = [
-  { value: 'new', label: 'New — unused, in original packaging' },
-  { value: 'like_new', label: 'Like new — barely used, no signs of wear' },
+  { value: 'new', label: 'New — unused, original packaging' },
+  { value: 'like_new', label: 'Like new — barely used, no wear' },
   { value: 'good', label: 'Good — used but well maintained' },
   { value: 'fair', label: 'Fair — visible signs of use' },
-  { value: 'poor', label: 'Poor — heavy wear, functional' },
+  { value: 'poor', label: 'Poor — heavy wear, still functional' },
 ]
+
+const inputStyle = {
+  width: '100%', padding: '11px 14px',
+  border: '1px solid var(--brd)', borderRadius: 'var(--r)',
+  background: 'var(--surf)', color: 'var(--ink)',
+  fontSize: 14, outline: 'none',
+  fontFamily: 'var(--font-dm-sans)',
+} as const
+
+const labelStyle = {
+  display: 'block', fontFamily: 'var(--font-dm-mono)',
+  fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase' as const,
+  color: 'var(--muted)', marginBottom: 6,
+}
 
 export default function ListPage() {
   const router = useRouter()
   const supabase = createClient()
 
   const [form, setForm] = useState({
-    title: '',
-    description: '',
-    category: '',
-    condition: 'good',
-    valueLow: '',
-    valueHigh: '',
-    wants: '',
-    location: '',
+    title: '', description: '', category: '',
+    condition: 'good', valueLow: '', valueHigh: '',
+    wants: '', location: '',
   })
   const [saving, setSaving] = useState(false)
 
@@ -41,12 +46,10 @@ export default function ListPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-
     if (!form.title || !form.category) {
       toast.error('Title and category are required')
       return
     }
-
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
@@ -67,12 +70,10 @@ export default function ListPage() {
       }).select().single()
 
       if (error) throw error
-
-      toast.success('Listing created!')
+      toast.success('Listed!')
       router.push(`/listings/${data.id}`)
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to create listing'
-      toast.error(msg)
+      toast.error(err instanceof Error ? err.message : 'Failed to create listing')
     } finally {
       setSaving(false)
     }
@@ -80,133 +81,131 @@ export default function ListPage() {
 
   return (
     <>
-      <TopBar title="List item" />
+      <TopBar title="List an item" back />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 pb-10 w-full">
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <main style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px 60px' }}>
+        <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.6 }}>
+          Tell people what you have and what you want in return. The clearer, the more offers you&apos;ll get.
+        </p>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+
           {/* Title */}
           <div>
-            <label htmlFor="title" className="label">What are you listing? *</label>
+            <label style={labelStyle}>What are you listing? *</label>
             <input
-              id="title"
               type="text"
               value={form.title}
               onChange={set('title')}
               placeholder="e.g. Sony WH-1000XM4 headphones"
-              className="input"
               required
               maxLength={120}
+              style={inputStyle}
             />
           </div>
 
           {/* Category */}
           <div>
-            <label htmlFor="category" className="label">Category *</label>
-            <select
-              id="category"
-              value={form.category}
-              onChange={set('category')}
-              className="select"
-              required
-            >
+            <label style={labelStyle}>Category *</label>
+            <select value={form.category} onChange={set('category')} required style={{
+              ...inputStyle,
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378746E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+              backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
+              paddingRight: 36, appearance: 'none',
+            }}>
               <option value="">Select a category…</option>
-              {CATEGORIES.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
+              {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
           {/* Condition */}
           <div>
-            <label htmlFor="condition" className="label">Condition</label>
-            <select
-              id="condition"
-              value={form.condition}
-              onChange={set('condition')}
-              className="select"
-            >
-              {CONDITIONS.map(c => (
-                <option key={c.value} value={c.value}>{c.label}</option>
-              ))}
+            <label style={labelStyle}>Condition</label>
+            <select value={form.condition} onChange={set('condition')} style={{
+              ...inputStyle,
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2378746E' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+              backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
+              paddingRight: 36, appearance: 'none',
+            }}>
+              {CONDITIONS.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
             </select>
           </div>
 
           {/* Value estimate */}
           <div>
-            <div className="label">Estimated value (£)</div>
-            <div className="flex gap-2 items-center">
+            <label style={labelStyle}>Estimated value (£)</label>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
               <input
-                type="number"
-                value={form.valueLow}
-                onChange={set('valueLow')}
-                placeholder="Low"
-                className="input flex-1"
-                min="0"
+                type="number" value={form.valueLow} onChange={set('valueLow')}
+                placeholder="Min" min="0" style={{ ...inputStyle, flex: 1 }}
               />
-              <span className="text-muted-2">–</span>
+              <span style={{ color: 'var(--faint)' }}>—</span>
               <input
-                type="number"
-                value={form.valueHigh}
-                onChange={set('valueHigh')}
-                placeholder="High"
-                className="input flex-1"
-                min="0"
+                type="number" value={form.valueHigh} onChange={set('valueHigh')}
+                placeholder="Max" min="0" style={{ ...inputStyle, flex: 1 }}
               />
             </div>
-            <p className="text-xs text-muted-2 mt-1.5">
-              BARTR Estimates will auto-fill this based on recent eBay sales (coming soon).
+            <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 6 }}>
+              Auto-fill from eBay recent sales — coming soon
             </p>
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="label">Description</label>
+            <label style={labelStyle}>Description</label>
             <textarea
-              id="description"
               value={form.description}
               onChange={set('description')}
               placeholder="Condition details, what's included, any defects…"
-              className="textarea"
               rows={4}
               maxLength={2000}
+              style={{ ...inputStyle, resize: 'none', minHeight: 100 }}
             />
           </div>
 
-          {/* Wants */}
+          {/* Wants — the key social proof field */}
           <div>
-            <label htmlFor="wants" className="label">What do you want in return?</label>
+            <label style={labelStyle}>What will you accept in return?</label>
             <input
-              id="wants"
               type="text"
               value={form.wants}
               onChange={set('wants')}
-              placeholder="e.g. Books, camera gear, vinyl records, open to offers"
-              className="input"
+              placeholder="e.g. Camera gear, vinyl, fiction books, open to offers"
               maxLength={300}
+              style={inputStyle}
             />
+            <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 6 }}>
+              This shows on your listing as &quot;What gets accepted&quot; — be specific to get better offers
+            </p>
           </div>
 
           {/* Location */}
           <div>
-            <label htmlFor="location" className="label">Location</label>
+            <label style={labelStyle}>Location</label>
             <input
-              id="location"
               type="text"
               value={form.location}
               onChange={set('location')}
               placeholder="e.g. London, Manchester"
-              className="input"
+              style={inputStyle}
             />
           </div>
 
           {/* Submit */}
-          <div className="pt-2">
+          <div style={{ paddingTop: 8 }}>
             <button
               type="submit"
               disabled={saving}
-              className="btn btn-primary w-full btn-lg text-base"
+              style={{
+                width: '100%', padding: '14px',
+                borderRadius: 99,
+                background: saving ? 'var(--brd2)' : 'var(--red)',
+                border: `1px solid ${saving ? 'var(--brd2)' : '#A8251F'}`,
+                color: 'white', fontSize: 16, fontWeight: 500,
+                cursor: saving ? 'not-allowed' : 'pointer',
+              }}
             >
-              {saving ? 'Listing…' : 'List item'}
+              {saving ? 'Listing…' : 'List item →'}
             </button>
           </div>
         </form>

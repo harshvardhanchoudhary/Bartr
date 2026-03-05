@@ -2,13 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/b/browse', label: 'Browse' },
-  { href: '/b/briefs', label: 'Briefs' },
-  { href: '/b/messages', label: 'Messages' },
-  { href: '/b/profile', label: 'Portfolio' },
+  { href: '/b/browse',   label: 'Browse',    icon: '⊞' },
+  { href: '/b/briefs',   label: 'Briefs',    icon: '◻' },
+  { href: '/b/messages', label: 'Messages',  icon: '◎' },
+  { href: '/b/profile',  label: 'Portfolio', icon: '◑' },
 ]
 
 export function BBottomNav() {
@@ -16,33 +15,47 @@ export function BBottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 border-t"
       style={{
-        background: 'rgba(10,13,11,0.92)',
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+        height: 64,
+        background: 'rgba(246,244,241,0.96)',
         backdropFilter: 'blur(16px)',
-        borderColor: 'rgba(45,106,79,0.20)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--brd)',
+        display: 'flex', alignItems: 'stretch',
       }}
       aria-label="Bartr-B navigation"
     >
-      <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2">
-        {navItems.map(({ href, label }) => {
-          const active = pathname === href || pathname.startsWith(href + '/')
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors min-w-[56px]',
-                active ? '' : 'opacity-40 hover:opacity-70'
-              )}
-              style={active ? { color: '#52B788' } : { color: 'rgba(255,255,255,0.5)' }}
-              aria-current={active ? 'page' : undefined}
-            >
-              <span className="text-[10px] font-mono tracking-wide">{label}</span>
-            </Link>
-          )
-        })}
-      </div>
+      {navItems.map(({ href, label, icon }) => {
+        const active = pathname === href || pathname.startsWith(href + '/')
+        return (
+          <Link
+            key={href}
+            href={href}
+            style={{
+              flex: 1, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: 3,
+              textDecoration: 'none', position: 'relative',
+              color: active ? 'var(--grn)' : 'var(--faint)',
+              transition: 'color 0.15s',
+            }}
+            aria-current={active ? 'page' : undefined}
+          >
+            {active && (
+              <div style={{
+                position: 'absolute', top: 0, left: '50%',
+                transform: 'translateX(-50%)',
+                width: 24, height: 2,
+                background: 'var(--grn)', borderRadius: 99,
+              }} />
+            )}
+            <span style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+              {label}
+            </span>
+          </Link>
+        )
+      })}
     </nav>
   )
 }
