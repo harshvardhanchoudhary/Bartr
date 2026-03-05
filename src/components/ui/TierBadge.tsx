@@ -1,10 +1,10 @@
-import { cn, tierLabel } from '@/lib/utils'
+import { tierLabel } from '@/lib/utils'
 import type { UserTier } from '@/types'
 
-const tierStyles: Record<UserTier, string> = {
-  bronze: 'text-amber-DEFAULT border-amber-DEFAULT/40 bg-amber-muted',
-  silver: 'text-muted border-stroke-2 bg-white/5',
-  gold: 'text-yellow-400 border-yellow-400/40 bg-yellow-400/10',
+const tierStyles: Record<UserTier, { bg: string; border: string; color: string }> = {
+  bronze: { bg: 'var(--rbg)', border: 'var(--rbd)', color: '#A0522D' },
+  silver: { bg: 'var(--bg2)', border: 'var(--brd2)', color: 'var(--muted)' },
+  gold:   { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)' },
 }
 
 interface TierBadgeProps {
@@ -12,15 +12,15 @@ interface TierBadgeProps {
   className?: string
 }
 
-export function TierBadge({ tier, className }: TierBadgeProps) {
+export function TierBadge({ tier }: TierBadgeProps) {
+  const s = tierStyles[tier]
   return (
-    <span
-      className={cn(
-        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono border',
-        tierStyles[tier],
-        className
-      )}
-    >
+    <span style={{
+      display: 'inline-flex', alignItems: 'center',
+      padding: '2px 8px', borderRadius: 99,
+      fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.04em',
+      background: s.bg, border: `1px solid ${s.border}`, color: s.color,
+    }}>
       {tierLabel(tier)}
     </span>
   )

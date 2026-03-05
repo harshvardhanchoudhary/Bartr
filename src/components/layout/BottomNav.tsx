@@ -2,46 +2,63 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
 
-const navItems = [
-  { href: '/social', label: 'Social', icon: '◎' },
-  { href: '/browse', label: 'Market', icon: '⊞' },
-  { href: '/messages', label: 'Messages', icon: '◻' },
-  { href: '/profile', label: 'Shop', icon: '◑' },
+const NAV = [
+  { href: '/social',   label: 'Social',    icon: '◎' },
+  { href: '/browse',   label: 'Market',    icon: '⊞' },
+  { href: '/messages', label: 'Messages',  icon: '◻' },
+  { href: '/profile',  label: 'Profile',   icon: '◑' },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="bottom-nav safe-area-bottom" aria-label="Main navigation">
-      <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2">
-        {navItems.map(({ href, label, icon }) => {
-          const active = pathname === href || pathname.startsWith(href + '/')
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex flex-col items-center gap-1 px-4 py-2 rounded-lg transition-colors min-w-[56px]',
-                active
-                  ? 'text-red-light'
-                  : 'text-muted-2 hover:text-muted'
-              )}
-              aria-current={active ? 'page' : undefined}
-            >
-              <span className="text-xl leading-none">{icon}</span>
-              <span className={cn('text-[10px] font-mono tracking-wide', active && 'text-red-light')}>
-                {label}
-              </span>
-              {active && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-red-light rounded-full" />
-              )}
-            </Link>
-          )
-        })}
-      </div>
+    <nav
+      style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
+        height: 64,
+        background: 'rgba(246,244,241,0.96)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '1px solid var(--brd)',
+        display: 'flex', alignItems: 'stretch',
+      }}
+      aria-label="Main navigation"
+    >
+      {NAV.map(({ href, label, icon }) => {
+        const active = pathname === href || pathname.startsWith(href + '/')
+        return (
+          <Link
+            key={href}
+            href={href}
+            style={{
+              flex: 1, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: 3,
+              textDecoration: 'none', position: 'relative',
+              color: active ? 'var(--red)' : 'var(--faint)',
+              transition: 'color 0.15s',
+            }}
+            aria-current={active ? 'page' : undefined}
+          >
+            {active && (
+              <div style={{
+                position: 'absolute', top: 0, left: '50%',
+                transform: 'translateX(-50%)',
+                width: 24, height: 2,
+                background: 'var(--red)', borderRadius: 99,
+              }} />
+            )}
+            <span style={{ fontSize: 18, lineHeight: 1 }}>{icon}</span>
+            <span style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 9,
+              letterSpacing: '0.06em', textTransform: 'uppercase',
+            }}>
+              {label}
+            </span>
+          </Link>
+        )
+      })}
     </nav>
   )
 }

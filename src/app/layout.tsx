@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { Bebas_Neue, DM_Sans, DM_Mono } from 'next/font/google'
+import { Instrument_Serif, DM_Sans, DM_Mono } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
-const bebasNeue = Bebas_Neue({
+const instrumentSerif = Instrument_Serif({
   weight: '400',
   subsets: ['latin'],
-  variable: '--font-bebas',
+  variable: '--font-instrument-serif',
   display: 'swap',
 })
 
@@ -25,14 +25,14 @@ const dmMono = DM_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'BARTR — Trade what you have for what you love',
-    template: '%s | BARTR',
+    default: 'Bartr — Trade what you have for what you love',
+    template: '%s | Bartr',
   },
-  description: 'Peer-to-peer barter marketplace. List your stuff, find what you want, trade without cash.',
+  description: 'Peer-to-peer trading marketplace. List your stuff, find what you want, trade without cash.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   openGraph: {
     type: 'website',
-    siteName: 'BARTR',
+    siteName: 'Bartr',
   },
 }
 
@@ -42,18 +42,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${bebasNeue.variable} ${dmSans.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${instrumentSerif.variable} ${dmSans.variable} ${dmMono.variable}`}>
       <body>
         {children}
         <Toaster
           position="bottom-center"
           toastOptions={{
             style: {
-              background: '#1a1a1a',
-              color: 'rgba(255,255,255,0.92)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              borderRadius: '12px',
+              background: '#FDFCFA',
+              color: '#1A1814',
+              border: '1px solid #E0DCD5',
+              borderRadius: '11px',
               fontSize: '13px',
+              boxShadow: '0 4px 16px rgba(26,24,20,0.10)',
             },
           }}
         />

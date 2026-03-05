@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') ?? '/browse'
@@ -14,112 +14,143 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)
-
   const supabase = createClient()
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault()
     if (!email) return
-
     setLoading(true)
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${next}`,
-      },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback?next=${next}` },
     })
-
-    if (error) {
-      toast.error(error.message)
-    } else {
-      setSent(true)
-    }
+    if (error) { toast.error(error.message) }
+    else { setSent(true) }
     setLoading(false)
   }
 
   async function handleGoogle() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${next}`,
-      },
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${next}` },
     })
     if (error) toast.error(error.message)
   }
 
   return (
-    <main
-      className="min-h-screen flex flex-col items-center justify-center px-6"
-      style={{
-        background: `radial-gradient(800px 500px at 50% -10%, rgba(200,53,42,0.12), transparent 60%),
-                     linear-gradient(180deg, #08090c, #0a0a0a)`,
-      }}
-    >
-      <div className="w-full max-w-sm">
+    <main style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '24px', background: 'var(--bg)',
+    }}>
+      <div style={{ width: '100%', maxWidth: 380 }}>
         {/* Logo */}
-        <div className="text-center mb-10">
-          <Link href="/" className="font-display text-4xl tracking-[0.15em] text-white">
-            BARTR
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <Link href="/" style={{
+            fontFamily: 'var(--font-instrument-serif)', fontSize: 28,
+            color: 'var(--ink)', textDecoration: 'none',
+          }}>
+            Bartr
           </Link>
-          <p className="text-muted text-sm mt-2">
-            {next !== '/browse' ? 'Sign in to continue' : 'Sign in to your account'}
+          <p style={{ marginTop: 6, fontSize: 14, color: 'var(--muted)' }}>
+            {next !== '/browse' ? 'Sign in to continue' : 'Welcome back'}
           </p>
         </div>
 
+        {/* Progress pip — step 1 of 2 */}
+        <div style={{ display: 'flex', gap: 4, justifyContent: 'center', marginBottom: 28 }}>
+          {[0, 1].map(i => (
+            <div key={i} style={{
+              width: i === 0 ? 20 : 8, height: 4,
+              borderRadius: 99,
+              background: i === 0 ? 'var(--red)' : 'var(--brd2)',
+              transition: 'all 0.2s',
+            }} />
+          ))}
+        </div>
+
         {sent ? (
-          <div className="card p-6 text-center">
-            <div className="text-3xl mb-3">✉</div>
-            <h2 className="font-semibold mb-2">Check your email</h2>
-            <p className="text-muted text-sm">
-              We sent a magic link to <strong>{email}</strong>.
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', padding: '28px 24px', textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>✉️</div>
+            <h2 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--ink)', marginBottom: 8 }}>
+              Check your email
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6 }}>
+              We sent a magic link to <strong style={{ color: 'var(--ink)' }}>{email}</strong>.
               Click it to sign in — no password needed.
             </p>
             <button
               onClick={() => setSent(false)}
-              className="btn btn-ghost mt-4 text-sm w-full"
+              style={{
+                marginTop: 20, width: '100%', padding: '12px',
+                border: '1px solid var(--brd)', borderRadius: 99,
+                background: 'transparent', color: 'var(--ink2)',
+                fontSize: 14, cursor: 'pointer',
+              }}
             >
               Use a different email
             </button>
           </div>
         ) : (
-          <div className="card p-6">
-            {/* Magic link */}
-            <form onSubmit={handleMagicLink} className="space-y-3 mb-4">
-              <div>
-                <label htmlFor="email" className="label">Email address</label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="input"
-                  required
-                  autoComplete="email"
-                  autoFocus
-                />
-              </div>
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', padding: '24px',
+          }}>
+            {/* Magic link form */}
+            <form onSubmit={handleMagicLink} style={{ marginBottom: 16 }}>
+              <label className="label" htmlFor="email" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 6, display: 'block' }}>
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                autoComplete="email"
+                autoFocus
+                className="input"
+                style={{ marginBottom: 12 }}
+              />
               <button
                 type="submit"
                 disabled={loading || !email}
-                className="btn btn-primary w-full"
+                style={{
+                  width: '100%', padding: '13px',
+                  borderRadius: 99,
+                  background: !email || loading ? 'var(--brd2)' : 'var(--red)',
+                  color: 'white', border: '1px solid transparent',
+                  fontSize: 15, fontWeight: 500, cursor: !email || loading ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.15s',
+                }}
               >
-                {loading ? 'Sending…' : 'Send magic link'}
+                {loading ? 'Sending…' : 'Send magic link →'}
               </button>
             </form>
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-stroke" />
-              <span className="text-xs text-muted-2 font-mono">or</span>
-              <div className="flex-1 h-px bg-stroke" />
+            {/* Divider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '16px 0' }}>
+              <div style={{ flex: 1, height: 1, background: 'var(--brd)' }} />
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)' }}>or</span>
+              <div style={{ flex: 1, height: 1, background: 'var(--brd)' }} />
             </div>
 
             {/* Google OAuth */}
             <button
               onClick={handleGoogle}
-              className="btn w-full gap-2 justify-center"
+              style={{
+                width: '100%', padding: '12px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                border: '1px solid var(--brd2)', borderRadius: 99,
+                background: 'var(--surf)', color: 'var(--ink2)',
+                fontSize: 14, cursor: 'pointer',
+              }}
             >
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="16" height="16" viewBox="0 0 24 24">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                 <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -130,20 +161,28 @@ export default function LoginPage() {
           </div>
         )}
 
-        <p className="text-center text-xs text-muted-2 mt-6">
+        {/* Legal */}
+        <p style={{ textAlign: 'center', fontSize: 11, color: 'var(--faint)', marginTop: 20, lineHeight: 1.6 }}>
           By continuing you agree to our{' '}
-          <Link href="/legal/terms" className="underline hover:text-muted">Terms</Link>
+          <Link href="/legal/terms" style={{ color: 'var(--muted)', textDecoration: 'underline' }}>Terms</Link>
           {' '}and{' '}
-          <Link href="/legal/privacy" className="underline hover:text-muted">Privacy Policy</Link>
+          <Link href="/legal/privacy" style={{ color: 'var(--muted)', textDecoration: 'underline' }}>Privacy Policy</Link>
         </p>
 
-        {/* Earn-the-signup: browse first */}
-        <div className="text-center mt-4">
-          <Link href="/browse" className="text-xs text-muted hover:text-text transition-colors">
-            ← Browse listings without signing in
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <Link href="/browse" style={{ fontSize: 12, color: 'var(--faint)', textDecoration: 'none' }}>
+            ← Browse without signing in
           </Link>
         </div>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

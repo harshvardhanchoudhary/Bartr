@@ -9,53 +9,61 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Bartr (consumer) palette
-        bg: '#0a0a0a',
-        surface: '#141414',
-        'surface-2': '#1a1a1a',
-        stroke: 'rgba(255,255,255,0.08)',
-        'stroke-2': 'rgba(255,255,255,0.14)',
-        text: 'rgba(255,255,255,0.92)',
-        muted: 'rgba(255,255,255,0.62)',
-        'muted-2': 'rgba(255,255,255,0.40)',
+        // Warm parchment base
+        bg: '#F6F4F1',
+        'bg-2': '#EDEAE5',
+        surf: '#FDFCFA',
+        brd: '#E0DCD5',
+        'brd-2': '#CAC5BC',
+        ink: '#1A1814',
+        'ink-2': '#3C3830',
+        muted: '#78746E',
+        faint: '#B4B0A8',
+        // Bartr red
         red: {
-          DEFAULT: '#C8352A',
-          light: '#e11d2e',
-          muted: 'rgba(200,53,42,0.12)',
-          border: 'rgba(200,53,42,0.45)',
+          DEFAULT: '#C4312A',
+          bg: '#FDF0EF',
+          border: '#EACAC7',
         },
-        // Bartr-B (business) palette
+        // Bartr-B green
         green: {
-          DEFAULT: '#2D6A4F',
-          light: '#52B788',
-          muted: 'rgba(45,106,79,0.12)',
-          border: 'rgba(45,106,79,0.45)',
+          DEFAULT: '#1A7A4A',
+          bg: '#EFF9F4',
+          border: '#B5DDC8',
         },
-        // Status colours
-        amber: {
-          DEFAULT: '#D97706',
-          muted: 'rgba(217,119,6,0.12)',
-        },
+        // Offer-gap states
         blue: {
-          DEFAULT: '#3B82F6',
-          muted: 'rgba(59,130,246,0.12)',
+          DEFAULT: '#1D5FA8',
+          bg: '#EFF5FD',
+          border: '#BACDE8',
+        },
+        gold: {
+          DEFAULT: '#9A6C18',
+          bg: '#FDF6EC',
+          border: '#E3CCAA',
+        },
+        amber: {
+          DEFAULT: '#C47A1A',
+          bg: '#FDF5EC',
+          border: '#E8CCAA',
         },
       },
       fontFamily: {
-        display: ['var(--font-bebas)', 'Impact', 'sans-serif'],
+        serif: ['var(--font-instrument-serif)', 'Georgia', 'serif'],
         body: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
         mono: ['var(--font-dm-mono)', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        sm: '8px',
-        DEFAULT: '12px',
-        md: '16px',
+        sm: '5px',
+        DEFAULT: '11px',
+        md: '14px',
         lg: '22px',
         full: '9999px',
       },
       boxShadow: {
-        card: '0 18px 45px rgba(0,0,0,0.55)',
-        'card-sm': '0 8px 24px rgba(0,0,0,0.40)',
+        card: '0 2px 8px rgba(26,24,20,0.08)',
+        'card-md': '0 4px 16px rgba(26,24,20,0.10)',
+        sheet: '0 -4px 32px rgba(26,24,20,0.12)',
       },
       keyframes: {
         slideUp: {
@@ -66,10 +74,15 @@ const config: Config = {
           from: { opacity: '0' },
           to: { opacity: '1' },
         },
+        ticker: {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
       },
       animation: {
         'slide-up': 'slideUp 0.28s cubic-bezier(0.32,0.72,0,1)',
         'fade-in': 'fadeIn 0.18s ease',
+        ticker: 'ticker 24s linear infinite',
       },
     },
   },
