@@ -1,0 +1,146 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-bebas: 'Bebas Neue', Impact, sans-serif;
+    --font-dm-sans: 'DM Sans', system-ui, sans-serif;
+    --font-dm-mono: 'DM Mono', ui-monospace, monospace;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+    background-color: #0a0a0a;
+    color: rgba(255, 255, 255, 0.92);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-dm-sans);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 99px;
+  }
+
+  /* Remove autofill blue bg on inputs */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+    -webkit-box-shadow: 0 0 0px 1000px #141414 inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+@layer components {
+  /* Base card */
+  .card {
+    @apply bg-surface border border-stroke rounded-md;
+  }
+
+  /* Chip / pill badge */
+  .chip {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-mono
+           bg-white/5 border border-stroke text-muted whitespace-nowrap;
+  }
+  .chip-red {
+    @apply chip bg-red-muted border-red-border text-red-light;
+  }
+  .chip-green {
+    @apply chip bg-green-muted border-green-border text-green-light;
+  }
+  .chip-amber {
+    @apply chip bg-amber-muted border-amber-DEFAULT/40 text-amber-DEFAULT;
+  }
+  .chip-blue {
+    @apply chip bg-blue-muted border-blue-DEFAULT/40 text-blue-DEFAULT;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full
+           text-sm font-medium transition-all duration-100
+           border border-stroke-2 bg-white/4 text-text
+           hover:bg-white/6 hover:border-white/22
+           active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-gradient-to-b from-red/92 to-red/70 border-red-border
+           text-white hover:from-red hover:to-red/80;
+  }
+  .btn-green {
+    @apply btn bg-gradient-to-b from-green/92 to-green/70 border-green-border
+           text-white hover:from-green hover:to-green/80;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent border-stroke;
+  }
+  .btn-lg {
+    @apply px-6 py-3.5 text-base;
+  }
+
+  /* Form inputs */
+  .input {
+    @apply w-full px-4 py-3 bg-surface border border-stroke rounded-md
+           text-text text-sm placeholder:text-muted-2
+           focus:outline-none focus:border-stroke-2 focus:ring-1 focus:ring-white/10
+           transition-colors;
+  }
+  .textarea {
+    @apply input resize-none min-h-[80px];
+  }
+  .select {
+    @apply input appearance-none cursor-pointer;
+  }
+  .label {
+    @apply block text-xs font-mono text-muted mb-1.5;
+  }
+
+  /* Avatar */
+  .avatar {
+    @apply rounded-full bg-surface-2 border border-stroke flex-shrink-0 overflow-hidden;
+  }
+  .avatar-sm { @apply avatar w-7 h-7; }
+  .avatar-md { @apply avatar w-10 h-10; }
+  .avatar-lg { @apply avatar w-14 h-14; }
+
+  /* Divider */
+  .divider {
+    @apply border-t border-stroke my-4;
+  }
+
+  /* Bottom nav (mobile) */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 z-40 bg-bg/90 backdrop-blur-xl
+           border-t border-stroke;
+  }
+}
+
+@layer utilities {
+  .text-gradient-red {
+    @apply bg-gradient-to-r from-red to-red-light bg-clip-text text-transparent;
+  }
+  .text-gradient-green {
+    @apply bg-gradient-to-r from-green to-green-light bg-clip-text text-transparent;
+  }
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  }
+}
