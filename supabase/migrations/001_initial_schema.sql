@@ -210,39 +210,35 @@ alter table threads add constraint threads_offer_fk
 -- ============================================================
 -- TRADES
 -- ============================================================
+-- Trust layer: public ledger, NOT escrow. No deposits, no payments on consumer Bartr.
 create table trades (
-  id                 uuid primary key default uuid_generate_v4(),
-  offer_id           uuid unique not null references offers(id),
-  buyer_id           uuid not null references profiles(id),
-  seller_id          uuid not null references profiles(id),
-  status             text not null default 'escrow_pending'
-    check (status in ('escrow_pending','escrow_held','meetup_arranged','completed','disputed')),
-  deposit_intent_id  text,    -- Stripe PaymentIntent ID
-  deposit_amount     int,     -- in pence/cents
-  completed_at       timestamptz,
-  created_at         timestamptz not null default now()
+  id            uuid primary key default uuid_generate_v4(),
+  offer_id      uuid unique not null references offers(id),
+  initiator_id  uuid not null references profiles(id),
+  receiver_id   uuid not null references profiles(id),
+  status        text not null default 'offered'
+    check (status in ('offered','accepted','meetup_arranged','completed','disputed')),
+  completed_at  timestamptz,
+  created_at    timestamptz not null default now()
 );
 
 alter table trades enable row level security;
 
 create policy "Trade parties can view"
   on trades for select
-  using (auth.uid() = buyer_id or auth.uid() = seller_id);
+  using (auth.uid() = initiator_id or auth.uid() = receiver_id);
 
--- On trade completion, increment trade_count and write ledger
+-- On trade completion: increment trade_count, archive listing, write ledger entry
 create or replace function on_trade_completed()
 returns trigger language plpgsql security definer as $$
 begin
   if new.status = 'completed' and old.status != 'completed' then
-    -- Increment trade counts
     update profiles set trade_count = trade_count + 1
-    where id in (new.buyer_id, new.seller_id);
+    where id in (new.initiator_id, new.receiver_id);
 
-    -- Update listing status
     update listings set status = 'completed'
     where id = (select target_listing_id from offers where id = new.offer_id);
 
-    -- Return deposit (stub — handled by Stripe webhook in production)
     new.completed_at = now();
   end if;
   return new;

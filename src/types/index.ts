@@ -6,7 +6,7 @@ export type ListingStatus = 'active' | 'in_trade' | 'completed' | 'archived'
 
 export type OfferStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn' | 'completed'
 
-export type TradeStatus = 'escrow_pending' | 'escrow_held' | 'meetup_arranged' | 'completed' | 'disputed'
+export type TradeStatus = 'offered' | 'accepted' | 'meetup_arranged' | 'completed' | 'disputed'
 
 // ---- Value gap states (offer value logic) ----
 export type ValueGapState =
@@ -80,11 +80,9 @@ export interface Offer {
 export interface Trade {
   id: string
   offer_id: string
-  buyer_id: string
-  seller_id: string
+  initiator_id: string
+  receiver_id: string
   status: TradeStatus
-  deposit_intent_id: string | null
-  deposit_amount: number | null
   completed_at: string | null
   created_at: string
 }

@@ -148,7 +148,7 @@ export default async function ListingPage({ params }: Props) {
 
         {/* Trust note */}
         <div className="text-xs text-muted-2 mb-6">
-          Trades are recorded on the public ledger. A 10% deposit (returned on completion) keeps both sides accountable.
+          Trades are recorded on the public ledger — that's the trust layer. No escrow, no payments on Bartr.
         </div>
 
         {/* CTA — sticky at bottom */}
