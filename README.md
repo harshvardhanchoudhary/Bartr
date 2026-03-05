@@ -1,14 +1,21 @@
-# BARTR
+# Bartr
 
-Peer-to-peer barter marketplace. Trade what you have for what you love — no cash needed.
+Peer-to-peer trading marketplace. Trade what you have for what you love — no cash needed.
+
+Also includes **Bartr-B**: a skills/services exchange where freelancers trade work and earn Credits.
 
 ## Stack
 
 - **Next.js 14** (App Router, TypeScript)
 - **Supabase** (Auth + Postgres + Realtime + Storage)
-- **Stripe Connect** (10% deposit escrow)
-- **Tailwind CSS** (custom design system)
+- **Stripe** (Bartr-B milestone escrow only — not used on consumer Bartr)
+- **Tailwind CSS** + CSS custom properties (warm parchment design system)
 - **Vercel** (deployment)
+
+## Design system
+
+Warm parchment palette (`#F6F4F1` base). Instrument Serif for display, DM Sans for body, DM Mono for labels.
+All colours defined as CSS vars in `globals.css`. See `DECISIONS.md` for full rationale.
 
 ## Getting started
 
@@ -26,19 +33,22 @@ npm install
 cp .env.local.example .env.local
 ```
 
-Fill in the values in `.env.local`:
-- **Supabase**: Create a project at [supabase.com](https://supabase.com), get URL + anon key from Settings → API
-- **Stripe**: Get keys from [dashboard.stripe.com](https://dashboard.stripe.com/apikeys)
-- **eBay**: Register at [developer.ebay.com](https://developer.ebay.com)
-- **Resend**: Get API key from [resend.com](https://resend.com)
+Fill in `.env.local`:
+- **Supabase**: Create a project at [supabase.com](https://supabase.com) → Settings → API
+- **Stripe**: Keys from [dashboard.stripe.com](https://dashboard.stripe.com/apikeys) (Bartr-B only)
+- **Resend**: API key from [resend.com](https://resend.com) (transactional email)
 
 ### 3. Set up the database
 
-In your Supabase project SQL editor, run `supabase/migrations/001_initial_schema.sql`.
+Run migrations in order in the Supabase SQL editor:
+
+```
+supabase/migrations/001_initial_schema.sql
+supabase/migrations/002_bartr_b_schema.sql
+```
 
 Or with the Supabase CLI:
 ```bash
-npm install -g supabase
 supabase link --project-ref <your-project-ref>
 supabase db push
 ```
@@ -56,49 +66,77 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 src/
 ├── app/
-│   ├── (app)/              # Main app shell (with bottom nav)
-│   │   ├── browse/         # Market feed — public, no login needed
-│   │   ├── social/         # Social feed
-│   │   ├── messages/       # Inbox + threads
-│   │   ├── offer/[id]/     # Offer builder
-│   │   ├── list/           # Create listing
-│   │   ├── listings/[id]/  # Listing detail
-│   │   └── profile/        # User profiles + shop
+│   ├── (app)/                  # Main app shell (bottom nav)
+│   │   ├── browse/             # Market feed — public, no login needed
+│   │   ├── social/             # Social feed
+│   │   ├── messages/           # Inbox + trade threads
+│   │   ├── offer/[listingId]/  # Offer builder (3-col grid + value gap bar)
+│   │   ├── list/               # Create a listing
+│   │   ├── listings/[id]/      # Listing detail + "what they'll accept"
+│   │   └── profile/            # User profile + trade history
 │   ├── (auth)/
-│   │   └── login/          # Magic link + Google OAuth
-│   ├── auth/callback/      # OAuth callback handler
-│   ├── layout.tsx
-│   └── page.tsx            # Root landing (3 elements only)
+│   │   └── login/              # Magic link + Google OAuth
+│   ├── auth/callback/          # OAuth callback handler
+│   ├── b/                      # Bartr-B (skills marketplace)
+│   │   ├── page.tsx            # Bartr-B landing
+│   │   └── (shell)/            # Bartr-B app shell (green accent nav)
+│   │       ├── browse/         # Skills feed
+│   │       ├── list/           # Offer a skill
+│   │       ├── briefs/         # Open briefs + post a brief
+│   │       ├── listings/[id]/  # Service detail
+│   │       └── profile/        # Portfolio profile
+│   ├── layout.tsx              # Root layout (fonts: Instrument Serif, DM Sans, DM Mono)
+│   └── page.tsx                # Landing — earn-the-signup, browse before account
 ├── components/
-│   ├── layout/             # TopBar, BottomNav
-│   ├── listings/           # ListingCard
-│   └── ui/                 # Chip, Avatar, Drawer, ValueGapBadge, TierBadge
+│   ├── landing/                # LandingGate (sign-up slide-up sheet)
+│   ├── layout/                 # TopBar, BottomNav
+│   ├── listings/               # ListingCard
+│   ├── b/                      # BTopBar, BBottomNav, ServiceCard
+│   └── ui/                     # Avatar, ValueGapBadge, TierBadge
 ├── lib/
-│   ├── supabase/           # client, server, middleware
-│   └── utils.ts            # Value gap logic, formatters
-├── types/                  # TypeScript types
-└── middleware.ts            # Auth route protection
+│   ├── supabase/               # client.ts, server.ts
+│   └── utils.ts                # Value gap logic, formatters
+└── types/
+    ├── index.ts                # Core types (Listing, Offer, Thread, Trade…)
+    └── bartr-b.ts              # Bartr-B types (ServiceListing, Brief, Milestone…)
 supabase/
-├── migrations/             # SQL schema (run this first)
+├── migrations/
+│   ├── 001_initial_schema.sql  # Core tables + RLS policies
+│   └── 002_bartr_b_schema.sql  # Bartr-B tables + triggers
 └── config.toml
-reference/
-└── prototype-v10.html      # Original HTML prototype (design reference)
+DECISIONS.md                    # Architecture decision log
 ```
 
 ## Key design decisions
 
-- **Earn the signup**: Browse feed is public — no account needed to discover listings
-- **One job per screen**: Each page has a single primary action
-- **5-state value gap**: Fair / Under / Big under / Over / Big over — colour-coded
-- **Public ledger**: All completed trades are permanently recorded
-- **10% deposit escrow**: Via Stripe, returned on successful trade completion
+See `DECISIONS.md` for the full log. Short version:
+
+- **Earn the signup**: Landing and browse are fully public — no account needed to discover listings
+- **No escrow on consumer Bartr**: Public trade ledger is the trust layer, no payments
+- **5-state value gap**: Fair / Short / Way short / Over / Way over — colour-coded in offer builder
+- **"What gets accepted"**: Community patterns shown on every listing — reduces offer anxiety
+- **Bartr-B = same warm design, green accent**: Credits economy, milestones, not a time-bank
+
+## Manual setup required (browser/dashboard)
+
+These cannot be done from code:
+
+| Step | Where |
+|------|-------|
+| Create Supabase project | supabase.com |
+| Enable Google OAuth provider | Supabase → Auth → Providers |
+| Customise magic link email template | Supabase → Auth → Email Templates |
+| Create `listings` storage bucket (set to public) | Supabase → Storage |
+| Connect repo to Vercel | vercel.com → Add New Project |
+| Add env vars to Vercel | Vercel → Project → Settings → Environment Variables |
 
 ## Build phases
 
-- **Phase 1 (current)**: Auth, listings, browse, offers, messages, profiles
+- **Phase 1 (current)**: Auth, listings, browse, offer flow, messages, list, profiles, Bartr-B foundation
 - **Phase 2**: Verification badges, taste matching, disputes, carbon credits
-- **Phase 3**: Bartr-B — skills/services, credits economy, milestone escrow
+- **Phase 3**: Bartr-B milestones + Credits escrow via Stripe, portfolio requirements enforcement
 
-## Deploy to Vercel
+## Deploy
 
-Connect your GitHub repo to Vercel, set the environment variables in the Vercel dashboard, and it will auto-deploy on push.
+Connect this repo to Vercel. It will auto-deploy on every push to `main`.
+Add all environment variables in the Vercel dashboard before the first deploy.

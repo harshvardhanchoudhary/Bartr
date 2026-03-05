@@ -12,7 +12,7 @@ Bartr-B is the business/skills layer for freelancers (Credits economy, milestone
 - Tailwind CSS
 - Vercel deployment
 
-## Design System (Warm/Light — from prototype-v10.html)
+## Design System
 ```css
 --bg:    #F6F4F1   /* warm parchment */
 --bg2:   #EDEAE5
@@ -41,7 +41,7 @@ Bartr-B is the business/skills layer for freelancers (Credits economy, milestone
 - **Instrument Serif** — display/headings/wordmark
 - **DM Sans** — body text
 - **DM Mono** — labels, monospace data, badges
-- NEVER Bebas Neue, NEVER Inter, NEVER Roboto, NEVER dark backgrounds on consumer Bartr
+- NEVER dark backgrounds on consumer Bartr
 
 ## Offer Value Gap Logic (5 states)
 - **Fair** (within 15%): green border/badge "Fair trade"
@@ -67,16 +67,15 @@ Earn-the-signup experience:
 - **YC design principles**: clear CTAs, storytelling, visible user flow
 - **Public ledger is trust** (no escrow, no payments on consumer Bartr)
 
-## Build Priority
-Phase 1: Auth, listing creation, browse feed, listing detail, offer flow,
-         post-trade confirmation, profile, messaging
-Phase 2: Verification, trust badges, taste matching, disputes, carbon credits
-Phase 3: Bartr-B (service listings, briefs, milestones, credits economy)
+## Build Status
+Phase 1 (built): Auth, listing creation, browse feed, listing detail, offer flow,
+                 messages, profile, Bartr-B foundation
+Phase 2 (next): Verification badges, trust scoring, taste matching, disputes, carbon credits
+Phase 3 (next): Bartr-B milestones, Credits escrow via Stripe, portfolio enforcement
 
 ## Bartr-B Design
 Same warm/light design language as consumer Bartr, but green accent (#1A7A4A)
 instead of red. Credits economy. Portfolio required to offer services.
 
-## Full context
-See /reference/prototype-v10.html for complete visual design reference.
-See /reference/bartr-handoff.docx for complete project history and decisions.
+## Architecture decisions
+See DECISIONS.md for full log of every non-obvious decision made.

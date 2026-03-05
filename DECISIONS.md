@@ -7,10 +7,10 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ## Design System
 
-### D001 — Warm parchment, not dark
+### D001 — Warm parchment design system
 **Decision:** `#F6F4F1` parchment background. Instrument Serif for display. DM Sans body. DM Mono labels.
-**Why:** Prototype-v10.html (the authoritative reference, 1993 lines) explicitly uses warm/light design. Dark version was an earlier mistake.
-**Watch out for:** Any `bg-surface`, `bg-bg`, class-based colour refs from the old dark system still lurking. Prefer inline CSS vars (`var(--bg)`, `var(--red)`) over Tailwind classes until the whole codebase is consistent.
+**Why:** Warm/light palette fits the physical-goods marketplace feel — approachable, not tech-aggressive. Instrument Serif gives the wordmark character.
+**Watch out for:** Prefer inline CSS vars (`var(--bg)`, `var(--red)`) over Tailwind colour classes. Tailwind classes are a secondary layer — CSS vars are the source of truth.
 
 ### D002 — CSS custom properties as single source of truth
 **Decision:** All colours defined as CSS vars in `globals.css :root {}`. Tailwind theme extends them via the hex values.
@@ -23,7 +23,7 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ### D003 — Magic link + Google OAuth only (no passwords)
 **Decision:** Supabase OTP (magic link) + Google OAuth. No email/password.
-**Why:** Reduces friction, eliminates password reset flows. The prototype doesn't show a password field.
+**Why:** Reduces friction, eliminates password reset flows. Magic link is lower-barrier for a marketplace where users might only sign up to make one trade.
 **Watch out for:** Magic link emails need Supabase email templates customised (warm branding). Set up in Supabase dashboard — Claude Code can't do this directly.
 
 ### D004 — Earn-the-signup: browse before auth
@@ -38,7 +38,7 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 ### D005 — No escrow, no deposits, no Stripe on consumer side
 **Decision:** Stripe is imported in package.json but ONLY used in Bartr-B milestone escrow. Consumer Bartr has zero payment logic.
 **Why:** Prototype-v10.html explicitly says "No escrow • No payments • Public history is the trust layer."
-**Watch out for:** Old handoff doc mentioned deposits — this was wrong. The public ledger (trade history on profiles) is the trust mechanism.
+**Watch out for:** The public trade ledger (trade history visible on profiles) is the trust mechanism. Don't add payment/escrow logic to consumer Bartr flows.
 
 ### D006 — Value gap: 5 states
 **Decision:** fair (±15%), short (<-15%), way_short (<-40%), over (>15%), way_over (>40%).
@@ -57,7 +57,7 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 ### D008 — Same warm design language, green accent
 **Decision:** Bartr-B uses `#1A7A4A` green instead of `#C4312A` red. Same fonts, same parchment background.
 **Why:** Visual family connection to consumer Bartr. Green = growth/money earned (Credits economy).
-**Watch out for:** Bartr-B was previously built with a dark/standalone design. All those pages need rebuilding.
+**Watch out for:** Bartr-B shares the same warm parchment base as consumer Bartr — only the accent colour changes (green vs red). Don't introduce a separate dark theme for Bartr-B.
 
 ### D009 — Credits economy, not cash
 **Decision:** Services priced in Credits (c). Starting grant: 50c. Credits earned by delivering milestones.
@@ -97,4 +97,4 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ---
 
-*Last updated: 2026-03-05*
+*Last updated: 2026-03-05 — v1 complete*
