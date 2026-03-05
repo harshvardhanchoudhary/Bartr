@@ -15,7 +15,7 @@ const sizeMap = {
 
 export function Avatar({ src, alt = '', size = 'md', initials }: AvatarProps) {
   const px = sizeMap[size]
-  const initial = initials ?? alt.charAt(0).toUpperCase() || '?'
+  const initial = (initials ?? alt.charAt(0).toUpperCase()) || '?'
 
   return (
     <div style={{
