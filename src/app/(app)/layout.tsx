@@ -1,12 +1,9 @@
+import type { ReactNode } from 'react'
 import { BottomNav } from '@/components/layout/BottomNav'
 
-/**
- * Shell for the main app screens:
- * social, browse, messages, profile
- */
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col min-h-screen pb-20">
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', paddingBottom: 64 }}>
       {children}
       <BottomNav />
     </div>

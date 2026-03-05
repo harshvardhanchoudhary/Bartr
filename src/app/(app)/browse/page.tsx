@@ -20,10 +20,7 @@ async function getListings(q?: string, cat?: string): Promise<Listing[]> {
     .from('listings')
     .select(`
       *,
-      profile:profiles(
-        id, handle, display_name, avatar_url, tier,
-        verified_id, verified_phone, verified_photo
-      )
+      profile:profiles(id, handle, display_name, avatar_url, tier)
     `)
     .eq('status', 'active')
     .order('created_at', { ascending: false })
@@ -32,7 +29,6 @@ async function getListings(q?: string, cat?: string): Promise<Listing[]> {
   if (q) {
     query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,wants.ilike.%${q}%`)
   }
-
   if (cat && cat !== 'All') {
     query = query.eq('category', cat)
   }
@@ -44,88 +40,116 @@ async function getListings(q?: string, cat?: string): Promise<Listing[]> {
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const q = searchParams.q
   const cat = searchParams.cat ?? 'All'
-
   const listings = await getListings(q, cat)
 
   return (
     <>
       <TopBar
         right={
-          <Link href="/list" className="btn btn-primary text-xs px-3 py-2">
-            + List item
+          <Link href="/list" style={{
+            display: 'inline-flex', alignItems: 'center',
+            padding: '6px 14px', borderRadius: 99,
+            background: 'var(--red)', color: 'white',
+            fontFamily: 'var(--font-dm-sans)', fontSize: 13, fontWeight: 500,
+            border: '1px solid #A8251F', textDecoration: 'none',
+          }}>
+            + List
           </Link>
         }
       />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 w-full">
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px', width: '100%' }}>
+
         {/* Search */}
-        <form className="mb-4">
-          <div className="relative">
+        <form style={{ marginBottom: 12 }}>
+          <div style={{ position: 'relative' }}>
             <input
               type="search"
               name="q"
               defaultValue={q}
-              placeholder="Search listings, categories, wants…"
-              className="input pr-10 text-sm"
+              placeholder="Search listings…"
+              style={{
+                width: '100%', padding: '11px 40px 11px 14px',
+                border: '1px solid var(--brd)', borderRadius: 'var(--rl)',
+                background: 'var(--surf)', color: 'var(--ink)',
+                fontSize: 14, outline: 'none',
+                fontFamily: 'var(--font-dm-sans)',
+              }}
             />
-            <button
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-2"
-              aria-label="Search"
-            >
+            <button type="submit" style={{
+              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--faint)', fontSize: 16,
+            }} aria-label="Search">
               ◎
             </button>
           </div>
         </form>
 
-        {/* Category filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
-          {CATEGORIES.map((c) => (
+        {/* Category tabs */}
+        <div style={{
+          display: 'flex', gap: 6, overflowX: 'auto',
+          paddingBottom: 8, marginBottom: 16, scrollbarWidth: 'none',
+        }}>
+          {CATEGORIES.map(c => (
             <Link
               key={c}
               href={`/browse?${q ? `q=${q}&` : ''}cat=${c}`}
-              className={
-                cat === c
-                  ? 'chip-red flex-shrink-0'
-                  : 'chip flex-shrink-0 hover:border-stroke-2'
-              }
+              style={{
+                flexShrink: 0, padding: '5px 12px', borderRadius: 99,
+                fontFamily: 'var(--font-dm-mono)', fontSize: 11, letterSpacing: '0.04em',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+                background: cat === c ? 'var(--red)' : 'var(--surf)',
+                border: `1px solid ${cat === c ? '#A8251F' : 'var(--brd)'}`,
+                color: cat === c ? 'white' : 'var(--ink2)',
+                transition: 'all 0.12s',
+              }}
             >
               {c}
             </Link>
           ))}
         </div>
 
-        {/* Count */}
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-muted text-sm font-mono">
+        {/* Count + match nudge */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: 16,
+        }}>
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)' }}>
             {listings.length} listing{listings.length !== 1 ? 's' : ''}
             {cat !== 'All' && ` in ${cat}`}
             {q && ` for "${q}"`}
           </span>
-          {/* Earn-the-signup nudge — shown when not logged in */}
-          <Link href="/login" className="text-xs text-muted hover:text-text transition-colors">
-            Sign in to see matches →
+          <Link href="/login" style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)',
+            textDecoration: 'none', letterSpacing: '0.04em',
+          }}>
+            Sign in to see your matches →
           </Link>
         </div>
 
         {/* Grid */}
         {listings.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3">
-            {listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                matchScore={listing.match_score}
-              />
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: 12,
+          }}>
+            {listings.map(listing => (
+              <ListingCard key={listing.id} listing={listing} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 text-muted">
-            <div className="text-4xl mb-4">◻</div>
-            <p className="text-sm">
-              {q ? `No listings for "${q}"` : 'No listings yet — be the first to list!'}
+          <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--muted)' }}>
+            <div style={{ fontSize: 40, marginBottom: 16 }}>◻</div>
+            <p style={{ fontSize: 14, marginBottom: 20 }}>
+              {q ? `No listings for "${q}"` : 'No listings yet — be the first!'}
             </p>
-            <Link href="/list" className="btn btn-primary mt-4 text-sm">
+            <Link href="/list" style={{
+              display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
+              background: 'var(--red)', color: 'white',
+              fontSize: 14, fontWeight: 500, textDecoration: 'none',
+              border: '1px solid #A8251F',
+            }}>
               List your first item
             </Link>
           </div>

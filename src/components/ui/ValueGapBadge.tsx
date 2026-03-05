@@ -1,5 +1,13 @@
-import { cn, getValueGapState, valueGapClasses, valueGapLabel } from '@/lib/utils'
+import { getValueGapState, valueGapLabel } from '@/lib/utils'
 import type { ValueGapState } from '@/types'
+
+const stateStyles: Record<ValueGapState, { bg: string; border: string; color: string; icon: string }> = {
+  fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', icon: '✓' },
+  short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', icon: '↓' },
+  way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', icon: '↓↓' },
+  over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', icon: '↑' },
+  way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', icon: '↑↑' },
+}
 
 interface ValueGapBadgeProps {
   offeredMid: number
@@ -7,22 +15,20 @@ interface ValueGapBadgeProps {
   className?: string
 }
 
-export function ValueGapBadge({ offeredMid, targetMid, className }: ValueGapBadgeProps) {
+export function ValueGapBadge({ offeredMid, targetMid }: ValueGapBadgeProps) {
   const state: ValueGapState = getValueGapState(offeredMid, targetMid)
-  const { badge, icon } = valueGapClasses(state)
+  const s = stateStyles[state]
   const diff = offeredMid - targetMid
   const label = valueGapLabel(state, diff)
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono border',
-        badge,
-        className
-      )}
-      title={label}
-    >
-      <span>{icon}</span>
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 5,
+      padding: '5px 10px', borderRadius: 99,
+      fontFamily: 'var(--font-dm-mono)', fontSize: 11,
+      background: s.bg, border: `1px solid ${s.border}`, color: s.color,
+    }}>
+      <span>{s.icon}</span>
       <span>{label}</span>
     </span>
   )
