@@ -245,7 +245,7 @@ export default async function ListingPage({ params }: Props) {
         </div>
       </main>
 
-      <OfferGateBar listingId={listing.id} isDemo={isDemo} />
+      <OfferGateBar listingId={listing.id} />
     </>
   )
 }
