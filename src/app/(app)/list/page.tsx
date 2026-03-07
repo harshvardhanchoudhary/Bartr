@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
@@ -38,11 +38,28 @@ export default function ListPage() {
     condition: 'good', valueLow: '', valueHigh: '',
     wants: '', location: '',
   })
+  const [images, setImages] = useState<File[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const set = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => setForm(prev => ({ ...prev, [key]: e.target.value }))
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []).slice(0, 4 - images.length)
+    if (files.length === 0) return
+    const newPreviews = files.map(f => URL.createObjectURL(f))
+    setImages(prev => [...prev, ...files].slice(0, 4))
+    setPreviews(prev => [...prev, ...newPreviews].slice(0, 4))
+  }
+
+  function removeImage(i: number) {
+    URL.revokeObjectURL(previews[i])
+    setImages(prev => prev.filter((_, idx) => idx !== i))
+    setPreviews(prev => prev.filter((_, idx) => idx !== i))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -55,6 +72,25 @@ export default function ListPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login?next=/list'); return }
 
+      // Upload images to Supabase Storage
+      const uploadedUrls: string[] = []
+      for (const file of images) {
+        const ext = file.name.split('.').pop() ?? 'jpg'
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+        const { error: upErr } = await supabase.storage
+          .from('listing-images')
+          .upload(path, file, { contentType: file.type })
+        if (upErr) {
+          toast.error(`Image upload failed: ${upErr.message}`)
+          setSaving(false)
+          return
+        }
+        const { data: { publicUrl } } = supabase.storage
+          .from('listing-images')
+          .getPublicUrl(path)
+        uploadedUrls.push(publicUrl)
+      }
+
       const { data, error } = await supabase.from('listings').insert({
         user_id: user.id,
         title: form.title,
@@ -65,7 +101,7 @@ export default function ListPage() {
         value_estimate_high: form.valueHigh ? parseInt(form.valueHigh) : null,
         wants: form.wants || null,
         location: form.location || null,
-        images: [],
+        images: uploadedUrls,
         status: 'active',
       }).select().single()
 
@@ -160,6 +196,64 @@ export default function ListPage() {
               rows={4}
               maxLength={2000}
               style={{ ...inputStyle, resize: 'none', minHeight: 100 }}
+            />
+          </div>
+
+          {/* Photos */}
+          <div>
+            <label style={labelStyle}>Photos (up to 4)</label>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {previews.map((src, i) => (
+                <div key={i} style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={`Photo ${i + 1}`}
+                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--brd)' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(i)}
+                    style={{
+                      position: 'absolute', top: -6, right: -6,
+                      width: 20, height: 20, borderRadius: '50%',
+                      background: 'var(--ink)', color: 'white',
+                      border: 'none', cursor: 'pointer',
+                      fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}
+                    aria-label="Remove photo"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {previews.length < 4 && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    width: 80, height: 80, borderRadius: 8,
+                    border: '1.5px dashed var(--brd2)',
+                    background: 'var(--surf)',
+                    cursor: 'pointer',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 4, color: 'var(--faint)',
+                  }}
+                >
+                  <span style={{ fontSize: 22 }}>+</span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, letterSpacing: '0.04em' }}>
+                    PHOTO
+                  </span>
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageChange}
+              style={{ display: 'none' }}
             />
           </div>
 

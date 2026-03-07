@@ -156,14 +156,11 @@ export default async function BListingPage({ params }: Props) {
       {/* CTA */}
       <div
         className="fixed bottom-20 left-0 right-0 px-4 pb-4"
-        style={{ background: 'linear-gradient(to top, #0a0d0b, rgba(10,13,11,0.90), transparent)' }}
+        style={{ background: 'linear-gradient(to top, var(--bg) 60%, transparent)' }}
       >
         <div className="max-w-2xl mx-auto flex gap-3">
-          <Link href={`/b/messages?listing=${listing.id}`} className="btn flex-1">
-            Message
-          </Link>
           <Link
-            href={`/b/apply/${listing.id}`}
+            href={`/b/briefs/new?provider=${listing.user_id}&listing=${listing.id}`}
             className="flex-1 inline-flex items-center justify-center px-4 py-2.5 rounded-full text-sm font-medium border"
             style={{
               background: 'linear-gradient(180deg, rgba(45,106,79,0.92), rgba(45,106,79,0.70))',
@@ -171,7 +168,7 @@ export default async function BListingPage({ params }: Props) {
               color: 'white',
             }}
           >
-            Hire / Propose trade
+            Post a brief for this skill
           </Link>
         </div>
       </div>

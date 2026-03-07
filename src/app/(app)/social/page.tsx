@@ -4,6 +4,8 @@ import { TopBar } from '@/components/layout/TopBar'
 import { Avatar } from '@/components/ui/Avatar'
 import { Chip } from '@/components/ui/Chip'
 import { TierBadge } from '@/components/ui/TierBadge'
+import { SocialActions } from '@/components/social/SocialActions'
+import { SocialComposer } from '@/components/social/SocialComposer'
 import { formatRelativeTime, formatValueRange } from '@/lib/utils'
 import type { SocialPost } from '@/types'
 
@@ -42,16 +44,7 @@ export default async function SocialPage() {
       />
 
       <main className="max-w-2xl mx-auto px-4 py-4 w-full space-y-3">
-        {/* Composer placeholder — requires auth */}
-        <Link
-          href="/login?next=/social"
-          className="card p-4 flex items-center gap-3 hover:border-stroke-2 transition-colors"
-        >
-          <div className="avatar-md bg-surface-2 border border-stroke rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-muted-2">+</span>
-          </div>
-          <span className="text-muted text-sm">Share a trade win, pattern, or offer…</span>
-        </Link>
+        <SocialComposer />
 
         {/* Feed */}
         {posts.length > 0 ? (
@@ -113,24 +106,12 @@ export default async function SocialPage() {
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-1 px-4 pb-4 pt-1 border-t border-stroke">
-                  <button className="btn btn-ghost text-xs px-3 py-1.5 gap-1.5">
-                    <span>♥</span>
-                    <span className="font-mono">{post.like_count}</span>
-                  </button>
-                  <button className="btn btn-ghost text-xs px-3 py-1.5 gap-1.5">
-                    <span>◻</span>
-                    <span className="font-mono">{post.comment_count}</span>
-                  </button>
-                  {post.listing_id && (
-                    <Link
-                      href={`/listings/${post.listing_id}`}
-                      className="btn btn-ghost text-xs px-3 py-1.5 ml-auto"
-                    >
-                      View listing →
-                    </Link>
-                  )}
-                </div>
+                <SocialActions
+                  postId={post.id}
+                  likeCount={post.like_count}
+                  commentCount={post.comment_count}
+                  listingId={post.listing_id}
+                />
               </article>
             )
           })
