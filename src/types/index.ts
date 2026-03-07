@@ -136,17 +136,44 @@ export interface LedgerEntry {
 }
 
 // ---- Supabase DB types ----
+type ProfileInsert = Omit<Profile, 'follower_count' | 'following_count' | 'trade_count' | 'created_at'> & { follower_count?: number; following_count?: number; trade_count?: number; created_at?: string }
+type ProfileUpdate = Partial<ProfileInsert>
+
+type ListingInsert = Omit<Listing, 'id' | 'created_at' | 'updated_at' | 'match_score' | 'profile'> & { id?: string; created_at?: string; updated_at?: string }
+type ListingUpdate = Partial<ListingInsert>
+
+type OfferInsert = Omit<Offer, 'id' | 'created_at' | 'from_profile' | 'to_profile' | 'target_listing'> & { id?: string; created_at?: string }
+type OfferUpdate = Partial<OfferInsert>
+
+type TradeInsert = Omit<Trade, 'id' | 'created_at'> & { id?: string; created_at?: string }
+type TradeUpdate = Partial<TradeInsert>
+
+type MessageInsert = Omit<Message, 'id' | 'created_at' | 'from_profile'> & { id?: string; created_at?: string }
+type MessageUpdate = Partial<MessageInsert>
+
+type ThreadInsert = Omit<Thread, 'id' | 'created_at' | 'listing' | 'other_profile' | 'latest_offer'> & { id?: string; created_at?: string }
+type ThreadUpdate = Partial<ThreadInsert>
+
+type SocialPostInsert = Omit<SocialPost, 'id' | 'created_at' | 'like_count' | 'comment_count' | 'profile' | 'listing' | 'has_liked'> & { id?: string; created_at?: string; like_count?: number; comment_count?: number }
+type SocialPostUpdate = Partial<SocialPostInsert>
+
+type LedgerEntryInsert = Omit<LedgerEntry, 'id' | 'created_at' | 'from_profile' | 'to_profile'> & { id?: string; created_at?: string }
+type LedgerEntryUpdate = Partial<LedgerEntryInsert>
+
 export interface Database {
   public: {
     Tables: {
-      profiles: { Row: Profile; Insert: Omit<Profile, 'follower_count' | 'following_count' | 'trade_count' | 'created_at'> & { follower_count?: number; following_count?: number; trade_count?: number; created_at?: string } }
-      listings: { Row: Listing; Insert: Omit<Listing, 'id' | 'created_at' | 'updated_at' | 'match_score' | 'profile'> & { id?: string; created_at?: string; updated_at?: string } }
-      offers: { Row: Offer; Insert: Omit<Offer, 'id' | 'created_at' | 'from_profile' | 'to_profile' | 'target_listing'> & { id?: string; created_at?: string } }
-      trades: { Row: Trade; Insert: Omit<Trade, 'id' | 'created_at'> & { id?: string; created_at?: string } }
-      messages: { Row: Message; Insert: Omit<Message, 'id' | 'created_at' | 'from_profile'> & { id?: string; created_at?: string } }
-      threads: { Row: Thread; Insert: Omit<Thread, 'id' | 'created_at' | 'listing' | 'other_profile' | 'latest_offer'> & { id?: string; created_at?: string } }
-      social_posts: { Row: SocialPost; Insert: Omit<SocialPost, 'id' | 'created_at' | 'like_count' | 'comment_count' | 'profile' | 'listing' | 'has_liked'> & { id?: string; created_at?: string; like_count?: number; comment_count?: number } }
-      ledger_entries: { Row: LedgerEntry; Insert: Omit<LedgerEntry, 'id' | 'created_at' | 'from_profile' | 'to_profile'> & { id?: string; created_at?: string } }
+      profiles: { Row: Profile; Insert: ProfileInsert; Update: ProfileUpdate }
+      listings: { Row: Listing; Insert: ListingInsert; Update: ListingUpdate }
+      offers: { Row: Offer; Insert: OfferInsert; Update: OfferUpdate }
+      trades: { Row: Trade; Insert: TradeInsert; Update: TradeUpdate }
+      messages: { Row: Message; Insert: MessageInsert; Update: MessageUpdate }
+      threads: { Row: Thread; Insert: ThreadInsert; Update: ThreadUpdate }
+      social_posts: { Row: SocialPost; Insert: SocialPostInsert; Update: SocialPostUpdate }
+      ledger_entries: { Row: LedgerEntry; Insert: LedgerEntryInsert; Update: LedgerEntryUpdate }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
   }
 }

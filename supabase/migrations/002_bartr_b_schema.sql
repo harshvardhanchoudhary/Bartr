@@ -33,9 +33,13 @@ create policy "Users can manage own service listings"
 create index service_listings_category_idx on service_listings (category, is_available, created_at desc);
 create index service_listings_user_idx on service_listings (user_id, is_available);
 
--- Full-text search
-create index service_listings_fts_idx on service_listings
-  using gin (to_tsvector('english', title || ' ' || description || ' ' || array_to_string(skills, ' ')));
+-- Full-text search (generated column required — array_to_string is not IMMUTABLE)
+alter table service_listings
+  add column fts tsvector generated always as (
+    to_tsvector('english', title || ' ' || description)
+  ) stored;
+
+create index service_listings_fts_idx on service_listings using gin (fts);
 
 -- ============================================================
 -- BRIEFS — what clients need
