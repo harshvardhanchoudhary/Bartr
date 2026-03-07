@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { BTopBar } from '@/components/b/BTopBar'
 import { ServiceCard } from '@/components/b/ServiceCard'
+import { DEMO_SERVICES } from '@/lib/demo-data'
 import type { ServiceListing } from '@/types/bartr-b'
 
 const CATEGORIES = [
@@ -30,7 +31,10 @@ async function getListings(q?: string, cat?: string): Promise<ServiceListing[]> 
 export default async function BBrowsePage({ searchParams }: Props) {
   const q = searchParams.q
   const cat = searchParams.cat ?? 'All'
-  const listings = await getListings(q, cat)
+  const dbListings = await getListings(q, cat)
+  const isFiltered = !!(q || (cat && cat !== 'All'))
+  const listings = dbListings.length > 0 || isFiltered ? dbListings : DEMO_SERVICES
+  const isDemo = dbListings.length === 0 && !isFiltered
 
   return (
     <>
@@ -88,7 +92,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
         {/* Count */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)' }}>
-            {listings.length} skill{listings.length !== 1 ? 's' : ''}{cat !== 'All' ? ` in ${cat}` : ''}
+            {isDemo ? 'Sample skills — be the first to offer yours!' : `${listings.length} skill${listings.length !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}`}
           </span>
           <Link href="/b/briefs" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)', textDecoration: 'none' }}>
             View open briefs →

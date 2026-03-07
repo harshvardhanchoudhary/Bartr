@@ -4,14 +4,22 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { Avatar } from '@/components/ui/Avatar'
+import { OfferGateBar } from '@/components/listings/OfferGateBar'
 import { formatValueRange, conditionLabel, formatRelativeTime } from '@/lib/utils'
+import { DEMO_LISTINGS } from '@/lib/demo-data'
 import type { Listing } from '@/types'
 
 interface Props {
   params: { id: string }
 }
 
-async function getListing(id: string): Promise<Listing | null> {
+async function getListing(id: string): Promise<{ listing: Listing | null; isDemo: boolean }> {
+  // Serve demo listings without touching the DB
+  if (id.startsWith('demo-')) {
+    const demo = DEMO_LISTINGS.find(l => l.id === id) ?? null
+    return { listing: demo, isDemo: true }
+  }
+
   const supabase = await createClient()
   const { data } = await supabase
     .from('listings')
@@ -25,11 +33,11 @@ async function getListing(id: string): Promise<Listing | null> {
     `)
     .eq('id', id)
     .single()
-  return (data ?? null) as Listing | null
+  return { listing: (data ?? null) as Listing | null, isDemo: false }
 }
 
 export default async function ListingPage({ params }: Props) {
-  const listing = await getListing(params.id)
+  const { listing, isDemo } = await getListing(params.id)
   if (!listing) notFound()
 
   const value = formatValueRange(listing.value_estimate_low, listing.value_estimate_high)
@@ -41,6 +49,26 @@ export default async function ListingPage({ params }: Props) {
       <TopBar back title={listing.category} />
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '0 0 140px', width: '100%' }}>
+
+        {/* Demo banner */}
+        {isDemo && (
+          <div style={{
+            padding: '10px 16px',
+            background: 'var(--gldbg)', borderBottom: '1px solid var(--gldbd)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--gld)' }}>
+              Sample listing — sign up to see real trades
+            </span>
+            <Link href="/signup" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--gld)',
+              padding: '3px 10px', border: '1px solid var(--gldbd)',
+              borderRadius: 99, background: 'var(--gldbg)', textDecoration: 'none',
+            }}>
+              Join free →
+            </Link>
+          </div>
+        )}
 
         {/* Main image */}
         <div style={{
@@ -217,41 +245,7 @@ export default async function ListingPage({ params }: Props) {
         </div>
       </main>
 
-      {/* Sticky offer bar */}
-      <div style={{
-        position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        padding: '12px 16px 24px',
-        background: 'rgba(246,244,241,0.96)',
-        backdropFilter: 'blur(16px)',
-        borderTop: '1px solid var(--brd)',
-      }}>
-        <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', gap: 10 }}>
-          <Link
-            href={`/messages?listing=${listing.id}`}
-            style={{
-              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '13px', borderRadius: 99,
-              border: '1px solid var(--brd2)', background: 'var(--surf)',
-              color: 'var(--ink2)', fontSize: 14, fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
-            Message
-          </Link>
-          <Link
-            href={`/offer/${listing.id}`}
-            style={{
-              flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '13px', borderRadius: 99,
-              background: 'var(--red)', border: '1px solid #A8251F',
-              color: 'white', fontSize: 15, fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
-            Make offer →
-          </Link>
-        </div>
-      </div>
+      <OfferGateBar listingId={listing.id} isDemo={isDemo} />
     </>
   )
 }

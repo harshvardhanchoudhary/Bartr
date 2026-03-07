@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { ListingCard } from '@/components/listings/ListingCard'
 import { TopBar } from '@/components/layout/TopBar'
+import { DEMO_LISTINGS } from '@/lib/demo-data'
 import type { Listing } from '@/types'
 
 const CATEGORIES = [
@@ -40,7 +41,11 @@ async function getListings(q?: string, cat?: string): Promise<Listing[]> {
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const q = searchParams.q
   const cat = searchParams.cat ?? 'All'
-  const listings = await getListings(q, cat)
+  const dbListings = await getListings(q, cat)
+  // Fall back to demo listings when the DB is empty and no search is active
+  const isFiltered = !!(q || (cat && cat !== 'All'))
+  const listings = dbListings.length > 0 || isFiltered ? dbListings : DEMO_LISTINGS
+  const isDemo = dbListings.length === 0 && !isFiltered
 
   return (
     <>
@@ -116,9 +121,13 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
           marginBottom: 16,
         }}>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)' }}>
-            {listings.length} listing{listings.length !== 1 ? 's' : ''}
-            {cat !== 'All' && ` in ${cat}`}
-            {q && ` for "${q}"`}
+            {isDemo ? 'Sample listings — be the first to list!' : (
+              <>
+                {listings.length} listing{listings.length !== 1 ? 's' : ''}
+                {cat !== 'All' && ` in ${cat}`}
+                {q && ` for "${q}"`}
+              </>
+            )}
           </span>
           <Link href="/login" style={{
             fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)',
