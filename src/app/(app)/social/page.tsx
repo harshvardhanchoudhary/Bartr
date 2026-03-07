@@ -46,6 +46,32 @@ export default async function SocialPage() {
       />
 
       <main className="max-w-2xl mx-auto px-4 py-4 w-full space-y-3">
+
+        <section className="card p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="text-xs font-mono text-muted-2 uppercase tracking-wider">Community context</div>
+              <h2 className="text-sm font-semibold mt-1">See how people actually trade</h2>
+            </div>
+            <Link href="/b/browse" className="chip chip-green">Explore Bartr-B ↗</Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <Link href="/browse" className="p-3 rounded border border-stroke bg-surface-2 text-sm hover:border-stroke-2 transition-colors">
+              <div className="font-mono text-[10px] text-muted-2 uppercase mb-1">Market</div>
+              Browse active listings
+            </Link>
+            <Link href="/list" className="p-3 rounded border border-stroke bg-surface-2 text-sm hover:border-stroke-2 transition-colors">
+              <div className="font-mono text-[10px] text-muted-2 uppercase mb-1">Start</div>
+              List what you have
+            </Link>
+            <Link href="/b/briefs" className="p-3 rounded border border-stroke bg-surface-2 text-sm hover:border-stroke-2 transition-colors">
+              <div className="font-mono text-[10px] text-muted-2 uppercase mb-1">Services</div>
+              Open briefs on Bartr-B
+            </Link>
+          </div>
+        </section>
+
         <SocialComposer />
 
         {/* Feed */}

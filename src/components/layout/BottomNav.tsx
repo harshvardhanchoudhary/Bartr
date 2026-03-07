@@ -8,6 +8,7 @@ const NAV = [
   { href: '/browse',   label: 'Market',    icon: '⊞' },
   { href: '/messages', label: 'Messages',  icon: '◻' },
   { href: '/profile',  label: 'Profile',   icon: '◑' },
+  { href: '/b/browse', label: 'Bartr-B',   icon: '↗' },
 ]
 
 export function BottomNav() {

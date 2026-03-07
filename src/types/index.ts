@@ -61,7 +61,7 @@ export interface OfferItem {
 
 export interface Offer {
   id: string
-  trade_id: string
+  thread_id: string
   from_user_id: string
   to_user_id: string
   target_listing_id: string

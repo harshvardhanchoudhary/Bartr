@@ -6,8 +6,8 @@ import { usePathname } from 'next/navigation'
 const navItems = [
   { href: '/b/browse',   label: 'Browse',    icon: '⊞' },
   { href: '/b/briefs',   label: 'Briefs',    icon: '◻' },
-  { href: '/b/messages', label: 'Messages',  icon: '◎' },
   { href: '/b/profile',  label: 'Portfolio', icon: '◑' },
+  { href: '/browse',     label: 'Bartr',     icon: '↙' },
 ]
 
 export function BBottomNav() {

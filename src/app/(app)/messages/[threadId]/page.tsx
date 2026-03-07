@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
@@ -18,7 +17,6 @@ interface Props {
 
 export default function ThreadPage({ params }: Props) {
   const supabase = createClient()
-  const router = useRouter()
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const [userId, setUserId] = useState<string | null>(null)
@@ -27,12 +25,17 @@ export default function ThreadPage({ params }: Props) {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      if (!user) {
+        setAuthChecked(true)
+        return
+      }
       setUserId(user.id)
+      setAuthChecked(true)
 
       const [{ data: threadData }, { data: msgData }, { data: offerData }] = await Promise.all([
         supabase
@@ -133,6 +136,27 @@ export default function ThreadPage({ params }: Props) {
   }
 
   const listing = thread?.listing as { id: string; title: string; value_estimate_low: number | null; value_estimate_high: number | null } | undefined
+
+  if (authChecked && !userId) {
+    return (
+      <div className="min-h-screen bg-bg">
+        <TopBar title="Trade thread" back="/messages" />
+        <main className="max-w-2xl mx-auto px-4 py-6">
+          <div className="card p-4">
+            <div className="text-xs font-mono uppercase tracking-wider text-muted-2 mb-2">Commit-time signup</div>
+            <h1 className="font-semibold text-base mb-2">Sign in to open this private thread</h1>
+            <p className="text-sm text-muted mb-3">
+              Profiles and listings are public. Direct conversations are private to trade participants.
+            </p>
+            <div className="flex gap-2">
+              <Link href="/browse" className="btn">Browse listings</Link>
+              <Link href={`/login?next=/messages/${params.threadId}`} className="btn btn-primary">Sign in</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
