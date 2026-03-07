@@ -145,12 +145,13 @@ export default function ThreadPage({ params }: Props) {
           return (
             <div key={msg.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
               {!isMe && (
-                <Avatar
-                  src={(msg.from_profile as { avatar_url?: string } | undefined)?.avatar_url}
-                  alt=""
-                  size="sm"
-                  className="flex-shrink-0 mt-1"
-                />
+                <div className="mt-1">
+                  <Avatar
+                    src={(msg.from_profile as { avatar_url?: string } | undefined)?.avatar_url}
+                    alt=""
+                    size="sm"
+                  />
+                </div>
               )}
               <div
                 className={`max-w-[75%] rounded-lg px-3.5 py-2.5 text-sm ${
