@@ -53,6 +53,30 @@ export default async function BBrowsePage({ searchParams }: Props) {
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px' }}>
 
+        <section style={{
+          marginBottom: 14,
+          padding: '12px 14px',
+          background: 'var(--gbg)',
+          border: '1px solid var(--gbd)',
+          borderRadius: 'var(--rl)',
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--grn)', marginBottom: 6 }}>
+            Why Bartr-B
+          </div>
+          <p style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.6, marginBottom: 8 }}>
+            Offer services, apply to briefs, and earn Credits you can spend across the network.
+          </p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link href="/b/briefs" style={{ textDecoration: 'none', fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', border: '1px solid var(--gbd)', borderRadius: 99, padding: '4px 10px', background: 'white' }}>
+              View briefs →
+            </Link>
+            <Link href="/b/list" style={{ textDecoration: 'none', fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', border: '1px solid var(--gbd)', borderRadius: 99, padding: '4px 10px', background: 'white' }}>
+              Offer a skill →
+            </Link>
+          </div>
+        </section>
+
+
         {/* Search */}
         <form style={{ marginBottom: 12 }}>
           <input

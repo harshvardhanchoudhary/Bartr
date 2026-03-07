@@ -247,6 +247,14 @@
   .text-red-light { color: var(--red); }
   .hover\:border-stroke-2:hover { border-color: var(--brd2); }
 
+  .bg-green-muted { background: var(--gbg); }
+  .border-green-border { border-color: var(--gbd); }
+  .text-green-light { color: var(--grn); }
+  .bg-red-muted { background: var(--rbg); }
+  .border-red-border { border-color: var(--rbd); }
+  .bg-amber-muted { background: #FDF5EC; }
+
+
   .pb-safe { padding-bottom: calc(var(--bot) + 8px); }
   .pt-nav  { padding-top: var(--nav); }
 }

@@ -1,29 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 
 interface OfferGateBarProps {
   listingId: string
-  isDemo?: boolean
 }
 
-export function OfferGateBar({ listingId, isDemo }: OfferGateBarProps) {
-  const [authed, setAuthed] = useState<boolean | null>(null)
-
-  useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => setAuthed(!!data.user))
-  }, [])
-
-  function fireGate(e: React.MouseEvent) {
-    if (!authed || isDemo) {
-      e.preventDefault()
-      window.dispatchEvent(new Event('bartr:offer-gate'))
-    }
-  }
-
+export function OfferGateBar({ listingId }: OfferGateBarProps) {
   return (
     <div style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
@@ -35,7 +18,6 @@ export function OfferGateBar({ listingId, isDemo }: OfferGateBarProps) {
       <div style={{ maxWidth: 680, margin: '0 auto', display: 'flex', gap: 10 }}>
         <Link
           href={`/messages?listing=${listingId}`}
-          onClick={fireGate}
           style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '13px', borderRadius: 99,
@@ -48,7 +30,6 @@ export function OfferGateBar({ listingId, isDemo }: OfferGateBarProps) {
         </Link>
         <Link
           href={`/offer/${listingId}`}
-          onClick={fireGate}
           style={{
             flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '13px', borderRadius: 99,
@@ -57,7 +38,7 @@ export function OfferGateBar({ listingId, isDemo }: OfferGateBarProps) {
             textDecoration: 'none',
           }}
         >
-          Make offer →
+          Start offer →
         </Link>
       </div>
     </div>
