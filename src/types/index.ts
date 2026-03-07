@@ -163,17 +163,18 @@ type LedgerEntryUpdate = Partial<LedgerEntryInsert>
 export interface Database {
   public: {
     Tables: {
-      profiles: { Row: Profile; Insert: ProfileInsert; Update: ProfileUpdate }
-      listings: { Row: Listing; Insert: ListingInsert; Update: ListingUpdate }
-      offers: { Row: Offer; Insert: OfferInsert; Update: OfferUpdate }
-      trades: { Row: Trade; Insert: TradeInsert; Update: TradeUpdate }
-      messages: { Row: Message; Insert: MessageInsert; Update: MessageUpdate }
-      threads: { Row: Thread; Insert: ThreadInsert; Update: ThreadUpdate }
-      social_posts: { Row: SocialPost; Insert: SocialPostInsert; Update: SocialPostUpdate }
-      ledger_entries: { Row: LedgerEntry; Insert: LedgerEntryInsert; Update: LedgerEntryUpdate }
+      profiles: { Row: Profile; Insert: ProfileInsert; Update: ProfileUpdate; Relationships: [] }
+      listings: { Row: Listing; Insert: ListingInsert; Update: ListingUpdate; Relationships: [] }
+      offers: { Row: Offer; Insert: OfferInsert; Update: OfferUpdate; Relationships: [] }
+      trades: { Row: Trade; Insert: TradeInsert; Update: TradeUpdate; Relationships: [] }
+      messages: { Row: Message; Insert: MessageInsert; Update: MessageUpdate; Relationships: [] }
+      threads: { Row: Thread; Insert: ThreadInsert; Update: ThreadUpdate; Relationships: [] }
+      social_posts: { Row: SocialPost; Insert: SocialPostInsert; Update: SocialPostUpdate; Relationships: [] }
+      ledger_entries: { Row: LedgerEntry; Insert: LedgerEntryInsert; Update: LedgerEntryUpdate; Relationships: [] }
     }
-    Views: Record<string, never>
-    Functions: Record<string, never>
-    Enums: Record<string, never>
+    Views: { [_ in never]: never }
+    Functions: { [_ in never]: never }
+    Enums: { [_ in never]: never }
+    CompositeTypes: { [_ in never]: never }
   }
 }
