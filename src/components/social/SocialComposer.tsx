@@ -44,7 +44,7 @@ export function SocialComposer({ onPost }: Props) {
       const { error } = await supabase
         .from('social_posts')
         .insert({
-          profile_id: profile.id,
+          user_id: profile.id,
           type,
           content: content.trim(),
           like_count: 0,

@@ -235,11 +235,17 @@
   .text-blue   { color: var(--blu); }
   .text-gold   { color: var(--gld); }
 
-  .bg-surf   { background: var(--surf); }
-  .bg-bg     { background: var(--bg); }
-  .bg-bg2    { background: var(--bg2); }
-  .border-brd  { border-color: var(--brd); }
-  .border-brd2 { border-color: var(--brd2); }
+  .bg-surf     { background: var(--surf); }
+  .bg-bg       { background: var(--bg); }
+  .bg-bg2      { background: var(--bg2); }
+  .bg-surface-2 { background: var(--bg2); }
+  .border-brd   { border-color: var(--brd); }
+  .border-brd2  { border-color: var(--brd2); }
+  .border-stroke  { border-color: var(--brd); }
+  .border-stroke-2 { border-color: var(--brd2); }
+  .text-muted-2   { color: var(--faint); }
+  .text-red-light { color: var(--red); }
+  .hover\:border-stroke-2:hover { border-color: var(--brd2); }
 
   .pb-safe { padding-bottom: calc(var(--bot) + 8px); }
   .pt-nav  { padding-top: var(--nav); }

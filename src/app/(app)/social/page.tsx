@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { Avatar } from '@/components/ui/Avatar'
 import { Chip } from '@/components/ui/Chip'
+import { DEMO_POSTS } from '@/lib/demo-data'
 import { TierBadge } from '@/components/ui/TierBadge'
 import { SocialActions } from '@/components/social/SocialActions'
 import { SocialComposer } from '@/components/social/SocialComposer'
@@ -31,7 +32,8 @@ const postTypeLabel: Record<string, { label: string; variant: 'red' | 'green' | 
 }
 
 export default async function SocialPage() {
-  const posts = await getPosts()
+  const dbPosts = await getPosts()
+  const posts = dbPosts.length > 0 ? dbPosts : DEMO_POSTS
 
   return (
     <>
@@ -48,7 +50,7 @@ export default async function SocialPage() {
 
         {/* Feed */}
         {posts.length > 0 ? (
-          posts.map((post) => {
+          posts.map((post: typeof posts[0]) => {
             const type = postTypeLabel[post.type] ?? { label: post.type, variant: 'default' as const }
             return (
               <article key={post.id} className="card overflow-hidden">

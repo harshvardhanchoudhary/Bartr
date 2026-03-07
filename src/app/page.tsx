@@ -44,6 +44,15 @@ export default function LandingPage() {
           Bartr
         </span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <Link href="/how-it-works" style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)',
+            padding: '5px 10px', textDecoration: 'none',
+            display: 'none',
+          }}
+          className="sm-show"
+          >
+            How it works
+          </Link>
           <Link href="/b" style={{
             fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--grn)',
             padding: '5px 10px', border: '1px solid var(--gbd)',
@@ -266,6 +275,51 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer style={{
+        borderTop: '1px solid var(--brd)',
+        padding: '28px 20px 40px',
+      }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <div style={{
+            display: 'flex', gap: 8, alignItems: 'center', marginBottom: 20,
+          }}>
+            <span style={{
+              fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--ink)',
+            }}>
+              Bartr
+            </span>
+            <span style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)',
+              letterSpacing: '0.04em',
+            }}>
+              Trade what you have for what you love.
+            </span>
+          </div>
+          <div style={{
+            display: 'flex', gap: 20, flexWrap: 'wrap',
+            borderTop: '1px solid var(--brd)', paddingTop: 16,
+          }}>
+            {[
+              { label: 'Browse', href: '/browse' },
+              { label: 'How it works', href: '/how-it-works' },
+              { label: 'About', href: '/about' },
+              { label: 'Trust & ledger', href: '/trust' },
+              { label: 'Bartr-B', href: '/b' },
+              { label: 'Terms', href: '/legal/terms' },
+              { label: 'Privacy', href: '/legal/privacy' },
+            ].map(link => (
+              <Link key={link.href} href={link.href} style={{
+                fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)',
+                textDecoration: 'none', letterSpacing: '0.04em',
+              }}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </footer>
 
       {/* Sign-up gate (client component — slides up when user tries to make offer without auth) */}
       <LandingGate />
