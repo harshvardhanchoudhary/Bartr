@@ -11,10 +11,10 @@ export type TradeStatus = 'offered' | 'accepted' | 'meetup_arranged' | 'complete
 // ---- Value gap states (offer value logic) ----
 export type ValueGapState =
   | 'fair'         // within 15% — green
-  | 'under'        // offering less — amber/red
+  | 'short'        // offering less — amber/red
+  | 'way_short'    // >40% under — red strong
   | 'over'         // offering more — blue nudge
-  | 'big_under'    // >40% under — red strong
-  | 'big_over'     // >40% over — red strong
+  | 'way_over'     // >40% over — gold strong
 
 export interface Profile {
   id: string

@@ -24,9 +24,9 @@ export function getValueGapState(
   const diff = ratio - 1
 
   if (Math.abs(diff) <= 0.15) return 'fair'
-  if (diff < -0.40) return 'big_under'
-  if (diff > 0.40) return 'big_over'
-  if (diff < 0) return 'under'
+  if (diff < -0.40) return 'way_short'
+  if (diff > 0.40) return 'way_over'
+  if (diff < 0) return 'short'
   return 'over'
 }
 
@@ -35,13 +35,13 @@ export function valueGapClasses(state: ValueGapState) {
   switch (state) {
     case 'fair':
       return { badge: 'bg-green-muted border-green-border text-green-light', icon: '✓' }
-    case 'under':
+    case 'short':
       return { badge: 'bg-amber-muted border-amber-DEFAULT/40 text-amber-DEFAULT', icon: '↓' }
-    case 'big_under':
+    case 'way_short':
       return { badge: 'bg-red-muted border-red-border text-red-light', icon: '↓↓' }
     case 'over':
       return { badge: 'bg-blue-muted border-blue-DEFAULT/40 text-blue-DEFAULT', icon: '↑' }
-    case 'big_over':
+    case 'way_over':
       return { badge: 'bg-red-muted border-red-border text-red-light', icon: '↑↑' }
   }
 }
@@ -50,10 +50,10 @@ export function valueGapClasses(state: ValueGapState) {
 export function valueGapLabel(state: ValueGapState, diff: number): string {
   switch (state) {
     case 'fair': return 'Fair trade'
-    case 'under': return `Your offer is worth £${Math.abs(Math.round(diff))} less`
-    case 'big_under': return `Big gap — your offer is significantly undervalued`
+    case 'short': return `Your offer is worth £${Math.abs(Math.round(diff))} less`
+    case 'way_short': return `Big gap — your offer is significantly undervalued`
     case 'over': return `Your offer is worth £${Math.round(diff)} more — request something extra`
-    case 'big_over': return `You're offering significantly more than the target value`
+    case 'way_over': return `You're offering significantly more than the target value`
   }
 }
 
