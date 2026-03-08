@@ -4,7 +4,7 @@ import { HeroListings } from '@/components/landing/HeroListings'
 import { ActivityTicker } from '@/components/landing/ActivityTicker'
 
 // Sample listings for the hero — IDs match demo-data.ts so detail pages work
-export const SAMPLE_LISTINGS = [
+const SAMPLE_LISTINGS = [
   { id: 'demo-2', emoji: '👕', title: "Vintage Levi's 501 Jacket", category: 'Fashion', condition: 'Good', value: 75, user: 'jordanmc', wants: ['Photography books', 'Film camera', 'Vinyl'] },
   { id: 'demo-1', emoji: '📷', title: 'Fujifilm X-T20 + 18-55mm', category: 'Electronics', condition: 'Good', value: 420, user: 'tessafilm', wants: ['Laptop', 'iPad', 'Camera gear'] },
   { id: 'demo-3', emoji: '🎸', title: 'Fender Telecaster (Squier)', category: 'Music', condition: 'Good', value: 220, user: 'mikeb', wants: ['Synth', 'Effects pedals', 'Studio monitors'] },
