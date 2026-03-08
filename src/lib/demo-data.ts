@@ -596,3 +596,210 @@ export const DEMO_SERVICES: ServiceListing[] = [
     },
   },
 ]
+
+// ─── Demo message threads ──────────────────────────────────────────────────
+// These represent realistic trade conversations shown in the Messages inbox
+// when there is no authenticated user. Interactive — accept/decline work in
+// client-side state so the visitor experiences the full flow.
+
+export interface DemoMessage {
+  id: string
+  content: string
+  is_me: boolean        // true = right-aligned (the visitor)
+  handle: string
+  display_name: string
+  created_at: string
+  is_offer_summary?: boolean
+}
+
+export interface DemoThread {
+  id: string
+  listing: Listing
+  other_display_name: string
+  other_handle: string
+  offer: {
+    id: string
+    status: 'pending' | 'accepted' | 'declined' | 'completed'
+    offered_items: Array<{ title: string; value_low: number; value_high: number }>
+    topup_amount: number | null
+    topup_currency: string | null
+  }
+  messages: DemoMessage[]
+  last_message: string
+  last_message_at: string
+}
+
+export const DEMO_THREADS: DemoThread[] = [
+  // Thread 1 — pending offer. Tessa wants to swap her camera for YOUR imaginary listing.
+  // The visitor plays the role of the person receiving the offer.
+  {
+    id: 'demo-thread-1',
+    listing: DEMO_LISTINGS[0], // Fujifilm X-T20
+    other_display_name: 'Tessa M.',
+    other_handle: 'tessafilm',
+    offer: {
+      id: 'demo-offer-1',
+      status: 'pending',
+      offered_items: [
+        { title: 'Sony WH-1000XM4 Headphones', value_low: 180, value_high: 220 },
+      ],
+      topup_amount: null,
+      topup_currency: null,
+    },
+    messages: [
+      {
+        id: 'dm1-1',
+        content: "Hi! Love the camera listing. I have Sony WH-1000XM4 headphones — nearly new, original box. Would you consider a straight swap? Both around the £200 mark.",
+        is_me: false,
+        handle: 'tessafilm',
+        display_name: 'Tessa M.',
+        created_at: new Date(Date.now() - 1000 * 60 * 47).toISOString(),
+      },
+      {
+        id: 'dm1-2',
+        content: "Offer sent: Sony WH-1000XM4 Headphones (£180–220)",
+        is_me: false,
+        handle: 'tessafilm',
+        display_name: 'Tessa M.',
+        created_at: new Date(Date.now() - 1000 * 60 * 46).toISOString(),
+        is_offer_summary: true,
+      },
+      {
+        id: 'dm1-3',
+        content: "Hey Tessa! They look great. Are these the current gen with the multipoint Bluetooth?",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+      },
+      {
+        id: 'dm1-4',
+        content: "Yes — XM4, 2022 model. Firmware updated. I used them for about 6 months then switched to in-ears for the gym. No scratches, carrying case included.",
+        is_me: false,
+        handle: 'tessafilm',
+        display_name: 'Tessa M.',
+        created_at: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+      },
+    ],
+    last_message: "Yes — XM4, 2022 model. Firmware updated…",
+    last_message_at: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+  },
+
+  // Thread 2 — accepted offer. You made an offer on a turntable, it was accepted.
+  // Now coordinating the meetup.
+  {
+    id: 'demo-thread-2',
+    listing: DEMO_LISTINGS[5], // Technics SL-1200MK2
+    other_display_name: 'DJ Sol',
+    other_handle: 'djsol',
+    offer: {
+      id: 'demo-offer-2',
+      status: 'accepted',
+      offered_items: [
+        { title: "Arc'teryx Beta AR Jacket — Black, L", value_low: 320, value_high: 400 },
+      ],
+      topup_amount: null,
+      topup_currency: null,
+    },
+    messages: [
+      {
+        id: 'dm2-1',
+        content: "Offer: Arc'teryx Beta AR Jacket — Black, L (£320–400)",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+        is_offer_summary: true,
+      },
+      {
+        id: 'dm2-2',
+        content: "Oh that's interesting — I've been looking for a proper shell for winter. Can you share more details on condition?",
+        is_me: false,
+        handle: 'djsol',
+        display_name: 'DJ Sol',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 4.5).toISOString(),
+      },
+      {
+        id: 'dm2-3',
+        content: "Barely worn — maybe 15 days out. All seams sealed, zips smooth. Size L, fits a standard large. I can meet in Glasgow next weekend.",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+      },
+      {
+        id: 'dm2-4',
+        content: "Deal! Offer accepted. I'm in the West End — Kelvingrove area works for me Saturday afternoon?",
+        is_me: false,
+        handle: 'djsol',
+        display_name: 'DJ Sol',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      },
+      {
+        id: 'dm2-5',
+        content: "Perfect. Saturday 2pm at Kelvingrove. I'll bring the jacket, you bring the turntable. See you then! 🤝",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+      },
+    ],
+    last_message: "Perfect. Saturday 2pm at Kelvingrove…",
+    last_message_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+  },
+
+  // Thread 3 — completed trade. Logged on the public ledger.
+  {
+    id: 'demo-thread-3',
+    listing: DEMO_LISTINGS[4], // iPad Pro
+    other_display_name: 'Lily C.',
+    other_handle: 'lilyc',
+    offer: {
+      id: 'demo-offer-3',
+      status: 'completed',
+      offered_items: [
+        { title: 'Philosophy Library — 12 Hardbacks', value_low: 55, value_high: 80 },
+        { title: 'Fender Squier Telecaster', value_low: 190, value_high: 250 },
+      ],
+      topup_amount: 200,
+      topup_currency: 'GBP',
+    },
+    messages: [
+      {
+        id: 'dm3-1',
+        content: "Offer: Philosophy Library (£55–80) + Fender Squier Telecaster (£190–250) + £200 GBP top-up intent",
+        is_me: false,
+        handle: 'lilyc',
+        display_name: 'Lily C.',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 26).toISOString(),
+        is_offer_summary: true,
+      },
+      {
+        id: 'dm3-2',
+        content: "That's a creative bundle! The guitar's a surprise. The top-up covers the value gap nicely. I'll accept.",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      },
+      {
+        id: 'dm3-3',
+        content: "Brilliant. Met at Lily's studio in Shoreditch. Guitar, books and the iPad all swapped in person. Great vibe.",
+        is_me: false,
+        handle: 'lilyc',
+        display_name: 'Lily C.',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+      },
+      {
+        id: 'dm3-4',
+        content: "Trade complete ✓ — logged on the public ledger.",
+        is_me: true,
+        handle: 'you',
+        display_name: 'You',
+        created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+      },
+    ],
+    last_message: "Trade complete ✓ — logged on the public ledger.",
+    last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
+  },
+]

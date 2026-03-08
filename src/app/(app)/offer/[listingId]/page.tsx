@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
@@ -15,18 +14,17 @@ interface Props {
 }
 
 const GAP_STYLES: Record<ValueGapState, { bg: string; border: string; color: string; label: string; icon: string }> = {
-  fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', label: 'Fair trade',            icon: '✓' },
-  short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: "You're offering less",   icon: '↓' },
-  way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: 'Big value gap',          icon: '↓↓' },
+  fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', label: 'Fair trade — values well matched', icon: '✓' },
+  short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: "You're offering less — consider adding more", icon: '↓' },
+  way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: 'Big value gap — they may not accept this', icon: '↓↓' },
   over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', label: "You're offering more — request something extra?", icon: '↑' },
   way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', label: "You're offering a lot more — request something extra", icon: '↑↑' },
 }
 
-// Three sample "your items" shown when no real listings exist (new user or demo mode)
+// 3 sample items shown when user has no real listings (new users + guests)
 const SAMPLE_YOUR_ITEMS: Listing[] = DEMO_LISTINGS.slice(1, 4)
 
 export default function OfferPage({ params }: Props) {
-  const router = useRouter()
   const supabase = createClient()
 
   const isDemo = params.listingId.startsWith('demo-')
@@ -39,27 +37,27 @@ export default function OfferPage({ params }: Props) {
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
-  const [isDemoMode, setIsDemoMode] = useState(isDemo)
+  const [isGuest, setIsGuest] = useState(false)
+  const [userId, setUserId] = useState<string | null>(null)
+  const [sent, setSent] = useState(false)
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        router.push(`/login?next=/offer/${params.listingId}`)
-        return
-      }
+      const guest = !user
+      setIsGuest(guest)
+      setUserId(user?.id ?? null)
 
-      if (isDemo) {
-        // Demo listing — use static data, show sample items as "your listings"
+      if (isDemo || guest) {
+        // Demo or guest mode: load demo listing, show sample items
         const demoListing = DEMO_LISTINGS.find(l => l.id === params.listingId)
-        setTarget(demoListing ?? null)
-        // Show 3 other demo listings as the user's sample items so the flow is interactive
+          ?? DEMO_LISTINGS[0] // fallback
+        setTarget(demoListing)
         setMyListings(DEMO_LISTINGS.filter(l => l.id !== params.listingId).slice(0, 3))
-        setIsDemoMode(true)
         return
       }
 
-      // Real listing
+      // Authenticated + real listing
       const [{ data: targetData }, { data: myData }] = await Promise.all([
         supabase
           .from('listings')
@@ -69,19 +67,16 @@ export default function OfferPage({ params }: Props) {
         supabase
           .from('listings')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', user!.id)
           .eq('status', 'active'),
       ])
 
       setTarget(targetData as Listing)
-      // If no real listings, show sample items to illustrate the flow
       const realListings = (myData ?? []) as Listing[]
       if (realListings.length === 0) {
         setMyListings(SAMPLE_YOUR_ITEMS)
-        setIsDemoMode(true)
       } else {
         setMyListings(realListings)
-        setIsDemoMode(false)
       }
     }
     load()
@@ -98,7 +93,6 @@ export default function OfferPage({ params }: Props) {
     : 0
 
   const gapState = offeredMid > 0 && targetMid > 0 ? getValueGapState(offeredMid, targetMid) : null
-  const balancePct = targetMid > 0 ? Math.min(offeredMid / targetMid, 2) * 50 : 0
 
   function toggleItem(id: string) {
     setSelectedItems(prev =>
@@ -106,11 +100,16 @@ export default function OfferPage({ params }: Props) {
     )
   }
 
+  function fireGate() {
+    window.dispatchEvent(new CustomEvent('bartr:offer-gate', {
+      detail: { next: `/offer/${params.listingId}` },
+    }))
+  }
+
   async function sendOffer() {
-    // In demo mode, redirect to listing instead of actually submitting
-    if (isDemoMode) {
-      toast.success('Ready to make a real offer? List your own item first!')
-      router.push('/list')
+    if (isGuest || isDemo) {
+      // Guest: show gate so they can sign up and come back
+      fireGate()
       return
     }
 
@@ -121,14 +120,11 @@ export default function OfferPage({ params }: Props) {
 
     setSending(true)
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user || !target) return
-
       const { data: thread, error: threadErr } = await supabase
         .from('threads')
         .insert({
-          listing_id: target.id,
-          participant_ids: [user.id, target.user_id],
+          listing_id: target!.id,
+          participant_ids: [userId!, target!.user_id],
         })
         .select()
         .single()
@@ -145,9 +141,9 @@ export default function OfferPage({ params }: Props) {
 
       const { error: offerErr } = await supabase.from('offers').insert({
         thread_id: thread.id,
-        from_user_id: user.id,
-        to_user_id: target.user_id,
-        target_listing_id: target.id,
+        from_user_id: userId!,
+        to_user_id: target!.user_id,
+        target_listing_id: target!.id,
         offered_items: offeredItems,
         topup_amount: topupAmount ? parseFloat(topupAmount) : null,
         topup_currency: topupAmount ? topupCurrency : null,
@@ -158,17 +154,17 @@ export default function OfferPage({ params }: Props) {
       if (offerErr) throw offerErr
 
       const itemNames = selectedItems.map(id => myListings.find(x => x.id === id)?.title).filter(Boolean).join(' + ')
-      const topupStr = topupAmount ? ` + ${topupAmount} ${topupCurrency} top-up` : ''
+      const topupStr = topupAmount ? ` + £${topupAmount} top-up` : ''
       const msgStr = message ? `\n\n${message}` : ''
 
       await supabase.from('messages').insert({
         thread_id: thread.id,
-        from_user_id: user.id,
+        from_user_id: userId!,
         content: `Offer: ${itemNames}${topupStr}${msgStr}`,
       })
 
+      setSent(true)
       toast.success('Offer sent!')
-      router.push(`/messages/${thread.id}`)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to send offer')
     } finally {
@@ -176,6 +172,45 @@ export default function OfferPage({ params }: Props) {
     }
   }
 
+  // ── Sent confirmation screen ───────────────────────────────────────────
+  if (sent) {
+    return (
+      <>
+        <TopBar title="Offer sent" />
+        <main style={{
+          maxWidth: 480, margin: '0 auto', padding: '60px 24px',
+          textAlign: 'center',
+        }}>
+          <div style={{ fontSize: 52, marginBottom: 16 }}>🤝</div>
+          <h1 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 26, color: 'var(--ink)', marginBottom: 10 }}>
+            Offer sent!
+          </h1>
+          <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 32 }}>
+            {target?.profile?.display_name ?? 'The seller'} will be notified. You&apos;ll see their response in Messages.
+            The trade is logged on the public ledger when completed.
+          </p>
+          <Link href="/messages" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '13px 24px', borderRadius: 99, marginBottom: 12,
+            background: 'var(--red)', border: '1px solid #A8251F',
+            color: 'white', fontSize: 15, fontWeight: 500, textDecoration: 'none',
+          }}>
+            Go to Messages →
+          </Link>
+          <Link href="/browse" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '12px 24px', borderRadius: 99,
+            border: '1px solid var(--brd2)', background: 'var(--surf)',
+            color: 'var(--ink2)', fontSize: 14, textDecoration: 'none',
+          }}>
+            Keep browsing
+          </Link>
+        </main>
+      </>
+    )
+  }
+
+  // ── Loading ────────────────────────────────────────────────────────────
   if (!target) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
@@ -185,34 +220,55 @@ export default function OfferPage({ params }: Props) {
   }
 
   const targetValue = formatValueRange(target.value_estimate_low, target.value_estimate_high)
+  const noRealListings = !isGuest && !isDemo && myListings.every(l => l.id.startsWith('demo-'))
 
   return (
     <>
       <TopBar title="Make offer" back />
 
-      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 120px' }}>
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 140px' }}>
 
-        {/* Demo mode banner */}
-        {isDemoMode && (
+        {/* Guest banner */}
+        {(isGuest || isDemo) && (
           <div style={{
             padding: '10px 14px', marginBottom: 16, borderRadius: 'var(--rl)',
             background: 'var(--gldbg)', border: '1px solid var(--gldbd)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
           }}>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--gld)', lineHeight: 1.4 }}>
-              {isDemo ? 'Sample listing — exploring the offer flow' : 'No listings yet — items below are examples'}
+              {isDemo ? 'Sample listing — explore the offer flow' : 'Exploring as guest — sign up to send a real offer'}
             </span>
-            <Link href="/list" style={{
+            <button onClick={fireGate} style={{
               fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--gld)',
               padding: '3px 10px', border: '1px solid var(--gldbd)',
-              borderRadius: 99, background: 'var(--gldbg)', textDecoration: 'none', flexShrink: 0,
+              borderRadius: 99, background: 'var(--gldbg)', cursor: 'pointer',
+              flexShrink: 0,
             }}>
-              List an item →
+              Join free →
+            </button>
+          </div>
+        )}
+
+        {noRealListings && (
+          <div style={{
+            padding: '10px 14px', marginBottom: 16, borderRadius: 'var(--rl)',
+            background: 'var(--blubg)', border: '1px solid var(--blubd)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--blu)', lineHeight: 1.4 }}>
+              No listings yet — items below are examples. List something to make a real offer.
+            </span>
+            <Link href="/list" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--blu)',
+              padding: '3px 10px', border: '1px solid var(--blubd)',
+              borderRadius: 99, background: 'var(--blubg)', textDecoration: 'none', flexShrink: 0,
+            }}>
+              List item →
             </Link>
           </div>
         )}
 
-        {/* You want — target listing summary */}
+        {/* Target listing */}
         <div style={{
           background: 'var(--surf)', border: '1px solid var(--brd)',
           borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
@@ -222,36 +278,49 @@ export default function OfferPage({ params }: Props) {
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
             <div>
-              <div style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 15 }}>{target.title}</div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                from {target.profile?.handle ?? target.profile?.display_name}
+              <div style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 15, marginBottom: 2 }}>{target.title}</div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)' }}>
+                from {target.profile?.display_name ?? target.profile?.handle}
               </div>
             </div>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 16, fontWeight: 500, color: 'var(--red)', flexShrink: 0 }}>
               {targetValue}
             </div>
           </div>
+          {target.wants && (
+            <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {target.wants.split(',').map(w => w.trim()).filter(Boolean).slice(0, 4).map(w => (
+                <span key={w} style={{
+                  fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                  padding: '3px 9px', borderRadius: 99,
+                  background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--grn)',
+                }}>
+                  {w}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Value balance bar */}
-        {(offeredMid > 0 || selectedItems.length > 0) && (
+        {selectedItems.length > 0 && (
           <div style={{
             background: 'var(--surf)', border: '1px solid var(--brd)',
             borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>
-                Your offer: ~£{offeredMid.toFixed(0)}
+                Your offer: ~£{Math.round(offeredMid)}
               </span>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>
                 Their item: {targetValue}
               </span>
             </div>
 
-            <div style={{ height: 6, background: 'var(--brd)', borderRadius: 99, overflow: 'hidden', marginBottom: 8 }}>
+            <div style={{ height: 6, background: 'var(--brd)', borderRadius: 99, overflow: 'hidden', marginBottom: 10 }}>
               <div style={{
                 height: '100%', borderRadius: 99, transition: 'width 0.3s ease',
-                width: `${Math.min(balancePct * 2, 100)}%`,
+                width: `${Math.min((offeredMid / (targetMid || 1)) * 100, 100)}%`,
                 background: gapState === 'fair' ? 'var(--grn)'
                            : (gapState === 'short' || gapState === 'way_short') ? 'var(--red)'
                            : gapState === 'way_over' ? 'var(--gld)'
@@ -262,7 +331,7 @@ export default function OfferPage({ params }: Props) {
             {gapState && (
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '5px 10px', borderRadius: 99,
+                padding: '5px 12px', borderRadius: 99,
                 fontFamily: 'var(--font-dm-mono)', fontSize: 10,
                 background: GAP_STYLES[gapState].bg,
                 border: `1px solid ${GAP_STYLES[gapState].border}`,
@@ -274,13 +343,13 @@ export default function OfferPage({ params }: Props) {
           </div>
         )}
 
-        {/* Item picker */}
+        {/* Item picker — what you're offering */}
         <div style={{
           background: 'var(--surf)', border: '1px solid var(--brd)',
           borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
         }}>
           <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 12 }}>
-            {isDemoMode ? 'Example items (tap to explore)' : 'Choose items to offer'}
+            {isGuest || noRealListings ? 'Example items — tap to see value gap' : 'Choose items to offer'}
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
@@ -301,7 +370,7 @@ export default function OfferPage({ params }: Props) {
                 >
                   {selected && (
                     <div style={{
-                      position: 'absolute', top: 6, right: 6,
+                      position: 'absolute', top: 5, right: 5,
                       width: 16, height: 16, borderRadius: '50%',
                       background: 'var(--red)', color: 'white',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -312,7 +381,7 @@ export default function OfferPage({ params }: Props) {
                   )}
                   <div style={{
                     fontSize: 11, fontWeight: 500, color: 'var(--ink)',
-                    lineHeight: 1.3, marginBottom: 4,
+                    lineHeight: 1.3, marginBottom: 5,
                     display: '-webkit-box', WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical', overflow: 'hidden',
                   }}>
@@ -321,19 +390,23 @@ export default function OfferPage({ params }: Props) {
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)' }}>
                     {itemValue}
                   </div>
+                  {l.condition && (
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, color: 'var(--faint)', marginTop: 3 }}>
+                      {l.condition.replace('_', ' ')}
+                    </div>
+                  )}
                 </button>
               )
             })}
           </div>
 
-          {isDemoMode && (
+          {(isGuest || noRealListings) && (
             <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--brd)', textAlign: 'center' }}>
-              <Link href="/list" style={{
-                fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)',
-                textDecoration: 'underline', textUnderlineOffset: 3,
-              }}>
-                + List your own items to make real offers
-              </Link>
+              <button onClick={isGuest ? fireGate : undefined} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  {isGuest ? '+ Join free to offer your own items' : '+ List your own items to make a real offer'}
+                </span>
+              </button>
             </div>
           )}
         </div>
@@ -344,18 +417,18 @@ export default function OfferPage({ params }: Props) {
             background: 'var(--surf)', border: '1px solid var(--brd)',
             borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
           }}>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 10 }}>
-              Bridge the gap — add cash intent
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--muted)', marginBottom: 6 }}>
+              Bridge the gap — add cash top-up intent
             </div>
             <p style={{ fontSize: 12, color: 'var(--faint)', marginBottom: 10, lineHeight: 1.5 }}>
-              Not paid through Bartr — just tells the other person you&apos;ll add cash off-platform.
+              Not paid through Bartr — tells the other person you&apos;ll add cash to balance the trade.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
               <input
                 type="number"
                 value={topupAmount}
                 onChange={e => setTopupAmount(e.target.value)}
-                placeholder="Amount (e.g. 20)"
+                placeholder="Amount (e.g. 50)"
                 min="0" step="1"
                 style={{
                   flex: 1, padding: '10px 12px',
@@ -412,7 +485,7 @@ export default function OfferPage({ params }: Props) {
               border: '1px solid var(--brd)', borderRadius: 'var(--r)',
               background: 'var(--bg)', color: 'var(--ink)',
               fontSize: 14, outline: 'none', lineHeight: 1.5,
-              fontFamily: 'var(--font-dm-sans)',
+              fontFamily: 'var(--font-dm-sans)', boxSizing: 'border-box',
             }}
           />
         </div>
@@ -421,30 +494,32 @@ export default function OfferPage({ params }: Props) {
       {/* Sticky send bar */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 40,
-        padding: '12px 16px 24px',
+        padding: '12px 16px 28px',
         background: 'rgba(246,244,241,0.97)',
         backdropFilter: 'blur(16px)',
         borderTop: '1px solid var(--brd)',
       }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          {isDemoMode ? (
-            <Link href="/list" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              width: '100%', padding: '14px',
-              borderRadius: 99,
-              background: 'var(--red)', border: '1px solid #A8251F',
-              color: 'white', fontSize: 16, fontWeight: 500,
-              textDecoration: 'none',
-            }}>
-              List your item to make a real offer →
-            </Link>
+          {isGuest || isDemo ? (
+            // Guest: two CTAs
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                onClick={fireGate}
+                style={{
+                  flex: 2, padding: '14px', borderRadius: 99,
+                  background: 'var(--red)', border: '1px solid #A8251F',
+                  color: 'white', fontSize: 15, fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                {selectedItems.length === 0 ? 'Join to make a real offer →' : `Join & send offer (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''}) →`}
+              </button>
+            </div>
           ) : (
             <button
               onClick={sendOffer}
               disabled={sending || selectedItems.length === 0}
               style={{
-                width: '100%', padding: '14px',
-                borderRadius: 99,
+                width: '100%', padding: '14px', borderRadius: 99,
                 background: selectedItems.length === 0 ? 'var(--brd2)' : 'var(--red)',
                 border: `1px solid ${selectedItems.length === 0 ? 'var(--brd2)' : '#A8251F'}`,
                 color: 'white', fontSize: 16, fontWeight: 500,
