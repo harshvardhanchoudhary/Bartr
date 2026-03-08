@@ -194,8 +194,8 @@ export default async function MessagesPage() {
                   category={t.listing?.category}
                   valueLow={t.listing?.value_estimate_low}
                   valueHigh={t.listing?.value_estimate_high}
-                  lastMessage={thread.last_message}
-                  lastMessageAt={thread.last_message_at}
+                  lastMessage={thread.last_message ?? undefined}
+                  lastMessageAt={thread.last_message_at ?? undefined}
                   offerStatus={t.latest_offer?.status}
                 />
               )

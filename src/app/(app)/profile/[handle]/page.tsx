@@ -7,6 +7,7 @@ import { TierBadge } from '@/components/ui/TierBadge'
 import { ListingCard } from '@/components/listings/ListingCard'
 import { formatRelativeTime } from '@/lib/utils'
 import { DEMO_LISTINGS } from '@/lib/demo-data'
+import { inferTasteTagsFromText } from '@/lib/ai/mvp'
 import type { Profile, Listing, LedgerEntry } from '@/types'
 
 interface Props {
@@ -38,7 +39,7 @@ export default async function ProfilePage({ params }: Props) {
   if (!profile) notFound()
 
   // For real profiles: fetch their listings, ledger, and social posts
-  const [{ data: dbListings }, { data: ledger }] = isDemo
+  const [{ data: dbListings }, { data: ledger }, { data: socialPosts }] = isDemo
     ? [{ data: null }, { data: null }, { data: null }]
     : await Promise.all([
         supabase
@@ -68,6 +69,7 @@ export default async function ProfilePage({ params }: Props) {
     : (dbListings ?? []) as Listing[]
 
   const ledgerEntries = (ledger ?? []) as LedgerEntry[]
+  const tasteTags = inferTasteTagsFromText((socialPosts ?? []).map((p: { content: string }) => p.content))
   const verifications = [profile.verified_id, profile.verified_phone, profile.verified_photo].filter(Boolean)
   const chip = (label: string, active: boolean) => (
     <span key={label} style={{
