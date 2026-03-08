@@ -84,6 +84,16 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ---
 
+## Operations
+
+
+### D013 — Founder operating system docs as first-class project artifacts
+**Decision:** Introduce `FOUNDER_OPERATING_SYSTEM.md` and `STATUS.md`, and add a required AI session startup ritual in `CLAUDE.md`.
+**Why:** Solo-founder execution needs durable process memory (planning, release safety, incidents, conflict handling) to maintain production quality while shipping fast.
+**Watch out for:** Keep `STATUS.md` concise and current each session; add only non-obvious, durable decisions to `DECISIONS.md`.
+
+---
+
 ## Things That Need Manual Setup (Claude Code Can't Do These)
 
 | Item | Where | Notes |
@@ -97,4 +107,4 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ---
 
-*Last updated: 2026-03-05 — v1 complete*
+*Last updated: 2026-03-07 — v1.1 operations workflow added*
