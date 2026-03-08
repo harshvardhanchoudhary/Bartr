@@ -126,7 +126,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
         {/* Grid */}
         {listings.length > 0 ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-            {listings.map(listing => <ServiceCard key={listing.id} listing={listing} />)}
+            {listings.map((listing, i) => <ServiceCard key={listing.id} listing={listing} index={i} />)}
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '64px 0' }}>

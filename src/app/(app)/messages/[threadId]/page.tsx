@@ -152,13 +152,33 @@ function OfferCard({
       )}
 
       {status === 'completed' && (
-        <div style={{
-          marginTop: 8, padding: '8px 12px', borderRadius: 'var(--r)',
-          background: 'var(--gbg)', border: '1px solid var(--gbd)',
-          fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)',
-          textAlign: 'center',
-        }}>
-          ✓ Trade logged on the public ledger
+        <div style={{ marginTop: 8 }}>
+          <div style={{
+            padding: '8px 12px', borderRadius: 'var(--r)',
+            background: 'var(--gbg)', border: '1px solid var(--gbd)',
+            fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)',
+            textAlign: 'center', marginBottom: 8,
+          }}>
+            ✓ Trade logged on the public ledger
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Link href="/browse" style={{
+              flex: 1, padding: '9px', borderRadius: 99, textAlign: 'center',
+              border: '1px solid var(--brd)', background: 'var(--surf)',
+              color: 'var(--ink2)', fontSize: 12, textDecoration: 'none',
+              fontFamily: 'var(--font-dm-sans)',
+            }}>
+              Browse more →
+            </Link>
+            <Link href="/profile" style={{
+              flex: 1, padding: '9px', borderRadius: 99, textAlign: 'center',
+              border: '1px solid var(--rbd)', background: 'var(--rbg)',
+              color: 'var(--red)', fontSize: 12, textDecoration: 'none',
+              fontFamily: 'var(--font-dm-sans)',
+            }}>
+              My profile →
+            </Link>
+          </div>
         </div>
       )}
     </div>
