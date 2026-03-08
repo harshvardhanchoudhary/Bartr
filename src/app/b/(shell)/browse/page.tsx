@@ -53,7 +53,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
               padding: '5px 12px', borderRadius: 99,
               background: 'var(--grn)', color: 'white',
               fontFamily: 'var(--font-dm-sans)', fontSize: 12,
-              border: '1px solid #136038', textDecoration: 'none',
+              border: '1px solid #047857', textDecoration: 'none',
             }}>
               + Offer skill
             </Link>
@@ -99,7 +99,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
                 fontFamily: 'var(--font-dm-mono)', fontSize: 11, letterSpacing: '0.04em',
                 textDecoration: 'none', whiteSpace: 'nowrap',
                 background: cat === c ? 'var(--grn)' : 'var(--surf)',
-                border: `1px solid ${cat === c ? '#136038' : 'var(--brd)'}`,
+                border: `1px solid ${cat === c ? '#047857' : 'var(--brd)'}`,
                 color: cat === c ? 'white' : 'var(--ink2)',
                 transition: 'all 0.12s',
               }}
@@ -140,7 +140,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
               display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
               background: 'var(--grn)', color: 'white',
               fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #136038',
+              border: '1px solid #047857',
             }}>
               Offer your skill
             </Link>

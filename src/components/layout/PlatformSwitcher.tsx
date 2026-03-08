@@ -34,7 +34,7 @@ export function PlatformSwitcher() {
           padding: '4px 9px',
           borderRadius: 99,
           textDecoration: 'none',
-          border: `1px solid ${inB ? '#136038' : 'var(--brd)'}`,
+          border: `1px solid ${inB ? '#047857' : 'var(--brd)'}`,
           background: inB ? 'var(--gbg)' : 'var(--surf)',
           color: inB ? 'var(--grn)' : 'var(--muted)',
         }}

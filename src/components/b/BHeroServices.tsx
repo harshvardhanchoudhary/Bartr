@@ -47,7 +47,7 @@ function BHeroCard({ service }: { service: ServiceListing }) {
   return (
     <Link href={`/b/listings/${service.id}`} style={{ textDecoration: 'none', display: 'block' }}>
       <motion.div
-        whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(26,140,74,0.12)' }}
+        whileHover={{ y: -3, boxShadow: '0 8px 24px rgba(5,150,105,0.14)' }}
         transition={{ duration: 0.15 }}
         style={{
           background: 'var(--surf)', border: '1px solid var(--brd)',

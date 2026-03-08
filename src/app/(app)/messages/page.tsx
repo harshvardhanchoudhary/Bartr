@@ -204,8 +204,26 @@ export default async function MessagesPage() {
         ) : (
           <div style={{ textAlign: 'center', padding: '52px 0', color: 'var(--muted)' }}>
             <div style={{ fontSize: 40, marginBottom: 14 }}>◻</div>
-            <p style={{ fontSize: 14, marginBottom: 16 }}>No conversations yet.</p>
-            <Link href="/browse" className="btn btn-primary">Browse listings</Link>
+            <p style={{ fontSize: 14, marginBottom: 8, color: 'var(--ink2)' }}>No conversations yet.</p>
+            <p style={{ fontSize: 13, marginBottom: 20, color: 'var(--muted)', lineHeight: 1.6 }}>
+              Find something you want and make an offer, or list an item to receive offers.
+            </p>
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link href="/browse" style={{
+                padding: '10px 20px', borderRadius: 99, textDecoration: 'none',
+                background: 'var(--red)', border: '1px solid #A8251F',
+                color: 'white', fontSize: 13, fontWeight: 500,
+              }}>
+                Browse listings
+              </Link>
+              <Link href="/list" style={{
+                padding: '10px 20px', borderRadius: 99, textDecoration: 'none',
+                background: 'var(--surf)', border: '1px solid var(--brd)',
+                color: 'var(--ink2)', fontSize: 13,
+              }}>
+                List your item
+              </Link>
+            </div>
           </div>
         )}
       </main>

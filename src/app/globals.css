@@ -16,9 +16,9 @@
     --red:   #C4312A;
     --rbg:   #FDF0EF;
     --rbd:   #EACAC7;
-    --grn:   #1A7A4A;
-    --gbg:   #EFF9F4;
-    --gbd:   #B5DDC8;
+    --grn:   #059669;
+    --gbg:   #ECFDF5;
+    --gbd:   #6EE7B7;
     --blu:   #1D5FA8;
     --blubg: #EFF5FD;
     --blubd: #BACDE8;
@@ -125,10 +125,10 @@
   .btn-green {
     @apply btn;
     background: var(--grn);
-    border-color: #136038;
+    border-color: #047857;
     color: white;
   }
-  .btn-green:hover { background: #156640; }
+  .btn-green:hover { background: #047857; }
 
   .btn-ghost {
     @apply btn;
@@ -179,24 +179,40 @@
     border-top: 1px solid var(--brd);
   }
 
-  /* Top bar */
+  /* Glassmorphism base */
+  .glass {
+    background: rgba(253,252,250,0.72);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(255,255,255,0.45);
+  }
+  .glass-green {
+    background: rgba(236,253,245,0.68);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border: 1px solid rgba(110,231,183,0.4);
+  }
+
+  /* Top bar — glassier */
   .top-bar {
     @apply sticky top-0 z-30 flex items-center gap-3 px-4;
     height: var(--nav);
-    background: rgba(246,244,241,0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--brd);
+    background: rgba(246,244,241,0.82);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-bottom: 1px solid rgba(224,220,213,0.7);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.6) inset;
   }
 
-  /* Bottom nav */
+  /* Bottom nav — glassier */
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 z-40;
     height: var(--bot);
-    background: rgba(246,244,241,0.95);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-top: 1px solid var(--brd);
+    background: rgba(246,244,241,0.88);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-top: 1px solid rgba(224,220,213,0.7);
+    box-shadow: 0 -1px 0 rgba(255,255,255,0.6) inset;
   }
 
   /* Sheet (slide-up overlay) */

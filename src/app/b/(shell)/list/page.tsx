@@ -237,8 +237,8 @@ export default function BListPage() {
             disabled={saving}
             className="w-full py-3.5 rounded-full text-base font-medium border transition-colors"
             style={{
-              background: saving ? 'rgba(45,106,79,0.40)' : 'rgba(45,106,79,0.80)',
-              borderColor: 'rgba(45,106,79,0.55)',
+              background: saving ? 'rgba(45,106,79,0.40)' : 'rgba(5,150,105,0.85)',
+              borderColor: 'rgba(5,150,105,0.45)',
               color: 'white',
             }}
           >

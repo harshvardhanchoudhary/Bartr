@@ -7,6 +7,7 @@ import { TierBadge } from '@/components/ui/TierBadge'
 import { ServiceCard } from '@/components/b/ServiceCard'
 import { formatRelativeTime } from '@/lib/utils'
 import { DEMO_SERVICES } from '@/lib/demo-data'
+import { CreditWalletCard } from '@/components/b/CreditWalletCard'
 import type { ServiceListing, CreditTransaction } from '@/types/bartr-b'
 import type { Profile } from '@/types'
 
@@ -166,6 +167,16 @@ export default async function BProfilePage({ params }: Props) {
             </div>
           )}
         </div>
+
+        {/* Credit wallet card (real users with balance only) */}
+        {!isDemo && creditBalance && (
+          <CreditWalletCard
+            balance={creditBalance.balance}
+            lifetimeEarned={creditBalance.lifetime_earned}
+            handle={profile.handle}
+            tier={profile.tier}
+          />
+        )}
 
         {/* Services */}
         {services.length > 0 && (

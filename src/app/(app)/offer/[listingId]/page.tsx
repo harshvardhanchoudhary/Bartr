@@ -255,14 +255,24 @@ export default function OfferPage({ params }: Props) {
           }}>
             Go to Messages →
           </Link>
-          <Link href="/browse" style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '12px 24px', borderRadius: 99,
-            border: '1px solid var(--brd2)', background: 'var(--surf)',
-            color: 'var(--ink2)', fontSize: 14, textDecoration: 'none',
-          }}>
-            Keep browsing
-          </Link>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Link href={`/listings/${params.listingId}`} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '12px 16px', borderRadius: 99,
+              border: '1px solid var(--brd2)', background: 'var(--surf)',
+              color: 'var(--ink2)', fontSize: 13, textDecoration: 'none',
+            }}>
+              View listing
+            </Link>
+            <Link href="/browse" style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '12px 16px', borderRadius: 99,
+              border: '1px solid var(--brd2)', background: 'var(--surf)',
+              color: 'var(--ink2)', fontSize: 13, textDecoration: 'none',
+            }}>
+              Keep browsing
+            </Link>
+          </div>
         </main>
       </>
     )
@@ -585,9 +595,9 @@ export default function OfferPage({ params }: Props) {
                 transition: 'background 0.15s',
               }}
             >
-              {sending ? 'Sending…'
+              {sending ? 'Sending offer…'
                 : selectedItems.length === 0 ? 'Select items to offer'
-                : `Send offer (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''})`}
+                : `Let's swap! (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''}) →`}
             </button>
           )}
         </div>

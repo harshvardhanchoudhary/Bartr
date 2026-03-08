@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import toast from 'react-hot-toast'
@@ -34,6 +35,7 @@ function conditionLabel(v: string) {
 }
 
 export default function ListPage() {
+  const router = useRouter()
   const supabase = createClient()
 
   const [form, setForm] = useState({
@@ -145,8 +147,8 @@ export default function ListPage() {
       }).select().single()
 
       if (error) throw error
-      toast.success('Listed!')
-      window.location.href = `/listings/${data.id}`
+      toast.success('Listed! Your item is live.')
+      router.push(`/listings/${data.id}`)
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to create listing')
       setSaving(false)
@@ -287,7 +289,7 @@ export default function ListPage() {
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
     <>
-      <TopBar title="List an item" back />
+      <TopBar title="Drop something" back />
 
       <main style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px 60px' }}>
         <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 24, lineHeight: 1.6 }}>
