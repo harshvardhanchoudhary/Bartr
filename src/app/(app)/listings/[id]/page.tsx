@@ -1,10 +1,10 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { Avatar } from '@/components/ui/Avatar'
 import { OfferGateBar } from '@/components/listings/OfferGateBar'
+import { ListingMediaCarousel } from '@/components/listings/ListingMediaCarousel'
 import { formatValueRange, conditionLabel, formatRelativeTime } from '@/lib/utils'
 import { DEMO_LISTINGS } from '@/lib/demo-data'
 import type { Listing } from '@/types'
@@ -13,11 +13,17 @@ interface Props {
   params: { id: string }
 }
 
-async function getListing(id: string): Promise<{ listing: Listing | null; isDemo: boolean }> {
-  // Serve demo listings without touching the DB
+interface SellerPost {
+  id: string
+  content: string
+  type: string
+  created_at: string
+}
+
+async function getListing(id: string): Promise<{ listing: Listing | null; isDemo: boolean; socialPosts: SellerPost[] }> {
   if (id.startsWith('demo-')) {
     const demo = DEMO_LISTINGS.find(l => l.id === id) ?? null
-    return { listing: demo, isDemo: true }
+    return { listing: demo, isDemo: true, socialPosts: [] }
   }
 
   const supabase = await createClient()
@@ -33,11 +39,25 @@ async function getListing(id: string): Promise<{ listing: Listing | null; isDemo
     `)
     .eq('id', id)
     .single()
-  return { listing: (data ?? null) as Listing | null, isDemo: false }
+
+  const ownerId = (data as { user_id?: string } | null)?.user_id
+  let socialPosts: SellerPost[] = []
+
+  if (ownerId) {
+    const { data: posts } = await supabase
+      .from('social_posts')
+      .select('id, content, type, created_at')
+      .eq('user_id', ownerId)
+      .order('created_at', { ascending: false })
+      .limit(6)
+    socialPosts = (posts ?? []) as SellerPost[]
+  }
+
+  return { listing: (data ?? null) as Listing | null, isDemo: false, socialPosts }
 }
 
 export default async function ListingPage({ params }: Props) {
-  const { listing, isDemo } = await getListing(params.id)
+  const { listing, isDemo, socialPosts } = await getListing(params.id)
   if (!listing) notFound()
 
   const value = formatValueRange(listing.value_estimate_low, listing.value_estimate_high)
@@ -49,8 +69,6 @@ export default async function ListingPage({ params }: Props) {
       <TopBar back title={listing.category} />
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '0 0 140px', width: '100%' }}>
-
-        {/* Demo banner */}
         {isDemo && (
           <div style={{
             padding: '10px 16px',
@@ -70,106 +88,36 @@ export default async function ListingPage({ params }: Props) {
           </div>
         )}
 
-        {/* Main image */}
-        <div style={{
-          position: 'relative', aspectRatio: '4/3',
-          background: 'var(--bg2)', overflow: 'hidden',
-        }}>
-          {images[0] ? (
-            <Image
-              src={images[0]}
-              alt={listing.title}
-              fill
-              priority
-              style={{ objectFit: 'cover' }}
-              sizes="(max-width: 680px) 100vw, 680px"
-            />
-          ) : (
-            <div style={{
-              width: '100%', height: '100%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 64, color: 'var(--faint)',
-            }}>
-              ◻
-            </div>
-          )}
+        <ListingMediaCarousel title={listing.title} images={images} />
 
-          {/* Condition badge */}
-          <div style={{ position: 'absolute', bottom: 12, left: 12 }}>
+        <div style={{ padding: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 14, marginBottom: 10 }}>
+            <h1 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 30, lineHeight: 1.1, color: 'var(--ink)' }}>
+              {listing.title}
+            </h1>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 18, color: 'var(--red)', flexShrink: 0 }}>
+              {value}
+            </span>
+          </div>
+
+          <div style={{ marginBottom: 14 }}>
             <span style={{
               fontFamily: 'var(--font-dm-mono)', fontSize: 10,
               padding: '4px 10px', borderRadius: 99,
-              background: 'rgba(253,252,250,0.92)', border: '1px solid var(--brd)',
-              color: 'var(--ink2)',
+              background: 'var(--bg2)', border: '1px solid var(--brd)', color: 'var(--muted)',
             }}>
               {conditionLabel(listing.condition)}
             </span>
           </div>
-        </div>
 
-        {/* Thumbnail strip */}
-        {images.length > 1 && (
-          <div style={{
-            display: 'flex', gap: 8, padding: '8px 16px',
-            overflowX: 'auto', background: 'var(--bg2)',
-            borderBottom: '1px solid var(--brd)',
-          }}>
-            {images.slice(1, 6).map((img, i) => (
-              <div key={i} style={{
-                flexShrink: 0, width: 64, height: 64,
-                borderRadius: 'var(--r)', overflow: 'hidden',
-                position: 'relative', border: '1px solid var(--brd)',
-              }}>
-                <Image src={img} alt="" fill style={{ objectFit: 'cover' }} sizes="64px" />
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div style={{ padding: '20px 16px 0' }}>
-
-          {/* Title + value */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
-            <h1 style={{
-              fontFamily: 'var(--font-instrument-serif)',
-              fontSize: 24, lineHeight: 1.2, color: 'var(--ink)',
-            }}>
-              {listing.title}
-            </h1>
-            <div style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: 18,
-              fontWeight: 500, color: 'var(--red)', flexShrink: 0,
-            }}>
-              {value}
-            </div>
-          </div>
-
-          {/* Tags row */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 16 }}>
-            {[listing.category, conditionLabel(listing.condition), listing.location].filter(Boolean).map(tag => (
-              <span key={tag} style={{
-                fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.04em',
-                padding: '4px 10px', borderRadius: 99,
-                background: 'var(--bg2)', border: '1px solid var(--brd)', color: 'var(--muted)',
-              }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* Description */}
           {listing.description && (
-            <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 20 }}>
+            <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 16 }}>
               {listing.description}
             </p>
           )}
 
-          {/* Divider */}
-          <div style={{ borderTop: '1px solid var(--brd)', margin: '16px 0' }} />
-
-          {/* What they want — social proof */}
           {wantsArray.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 16 }}>
               <div style={{
                 fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em',
                 textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10,
@@ -190,10 +138,24 @@ export default async function ListingPage({ params }: Props) {
             </div>
           )}
 
-          {/* Divider */}
+          {socialPosts.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+                Seller social taste
+              </div>
+              <div style={{ display: 'grid', gap: 8 }}>
+                {socialPosts.slice(0, 3).map(post => (
+                  <div key={post.id} style={{ padding: '10px 12px', borderRadius: 'var(--r)', background: 'var(--surf)', border: '1px solid var(--brd)' }}>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginBottom: 4 }}>{post.type}</div>
+                    <div style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.5 }}>{post.content}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div style={{ borderTop: '1px solid var(--brd)', margin: '16px 0' }} />
 
-          {/* Seller card */}
           {listing.profile && (
             <Link href={`/profile/${listing.profile.handle}`} style={{ textDecoration: 'none' }}>
               <div style={{
@@ -229,18 +191,16 @@ export default async function ListingPage({ params }: Props) {
             </Link>
           )}
 
-          {/* Listed time */}
           <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginBottom: 8 }}>
             Listed {formatRelativeTime(listing.created_at)}
           </div>
 
-          {/* Trust note */}
           <div style={{
             padding: '10px 12px', borderRadius: 'var(--r)',
             background: 'var(--bg2)', border: '1px solid var(--brd)',
             fontSize: 11, color: 'var(--faint)', lineHeight: 1.5,
           }}>
-            Trades logged on the public ledger — that&apos;s the trust layer. No escrow, no payments on Bartr.
+            Trades logged on the public ledger — trust is visible before signup.
           </div>
         </div>
       </main>

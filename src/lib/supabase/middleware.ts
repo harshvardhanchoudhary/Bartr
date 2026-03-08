@@ -26,16 +26,8 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protect routes that require auth
-  const protectedPaths = ['/list', '/messages', '/profile/edit', '/settings']
-  const isProtected = protectedPaths.some(p => request.nextUrl.pathname.startsWith(p))
-
-  if (isProtected && !user) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('next', request.nextUrl.pathname)
-    return NextResponse.redirect(url)
-  }
+  // Discovery-first policy: do not force-auth in middleware.
+  // Individual actions (send offer, post brief, create listing, etc.) gate at commit time.
 
   return supabaseResponse
 }

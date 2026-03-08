@@ -65,6 +65,39 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px', width: '100%' }}>
 
+
+        <section style={{
+          marginBottom: 12,
+          padding: '12px 14px',
+          background: 'var(--surf)',
+          border: '1px solid var(--brd)',
+          borderRadius: 'var(--rl)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+        }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4 }}>
+              Bartr network
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--ink2)' }}>Need services too? Bartr-B lets you trade skills via Credits.</div>
+          </div>
+          <Link href="/b/browse" style={{
+            textDecoration: 'none',
+            fontFamily: 'var(--font-dm-mono)',
+            fontSize: 10,
+            color: 'var(--grn)',
+            border: '1px solid var(--gbd)',
+            background: 'var(--gbg)',
+            borderRadius: 99,
+            padding: '6px 10px',
+            whiteSpace: 'nowrap',
+          }}>
+            Open Bartr-B ↗
+          </Link>
+        </section>
+
         {/* Search */}
         <form style={{ marginBottom: 12 }}>
           <div style={{ position: 'relative' }}>
@@ -129,12 +162,6 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               </>
             )}
           </span>
-          <Link href="/login" style={{
-            fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)',
-            textDecoration: 'none', letterSpacing: '0.04em',
-          }}>
-            Sign in to see your matches →
-          </Link>
         </div>
 
         {/* Grid */}
