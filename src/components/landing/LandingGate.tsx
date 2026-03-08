@@ -3,18 +3,26 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
-// This component listens for a custom event fired when an unauthenticated user
-// tries to make an offer from the landing page. It slides up from the bottom.
+// Custom event detail carries an optional `next` URL so after sign-up the user
+// lands back on the page they were trying to act on (e.g. /offer/[listingId]).
 export function LandingGate() {
   const [visible, setVisible] = useState(false)
+  const [nextUrl, setNextUrl] = useState('/browse')
 
   useEffect(() => {
-    const handler = () => setVisible(true)
-    window.addEventListener('bartr:offer-gate', handler)
-    return () => window.removeEventListener('bartr:offer-gate', handler)
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ next?: string }>).detail
+      setNextUrl(detail?.next ?? '/browse')
+      setVisible(true)
+    }
+    window.addEventListener('bartr:offer-gate', handler as EventListener)
+    return () => window.removeEventListener('bartr:offer-gate', handler as EventListener)
   }, [])
 
   if (!visible) return null
+
+  const loginUrl = `/login?next=${encodeURIComponent(nextUrl)}`
+  const signupUrl = `/login?next=${encodeURIComponent(nextUrl)}`
 
   return (
     <>
@@ -55,15 +63,15 @@ export function LandingGate() {
             fontFamily: 'var(--font-instrument-serif)',
             fontSize: 24, color: 'var(--ink)', marginBottom: 8,
           }}>
-            Make your offer
+            Almost there
           </h2>
           <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 24 }}>
-            Create a free account to send offers, list your own items, and start trading.
-            Takes under 2 minutes.
+            Create a free account to make offers and list your own items.
+            Takes under a minute — just your email, no password needed.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <Link href="/signup" style={{
+            <Link href={signupUrl} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '14px 24px', borderRadius: 99,
               background: 'var(--red)', color: 'white',
@@ -72,14 +80,14 @@ export function LandingGate() {
             }}>
               Create free account →
             </Link>
-            <Link href="/login" style={{
+            <Link href={loginUrl} style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '13px 24px', borderRadius: 99,
               background: 'var(--surf)', color: 'var(--ink2)',
               fontFamily: 'var(--font-dm-sans)', fontSize: 15, fontWeight: 400,
               border: '1px solid var(--brd2)', textDecoration: 'none',
             }}>
-              Sign in
+              I already have an account
             </Link>
           </div>
 

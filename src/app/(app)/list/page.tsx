@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import toast from 'react-hot-toast'
@@ -21,7 +21,7 @@ const inputStyle = {
   border: '1px solid var(--brd)', borderRadius: 'var(--r)',
   background: 'var(--surf)', color: 'var(--ink)',
   fontSize: 14, outline: 'none',
-  fontFamily: 'var(--font-dm-sans)',
+  fontFamily: 'var(--font-dm-sans)', boxSizing: 'border-box' as const,
 } as const
 
 const labelStyle = {
@@ -30,8 +30,11 @@ const labelStyle = {
   color: 'var(--muted)', marginBottom: 6,
 }
 
+function conditionLabel(v: string) {
+  return CONDITIONS.find(c => c.value === v)?.label.split(' — ')[0] ?? v
+}
+
 export default function ListPage() {
-  const router = useRouter()
   const supabase = createClient()
 
   const [form, setForm] = useState({
@@ -42,6 +45,7 @@ export default function ListPage() {
   const [images, setImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [preview, setPreview] = useState(false)  // guest preview state
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const set = (key: keyof typeof form) => (
@@ -68,12 +72,19 @@ export default function ListPage() {
       toast.error('Title and category are required')
       return
     }
+
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login?next=/list'); return }
 
-      // Upload images to Supabase Storage
+      // Guest: show preview instead of redirecting to login
+      if (!user) {
+        setPreview(true)
+        setSaving(false)
+        return
+      }
+
+      // Upload images
       const uploadedUrls: string[] = []
       for (const file of images) {
         const ext = file.name.split('.').pop() ?? 'jpg'
@@ -108,14 +119,145 @@ export default function ListPage() {
 
       if (error) throw error
       toast.success('Listed!')
-      router.push(`/listings/${data.id}`)
+      window.location.href = `/listings/${data.id}`
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : 'Failed to create listing')
-    } finally {
       setSaving(false)
     }
   }
 
+  // ── Guest preview screen ───────────────────────────────────────────────────
+  if (preview) {
+    return (
+      <>
+        <TopBar title="Preview" back />
+        <main style={{ maxWidth: 560, margin: '0 auto', padding: '24px 16px 80px' }}>
+
+          {/* Preview card */}
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', overflow: 'hidden', marginBottom: 20,
+          }}>
+            {/* Photo placeholder or preview */}
+            {previews.length > 0 ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previews[0]} alt={form.title} style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover' }} />
+            ) : (
+              <div style={{
+                aspectRatio: '4/3', background: 'var(--bg2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 64, color: 'var(--faint)',
+              }}>
+                ◻
+              </div>
+            )}
+
+            <div style={{ padding: '20px 16px' }}>
+              {/* Condition badge */}
+              <div style={{ marginBottom: 10 }}>
+                <span style={{
+                  fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                  padding: '4px 10px', borderRadius: 99,
+                  background: 'var(--bg2)', border: '1px solid var(--brd)', color: 'var(--muted)',
+                }}>
+                  {conditionLabel(form.condition)}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+                <h1 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--ink)', lineHeight: 1.2 }}>
+                  {form.title || 'Your listing title'}
+                </h1>
+                {(form.valueLow || form.valueHigh) && (
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 18, fontWeight: 500, color: 'var(--red)', flexShrink: 0 }}>
+                    £{form.valueLow}{form.valueHigh && form.valueHigh !== form.valueLow ? `–${form.valueHigh}` : ''}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+                {[form.category, form.location].filter(Boolean).map(tag => (
+                  <span key={tag} style={{
+                    fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                    padding: '4px 10px', borderRadius: 99,
+                    background: 'var(--bg2)', border: '1px solid var(--brd)', color: 'var(--muted)',
+                  }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {form.description && (
+                <p style={{ fontSize: 14, color: 'var(--muted)', lineHeight: 1.7, marginBottom: 12 }}>
+                  {form.description}
+                </p>
+              )}
+
+              {form.wants && (
+                <div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 6 }}>
+                    What they&apos;ll accept
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {form.wants.split(',').map(w => w.trim()).filter(Boolean).map(w => (
+                      <span key={w} style={{
+                        fontFamily: 'var(--font-dm-mono)', fontSize: 11,
+                        padding: '4px 10px', borderRadius: 99,
+                        background: 'var(--gbg)', border: '1px solid var(--gbd)', color: 'var(--grn)',
+                      }}>
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div style={{
+            background: 'var(--gbg)', border: '1px solid var(--gbd)',
+            borderRadius: 'var(--rl)', padding: '20px', textAlign: 'center', marginBottom: 16,
+          }}>
+            <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 20, color: 'var(--ink)', marginBottom: 6 }}>
+              Looking good!
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
+              Create a free account to publish this listing and start receiving offers.
+            </p>
+            <Link href="/signup?next=/list" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '14px', borderRadius: 99, marginBottom: 10,
+              background: 'var(--red)', border: '1px solid #A8251F',
+              color: 'white', fontSize: 15, fontWeight: 500, textDecoration: 'none',
+            }}>
+              Create account to publish →
+            </Link>
+            <button
+              onClick={() => setPreview(false)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)',
+                textDecoration: 'underline', textUnderlineOffset: 3,
+              }}
+            >
+              ← Edit listing
+            </button>
+          </div>
+
+          <div style={{
+            padding: '12px', borderRadius: 'var(--r)',
+            background: 'var(--bg2)', border: '1px solid var(--brd)',
+            fontSize: 11, color: 'var(--faint)', lineHeight: 1.6, textAlign: 'center',
+          }}>
+            Free to list. No fees. Trades logged on the public ledger.
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  // ── Form ──────────────────────────────────────────────────────────────────
   return (
     <>
       <TopBar title="List an item" back />
@@ -131,13 +273,9 @@ export default function ListPage() {
           <div>
             <label style={labelStyle}>What are you listing? *</label>
             <input
-              type="text"
-              value={form.title}
-              onChange={set('title')}
+              type="text" value={form.title} onChange={set('title')}
               placeholder="e.g. Sony WH-1000XM4 headphones"
-              required
-              maxLength={120}
-              style={inputStyle}
+              required maxLength={120} style={inputStyle}
             />
           </div>
 
@@ -172,18 +310,12 @@ export default function ListPage() {
           <div>
             <label style={labelStyle}>Estimated value (£)</label>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <input
-                type="number" value={form.valueLow} onChange={set('valueLow')}
-                placeholder="Min" min="0" style={{ ...inputStyle, flex: 1 }}
-              />
+              <input type="number" value={form.valueLow} onChange={set('valueLow')} placeholder="Min" min="0" style={{ ...inputStyle, flex: 1 }} />
               <span style={{ color: 'var(--faint)' }}>—</span>
-              <input
-                type="number" value={form.valueHigh} onChange={set('valueHigh')}
-                placeholder="Max" min="0" style={{ ...inputStyle, flex: 1 }}
-              />
+              <input type="number" value={form.valueHigh} onChange={set('valueHigh')} placeholder="Max" min="0" style={{ ...inputStyle, flex: 1 }} />
             </div>
             <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 6 }}>
-              Auto-fill from eBay recent sales — coming soon
+              The value gap logic uses these to suggest fair trades
             </p>
           </div>
 
@@ -204,11 +336,9 @@ export default function ListPage() {
               </button>
             </div>
             <textarea
-              value={form.description}
-              onChange={set('description')}
+              value={form.description} onChange={set('description')}
               placeholder="Condition details, what's included, any defects…"
-              rows={4}
-              maxLength={2000}
+              rows={4} maxLength={2000}
               style={{ ...inputStyle, resize: 'none', minHeight: 100 }}
             />
           </div>
@@ -220,101 +350,67 @@ export default function ListPage() {
               {previews.map((src, i) => (
                 <div key={i} style={{ position: 'relative', width: 80, height: 80, flexShrink: 0 }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={src}
-                    alt={`Photo ${i + 1}`}
-                    style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--brd)' }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    style={{
-                      position: 'absolute', top: -6, right: -6,
-                      width: 20, height: 20, borderRadius: '50%',
-                      background: 'var(--ink)', color: 'white',
-                      border: 'none', cursor: 'pointer',
-                      fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
-                    aria-label="Remove photo"
-                  >
+                  <img src={src} alt={`Photo ${i + 1}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--brd)' }} />
+                  <button type="button" onClick={() => removeImage(i)} style={{
+                    position: 'absolute', top: -6, right: -6,
+                    width: 20, height: 20, borderRadius: '50%',
+                    background: 'var(--ink)', color: 'white',
+                    border: 'none', cursor: 'pointer',
+                    fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }} aria-label="Remove photo">
                     ×
                   </button>
                 </div>
               ))}
               {previews.length < 4 && (
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    width: 80, height: 80, borderRadius: 8,
-                    border: '1.5px dashed var(--brd2)',
-                    background: 'var(--surf)',
-                    cursor: 'pointer',
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    gap: 4, color: 'var(--faint)',
-                  }}
-                >
+                <button type="button" onClick={() => fileInputRef.current?.click()} style={{
+                  width: 80, height: 80, borderRadius: 8,
+                  border: '1.5px dashed var(--brd2)', background: 'var(--surf)',
+                  cursor: 'pointer',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  gap: 4, color: 'var(--faint)',
+                }}>
                   <span style={{ fontSize: 22 }}>+</span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, letterSpacing: '0.04em' }}>
-                    PHOTO
-                  </span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, letterSpacing: '0.04em' }}>PHOTO</span>
                 </button>
               )}
             </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              style={{ display: 'none' }}
-            />
+            <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageChange} style={{ display: 'none' }} />
           </div>
 
-          {/* Wants — the key social proof field */}
+          {/* Wants */}
           <div>
             <label style={labelStyle}>What will you accept in return?</label>
             <input
-              type="text"
-              value={form.wants}
-              onChange={set('wants')}
+              type="text" value={form.wants} onChange={set('wants')}
               placeholder="e.g. Camera gear, vinyl, fiction books, open to offers"
-              maxLength={300}
-              style={inputStyle}
+              maxLength={300} style={inputStyle}
             />
             <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 6 }}>
-              This shows on your listing as &quot;What gets accepted&quot; — be specific to get better offers
+              Shows on your listing as &quot;What gets accepted&quot; — be specific for better offers
             </p>
           </div>
 
           {/* Location */}
           <div>
             <label style={labelStyle}>Location</label>
-            <input
-              type="text"
-              value={form.location}
-              onChange={set('location')}
-              placeholder="e.g. London, Manchester"
-              style={inputStyle}
-            />
+            <input type="text" value={form.location} onChange={set('location')} placeholder="e.g. London, Manchester" style={inputStyle} />
           </div>
 
           {/* Submit */}
           <div style={{ paddingTop: 8 }}>
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                width: '100%', padding: '14px',
-                borderRadius: 99,
-                background: saving ? 'var(--brd2)' : 'var(--red)',
-                border: `1px solid ${saving ? 'var(--brd2)' : '#A8251F'}`,
-                color: 'white', fontSize: 16, fontWeight: 500,
-                cursor: saving ? 'not-allowed' : 'pointer',
-              }}
-            >
+            <button type="submit" disabled={saving} style={{
+              width: '100%', padding: '14px', borderRadius: 99,
+              background: saving ? 'var(--brd2)' : 'var(--red)',
+              border: `1px solid ${saving ? 'var(--brd2)' : '#A8251F'}`,
+              color: 'white', fontSize: 16, fontWeight: 500,
+              cursor: saving ? 'not-allowed' : 'pointer',
+            }}>
               {saving ? 'Listing…' : 'List item →'}
             </button>
+            <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', textAlign: 'center', marginTop: 10 }}>
+              You&apos;ll see a preview first — no account needed to try it
+            </p>
           </div>
         </form>
       </main>
