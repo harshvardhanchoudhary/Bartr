@@ -228,7 +228,7 @@ export default function BListPage() {
               rows={4}
             />
             <p className="text-xs text-muted-2 mt-1.5">
-              Portfolio is required — it's your proof of work. No portfolio, no listing.
+              Portfolio is required — it&apos;s your proof of work. No portfolio, no listing.
             </p>
           </div>
 
