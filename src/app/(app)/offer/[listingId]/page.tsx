@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import { formatValueRange, getValueGapState } from '@/lib/utils'
+import { DEMO_LISTINGS } from '@/lib/demo-data'
 import toast from 'react-hot-toast'
 import type { Listing, ValueGapState } from '@/types'
 
@@ -17,13 +18,18 @@ const GAP_STYLES: Record<ValueGapState, { bg: string; border: string; color: str
   fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', label: 'Fair trade',            icon: '✓' },
   short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: "You're offering less",   icon: '↓' },
   way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: 'Big value gap',          icon: '↓↓' },
-  over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', label: 'You\'re offering more — request something extra?', icon: '↑' },
-  way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', label: 'You\'re offering a lot more — request something extra', icon: '↑↑' },
+  over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', label: "You're offering more — request something extra?", icon: '↑' },
+  way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', label: "You're offering a lot more — request something extra", icon: '↑↑' },
 }
+
+// Three sample "your items" shown when no real listings exist (new user or demo mode)
+const SAMPLE_YOUR_ITEMS: Listing[] = DEMO_LISTINGS.slice(1, 4)
 
 export default function OfferPage({ params }: Props) {
   const router = useRouter()
   const supabase = createClient()
+
+  const isDemo = params.listingId.startsWith('demo-')
 
   const [target, setTarget] = useState<Listing | null>(null)
   const [myListings, setMyListings] = useState<Listing[]>([])
@@ -33,6 +39,7 @@ export default function OfferPage({ params }: Props) {
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
+  const [isDemoMode, setIsDemoMode] = useState(isDemo)
 
   useEffect(() => {
     async function load() {
@@ -42,6 +49,17 @@ export default function OfferPage({ params }: Props) {
         return
       }
 
+      if (isDemo) {
+        // Demo listing — use static data, show sample items as "your listings"
+        const demoListing = DEMO_LISTINGS.find(l => l.id === params.listingId)
+        setTarget(demoListing ?? null)
+        // Show 3 other demo listings as the user's sample items so the flow is interactive
+        setMyListings(DEMO_LISTINGS.filter(l => l.id !== params.listingId).slice(0, 3))
+        setIsDemoMode(true)
+        return
+      }
+
+      // Real listing
       const [{ data: targetData }, { data: myData }] = await Promise.all([
         supabase
           .from('listings')
@@ -56,7 +74,15 @@ export default function OfferPage({ params }: Props) {
       ])
 
       setTarget(targetData as Listing)
-      setMyListings((myData ?? []) as Listing[])
+      // If no real listings, show sample items to illustrate the flow
+      const realListings = (myData ?? []) as Listing[]
+      if (realListings.length === 0) {
+        setMyListings(SAMPLE_YOUR_ITEMS)
+        setIsDemoMode(true)
+      } else {
+        setMyListings(realListings)
+        setIsDemoMode(false)
+      }
     }
     load()
   }, [params.listingId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -72,7 +98,7 @@ export default function OfferPage({ params }: Props) {
     : 0
 
   const gapState = offeredMid > 0 && targetMid > 0 ? getValueGapState(offeredMid, targetMid) : null
-  const balancePct = targetMid > 0 ? Math.min(offeredMid / targetMid, 2) * 50 : 0  // 50% = even, 0% = nothing, 100% = 2x
+  const balancePct = targetMid > 0 ? Math.min(offeredMid / targetMid, 2) * 50 : 0
 
   function toggleItem(id: string) {
     setSelectedItems(prev =>
@@ -81,6 +107,13 @@ export default function OfferPage({ params }: Props) {
   }
 
   async function sendOffer() {
+    // In demo mode, redirect to listing instead of actually submitting
+    if (isDemoMode) {
+      toast.success('Ready to make a real offer? List your own item first!')
+      router.push('/list')
+      return
+    }
+
     if (selectedItems.length === 0) {
       toast.error('Pick at least one item to offer')
       return
@@ -159,6 +192,26 @@ export default function OfferPage({ params }: Props) {
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 120px' }}>
 
+        {/* Demo mode banner */}
+        {isDemoMode && (
+          <div style={{
+            padding: '10px 14px', marginBottom: 16, borderRadius: 'var(--rl)',
+            background: 'var(--gldbg)', border: '1px solid var(--gldbd)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+          }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--gld)', lineHeight: 1.4 }}>
+              {isDemo ? 'Sample listing — exploring the offer flow' : 'No listings yet — items below are examples'}
+            </span>
+            <Link href="/list" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--gld)',
+              padding: '3px 10px', border: '1px solid var(--gldbd)',
+              borderRadius: 99, background: 'var(--gldbg)', textDecoration: 'none', flexShrink: 0,
+            }}>
+              List an item →
+            </Link>
+          </div>
+        )}
+
         {/* You want — target listing summary */}
         <div style={{
           background: 'var(--surf)', border: '1px solid var(--brd)',
@@ -171,7 +224,7 @@ export default function OfferPage({ params }: Props) {
             <div>
               <div style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 15 }}>{target.title}</div>
               <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                from {target.profile?.handle}
+                from {target.profile?.handle ?? target.profile?.display_name}
               </div>
             </div>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 16, fontWeight: 500, color: 'var(--red)', flexShrink: 0 }}>
@@ -195,7 +248,6 @@ export default function OfferPage({ params }: Props) {
               </span>
             </div>
 
-            {/* Bar */}
             <div style={{ height: 6, background: 'var(--brd)', borderRadius: 99, overflow: 'hidden', marginBottom: 8 }}>
               <div style={{
                 height: '100%', borderRadius: 99, transition: 'width 0.3s ease',
@@ -207,7 +259,6 @@ export default function OfferPage({ params }: Props) {
               }} />
             </div>
 
-            {/* Gap badge */}
             {gapState && (
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -223,75 +274,71 @@ export default function OfferPage({ params }: Props) {
           </div>
         )}
 
-        {/* Item picker — 3-column grid */}
+        {/* Item picker */}
         <div style={{
           background: 'var(--surf)', border: '1px solid var(--brd)',
           borderRadius: 'var(--rl)', padding: '14px 16px', marginBottom: 12,
         }}>
           <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--faint)', marginBottom: 12 }}>
-            Choose items to offer
+            {isDemoMode ? 'Example items (tap to explore)' : 'Choose items to offer'}
           </div>
 
-          {myListings.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              {myListings.map(l => {
-                const selected = selectedItems.includes(l.id)
-                const itemValue = formatValueRange(l.value_estimate_low, l.value_estimate_high)
-                return (
-                  <button
-                    key={l.id}
-                    onClick={() => toggleItem(l.id)}
-                    style={{
-                      padding: '10px 8px', borderRadius: 'var(--r)',
-                      border: `1px solid ${selected ? '#A8251F' : 'var(--brd)'}`,
-                      background: selected ? 'var(--rbg)' : 'var(--bg)',
-                      cursor: 'pointer', textAlign: 'left',
-                      transition: 'all 0.12s', position: 'relative',
-                    }}
-                  >
-                    {selected && (
-                      <div style={{
-                        position: 'absolute', top: 6, right: 6,
-                        width: 16, height: 16, borderRadius: '50%',
-                        background: 'var(--red)', color: 'white',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 9,
-                      }}>
-                        ✓
-                      </div>
-                    )}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            {myListings.map(l => {
+              const selected = selectedItems.includes(l.id)
+              const itemValue = formatValueRange(l.value_estimate_low, l.value_estimate_high)
+              return (
+                <button
+                  key={l.id}
+                  onClick={() => toggleItem(l.id)}
+                  style={{
+                    padding: '10px 8px', borderRadius: 'var(--r)',
+                    border: `1px solid ${selected ? '#A8251F' : 'var(--brd)'}`,
+                    background: selected ? 'var(--rbg)' : 'var(--bg)',
+                    cursor: 'pointer', textAlign: 'left',
+                    transition: 'all 0.12s', position: 'relative',
+                  }}
+                >
+                  {selected && (
                     <div style={{
-                      fontSize: 11, fontWeight: 500, color: 'var(--ink)',
-                      lineHeight: 1.3, marginBottom: 4,
-                      display: '-webkit-box', WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                      position: 'absolute', top: 6, right: 6,
+                      width: 16, height: 16, borderRadius: '50%',
+                      background: 'var(--red)', color: 'white',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 9,
                     }}>
-                      {l.title}
+                      ✓
                     </div>
-                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)' }}>
-                      {itemValue}
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', padding: '24px 0' }}>
-              <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
-                You have no active listings to offer.
-              </p>
+                  )}
+                  <div style={{
+                    fontSize: 11, fontWeight: 500, color: 'var(--ink)',
+                    lineHeight: 1.3, marginBottom: 4,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden',
+                  }}>
+                    {l.title}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)' }}>
+                    {itemValue}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+
+          {isDemoMode && (
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--brd)', textAlign: 'center' }}>
               <Link href="/list" style={{
-                display: 'inline-flex', padding: '9px 20px', borderRadius: 99,
-                background: 'var(--red)', color: 'white', fontSize: 13,
-                border: '1px solid #A8251F', textDecoration: 'none',
+                fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--muted)',
+                textDecoration: 'underline', textUnderlineOffset: 3,
               }}>
-                List an item first
+                + List your own items to make real offers
               </Link>
             </div>
           )}
         </div>
 
-        {/* Top-up / cash bridge (collapsed by default, shows when value is short) */}
+        {/* Top-up */}
         {(gapState === 'short' || gapState === 'way_short' || showTopup) && (
           <div style={{
             background: 'var(--surf)', border: '1px solid var(--brd)',
@@ -380,23 +427,36 @@ export default function OfferPage({ params }: Props) {
         borderTop: '1px solid var(--brd)',
       }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
-          <button
-            onClick={sendOffer}
-            disabled={sending || selectedItems.length === 0}
-            style={{
+          {isDemoMode ? (
+            <Link href="/list" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: '100%', padding: '14px',
               borderRadius: 99,
-              background: selectedItems.length === 0 ? 'var(--brd2)' : 'var(--red)',
-              border: `1px solid ${selectedItems.length === 0 ? 'var(--brd2)' : '#A8251F'}`,
+              background: 'var(--red)', border: '1px solid #A8251F',
               color: 'white', fontSize: 16, fontWeight: 500,
-              cursor: selectedItems.length === 0 ? 'not-allowed' : 'pointer',
-              transition: 'background 0.15s',
-            }}
-          >
-            {sending ? 'Sending…'
-              : selectedItems.length === 0 ? 'Select items to offer'
-              : `Send offer (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''})`}
-          </button>
+              textDecoration: 'none',
+            }}>
+              List your item to make a real offer →
+            </Link>
+          ) : (
+            <button
+              onClick={sendOffer}
+              disabled={sending || selectedItems.length === 0}
+              style={{
+                width: '100%', padding: '14px',
+                borderRadius: 99,
+                background: selectedItems.length === 0 ? 'var(--brd2)' : 'var(--red)',
+                border: `1px solid ${selectedItems.length === 0 ? 'var(--brd2)' : '#A8251F'}`,
+                color: 'white', fontSize: 16, fontWeight: 500,
+                cursor: selectedItems.length === 0 ? 'not-allowed' : 'pointer',
+                transition: 'background 0.15s',
+              }}
+            >
+              {sending ? 'Sending…'
+                : selectedItems.length === 0 ? 'Select items to offer'
+                : `Send offer (${selectedItems.length} item${selectedItems.length > 1 ? 's' : ''})`}
+            </button>
+          )}
         </div>
       </div>
     </>

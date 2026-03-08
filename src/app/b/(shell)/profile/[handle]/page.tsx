@@ -1,11 +1,12 @@
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BTopBar } from '@/components/b/BTopBar'
 import { Avatar } from '@/components/ui/Avatar'
 import { TierBadge } from '@/components/ui/TierBadge'
 import { ServiceCard } from '@/components/b/ServiceCard'
 import { formatRelativeTime } from '@/lib/utils'
+import { DEMO_SERVICES } from '@/lib/demo-data'
 import type { ServiceListing, CreditTransaction } from '@/types/bartr-b'
 import type { Profile } from '@/types'
 
@@ -13,85 +14,140 @@ interface Props {
   params: { handle: string }
 }
 
-export default async function BProfilePage({ params }: Props) {
-  const supabase = await createClient()
-  const handle = decodeURIComponent(params.handle)
+// Build demo provider profiles from DEMO_SERVICES
+const DEMO_PROVIDERS: Record<string, { profile: Profile; services: ServiceListing[] }> = {}
+for (const svc of DEMO_SERVICES) {
+  if (svc.profile) {
+    const h = svc.profile.handle
+    if (!DEMO_PROVIDERS[h]) {
+      DEMO_PROVIDERS[h] = { profile: svc.profile as unknown as Profile, services: [] }
+    }
+    DEMO_PROVIDERS[h].services.push(svc)
+  }
+}
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('handle', handle.startsWith('@') ? handle : `@${handle}`)
-    .single()
+export default async function BProfilePage({ params }: Props) {
+  const handle = decodeURIComponent(params.handle).replace(/^@/, '')
+
+  // Check demo providers first
+  const demoEntry = DEMO_PROVIDERS[handle]
+
+  let profile: Profile | null = null
+  let services: ServiceListing[] = []
+  let creditHistory: CreditTransaction[] = []
+  let creditBalance: { balance: number; lifetime_earned: number } | null = null
+  let isDemo = false
+
+  if (demoEntry) {
+    profile = demoEntry.profile
+    services = demoEntry.services
+    isDemo = true
+  } else {
+    const supabase = await createClient()
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('handle', handle)
+      .single()
+
+    if (!profileData) notFound()
+    profile = profileData as Profile
+
+    const [{ data: svcData }, { data: txData }, { data: balData }] = await Promise.all([
+      supabase
+        .from('service_listings')
+        .select('*, profile:profiles(id, handle, display_name, avatar_url, tier, trade_count)')
+        .eq('user_id', profile.id)
+        .eq('is_available', true)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('credit_transactions')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('credit_balances')
+        .select('*')
+        .eq('user_id', profile.id)
+        .single(),
+    ])
+    services = (svcData ?? []) as ServiceListing[]
+    creditHistory = (txData ?? []) as CreditTransaction[]
+    creditBalance = balData as { balance: number; lifetime_earned: number } | null
+  }
 
   if (!profile) notFound()
 
-  const [{ data: services }, { data: creditHistory }, { data: creditBalance }] = await Promise.all([
-    supabase
-      .from('service_listings')
-      .select('*, profile:profiles(id, handle, display_name, avatar_url, tier, trade_count)')
-      .eq('user_id', profile.id)
-      .eq('is_available', true)
-      .order('created_at', { ascending: false }),
-    supabase
-      .from('credit_transactions')
-      .select('*')
-      .eq('user_id', profile.id)
-      .order('created_at', { ascending: false })
-      .limit(10),
-    supabase
-      .from('credit_balances')
-      .select('*')
-      .eq('user_id', profile.id)
-      .single(),
-  ])
-
   return (
     <>
-      <BTopBar />
+      <BTopBar back />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 pb-20 w-full">
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px', width: '100%' }}>
+
+        {/* Demo banner */}
+        {isDemo && (
+          <div style={{
+            padding: '10px 16px', marginBottom: 16,
+            background: 'var(--gbg)', border: '1px solid var(--gbd)',
+            borderRadius: 'var(--rl)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--grn)' }}>
+              Sample profile — sign up to connect with real providers
+            </span>
+            <Link href="/signup" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)',
+              padding: '3px 10px', border: '1px solid var(--gbd)',
+              borderRadius: 99, background: 'var(--gbg)', textDecoration: 'none',
+            }}>
+              Join free →
+            </Link>
+          </div>
+        )}
+
         {/* Profile header */}
-        <div
-          className="rounded-md border p-5 mb-4"
-          style={{ background: 'rgba(45,106,79,0.06)', borderColor: 'rgba(45,106,79,0.20)' }}
-        >
-          <div className="flex items-start gap-4">
+        <div style={{
+          borderRadius: 'var(--rl)', border: '1px solid var(--gbd)',
+          background: 'var(--gbg)', padding: '20px', marginBottom: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16 }}>
             <Avatar
-              src={(profile as Profile).avatar_url}
-              alt={(profile as Profile).display_name ?? (profile as Profile).handle}
+              src={profile.avatar_url}
+              alt={profile.display_name ?? profile.handle}
               size="lg"
             />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <h1 className="font-semibold text-lg">
-                  {(profile as Profile).display_name ?? (profile as Profile).handle}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 2 }}>
+                <h1 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--ink)' }}>
+                  {profile.display_name ?? profile.handle}
                 </h1>
-                <TierBadge tier={(profile as Profile).tier} />
+                <TierBadge tier={profile.tier} />
               </div>
-              <div className="text-muted text-sm font-mono mb-2">{(profile as Profile).handle}</div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>
+                {profile.handle}
+              </div>
 
-              {(profile as Profile).bio && (
-                <p className="text-sm text-muted leading-relaxed mb-3">{(profile as Profile).bio}</p>
+              {profile.bio && (
+                <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 12 }}>
+                  {profile.bio}
+                </p>
               )}
 
-              <div className="flex gap-4">
-                <div className="text-center">
-                  <div className="text-base font-semibold">{(profile as Profile).trade_count}</div>
-                  <div className="text-xs text-muted-2 font-mono">jobs done</div>
+              <div style={{ display: 'flex', gap: 20 }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>{profile.trade_count}</div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>jobs done</div>
                 </div>
                 {creditBalance && (
                   <>
-                    <div className="text-center">
-                      <div className="text-base font-semibold" style={{ color: '#52B788' }}>
-                        {(creditBalance as { balance: number }).balance}c
-                      </div>
-                      <div className="text-xs text-muted-2 font-mono">credits</div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--grn)' }}>{creditBalance.balance}c</div>
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>credits</div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-base font-semibold">
-                        {(creditBalance as { lifetime_earned: number }).lifetime_earned}c
-                      </div>
-                      <div className="text-xs text-muted-2 font-mono">earned</div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--ink)' }}>{creditBalance.lifetime_earned}c</div>
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)' }}>earned</div>
                     </div>
                   </>
                 )}
@@ -99,61 +155,53 @@ export default async function BProfilePage({ params }: Props) {
             </div>
           </div>
 
-          {(profile as Profile).verified_id && (
-            <div
-              className="inline-flex items-center gap-1.5 mt-3 px-2.5 py-1 rounded-full text-xs font-mono border"
-              style={{
-                background: 'rgba(45,106,79,0.12)',
-                borderColor: 'rgba(45,106,79,0.30)',
-                color: '#52B788',
-              }}
-            >
+          {profile.verified_id && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 12,
+              padding: '4px 12px', borderRadius: 99,
+              fontFamily: 'var(--font-dm-mono)', fontSize: 11,
+              background: 'rgba(26,122,74,0.10)', border: '1px solid var(--gbd)', color: 'var(--grn)',
+            }}>
               ✓ ID verified
             </div>
           )}
         </div>
 
         {/* Services */}
-        {services && services.length > 0 && (
-          <section className="mb-6">
-            <h2 className="text-sm font-mono text-muted mb-3 uppercase tracking-wide">
+        {services.length > 0 && (
+          <section style={{ marginBottom: 24 }}>
+            <h2 style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>
               {services.length} service{services.length !== 1 ? 's' : ''}
             </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {(services as ServiceListing[]).map(s => (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+              {services.map(s => (
                 <ServiceCard key={s.id} listing={s} />
               ))}
             </div>
           </section>
         )}
 
-        {/* Credit activity */}
-        {creditHistory && creditHistory.length > 0 && (
+        {/* Credit activity (real users only) */}
+        {!isDemo && creditHistory.length > 0 && (
           <section>
-            <h2 className="text-sm font-mono text-muted mb-3 uppercase tracking-wide flex items-center gap-2">
+            <h2 style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12 }}>
               Credit activity
             </h2>
-            <div className="space-y-2">
-              {(creditHistory as CreditTransaction[]).map(tx => (
-                <div
-                  key={tx.id}
-                  className="rounded border p-3 flex items-center justify-between"
-                  style={{
-                    background: 'rgba(45,106,79,0.04)',
-                    borderColor: 'rgba(45,106,79,0.12)',
-                  }}
-                >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {creditHistory.map(tx => (
+                <div key={tx.id} style={{
+                  borderRadius: 'var(--r)', border: '1px solid var(--gbd)',
+                  padding: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  background: 'rgba(26,122,74,0.04)',
+                }}>
                   <div>
-                    <div className="text-xs font-mono text-muted-2 mb-0.5 uppercase">{tx.type}</div>
-                    {tx.note && <div className="text-xs text-muted">{tx.note}</div>}
-                    <div className="text-xs text-muted-2 font-mono mt-1">
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 2 }}>{tx.type}</div>
+                    {tx.note && <div style={{ fontSize: 12, color: 'var(--muted)' }}>{tx.note}</div>}
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 4 }}>
                       {formatRelativeTime(tx.created_at)}
                     </div>
                   </div>
-                  <div
-                    className="font-mono text-sm font-medium"
-                    style={{ color: tx.amount > 0 ? '#52B788' : 'rgba(255,255,255,0.62)' }}
-                  >
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 14, fontWeight: 500, color: tx.amount > 0 ? 'var(--grn)' : 'var(--muted)' }}>
                     {tx.amount > 0 ? '+' : ''}{tx.amount}c
                   </div>
                 </div>
@@ -162,10 +210,10 @@ export default async function BProfilePage({ params }: Props) {
           </section>
         )}
 
-        {(!services || services.length === 0) && (!creditHistory || creditHistory.length === 0) && (
-          <div className="text-center py-12 text-muted">
-            <div className="text-4xl mb-4" style={{ color: 'rgba(45,106,79,0.4)' }}>◎</div>
-            <p className="text-sm">No services or activity yet.</p>
+        {services.length === 0 && creditHistory.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--muted)' }}>
+            <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--grn)', opacity: 0.4 }}>◎</div>
+            <p style={{ fontSize: 14 }}>No services or activity yet.</p>
           </div>
         )}
       </main>

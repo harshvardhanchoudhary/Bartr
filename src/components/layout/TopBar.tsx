@@ -22,7 +22,7 @@ export function TopBar({ title, right, back }: TopBarProps) {
       WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--brd)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         {back && (
           <button
             onClick={() => {
@@ -31,7 +31,7 @@ export function TopBar({ title, right, back }: TopBarProps) {
             }}
             style={{
               background: 'none', border: 'none', cursor: 'pointer',
-              padding: '4px 8px 4px 0', color: 'var(--red)', fontSize: 16,
+              padding: '4px 4px 4px 0', color: 'var(--red)', fontSize: 16,
             }}
             aria-label="Back"
           >
@@ -39,20 +39,26 @@ export function TopBar({ title, right, back }: TopBarProps) {
           </button>
         )}
 
-        {title ? (
-          <span style={{
-            fontFamily: 'var(--font-dm-sans)', fontWeight: 500,
-            fontSize: 16, color: 'var(--ink)',
-          }}>
-            {title}
-          </span>
-        ) : (
-          <Link href="/" style={{
-            fontFamily: 'var(--font-instrument-serif)',
-            fontSize: 22, color: 'var(--ink)', textDecoration: 'none',
-          }}>
-            Bartr
-          </Link>
+        {/* Bartr wordmark — always visible, always links home */}
+        <Link href="/" style={{
+          fontFamily: 'var(--font-instrument-serif)',
+          fontSize: 22, color: 'var(--ink)', textDecoration: 'none',
+          lineHeight: 1,
+        }}>
+          Bartr
+        </Link>
+
+        {/* Page title shown after wordmark with a separator */}
+        {title && (
+          <>
+            <span style={{ color: 'var(--brd2)', fontSize: 14, lineHeight: 1 }}>·</span>
+            <span style={{
+              fontFamily: 'var(--font-dm-sans)', fontWeight: 500,
+              fontSize: 14, color: 'var(--ink2)',
+            }}>
+              {title}
+            </span>
+          </>
         )}
       </div>
 
