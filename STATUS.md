@@ -10,6 +10,7 @@ It is the execution snapshot (short-term), while `DECISIONS.md` is the long-term
 - Founder-friendly workflows that keep shipping velocity without reliability regressions
 
 ## This session updates
+- Added `FOUNDER_COMMAND_CENTER.md` as a daily single-page command workflow for founder + multiple AI operators
 - Added CI workflow at `.github/workflows/ci.yml` for lint + type-check + build
 - Added `.github/pull_request_template.md` with risk, rollback, and conflict-resolution checklist
 - Added `INCIDENT_TEMPLATE.md` for standardized postmortems

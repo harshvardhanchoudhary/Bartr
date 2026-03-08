@@ -111,7 +111,35 @@ Recommended for feature changes:
 
 ---
 
-## AI collaboration rules (tool-agnostic)
+
+## Founder operating workflow (recommended)
+
+If you're a solo founder aiming for production quality from day one, follow:
+- `FOUNDER_OPERATING_SYSTEM.md` (weekly cadence, release discipline, incident process)
+- `STATUS.md` (live execution log; update every active session)
+- `DECISIONS.md` (long-term architecture decisions)
+- `CLAUDE.md` (AI context and startup ritual)
+
+- `.github/workflows/ci.yml` (automated PR validation: lint, type-check, build)
+- `.github/pull_request_template.md` (release/risk/conflict checklist on every PR)
+- `INCIDENT_TEMPLATE.md` (standardized postmortem format)
+- `FOUNDER_COMMAND_CENTER.md` (single-page daily workflow when coordinating multiple AIs)
+
+### Handling PR conflicts quickly
+
+If a PR reports conflicts:
+
+```bash
+git fetch origin
+git checkout <your-branch>
+git merge origin/main
+# resolve conflicts manually
+npm run lint && npm run type-check
+```
+
+Then commit with an explicit conflict-resolution message and push again.
+
+## Manual setup required (browser/dashboard)
 
 Read these files before any major AI-assisted change:
 

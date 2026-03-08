@@ -48,3 +48,16 @@ Prefer the safer path:
 - Shared components
 - Stronger checks over hidden magic
 
+
+## Session Startup Ritual (Required)
+At the start of each implementation session:
+1. Read `CLAUDE.md`, `DECISIONS.md`, and `STATUS.md`
+2. Summarize the current state and open risks
+3. Propose a short plan before coding
+4. After coding, update `STATUS.md`
+5. If any non-obvious decision was made, append it to `DECISIONS.md`
+
+This ensures AI-assisted continuity so context is not lost between sessions.
+
+## Architecture decisions
+See DECISIONS.md for full log of every non-obvious decision made.
