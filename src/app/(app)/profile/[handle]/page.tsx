@@ -38,7 +38,7 @@ export default async function ProfilePage({ params }: Props) {
   if (!profile) notFound()
 
   // For real profiles: fetch their listings, ledger, and social posts
-  const [{ data: dbListings }, { data: ledger }, { data: socialPosts }] = isDemo
+  const [{ data: dbListings }, { data: ledger }] = isDemo
     ? [{ data: null }, { data: null }, { data: null }]
     : await Promise.all([
         supabase
