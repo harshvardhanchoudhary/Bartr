@@ -170,8 +170,8 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
             display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 12,
           }}>
-            {listings.map(listing => (
-              <ListingCard key={listing.id} listing={listing} />
+            {listings.map((listing, i) => (
+              <ListingCard key={listing.id} listing={listing} index={i} />
             ))}
           </div>
         ) : (

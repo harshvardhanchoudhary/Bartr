@@ -8,6 +8,7 @@ import { ListingCard } from '@/components/listings/ListingCard'
 import { formatRelativeTime } from '@/lib/utils'
 import { DEMO_LISTINGS } from '@/lib/demo-data'
 import { inferTasteTagsFromText } from '@/lib/ai/mvp'
+import { AchievementBadges } from '@/components/ui/AchievementBadges'
 import type { Profile, Listing, LedgerEntry } from '@/types'
 
 interface Props {
@@ -173,6 +174,9 @@ export default async function ProfilePage({ params }: Props) {
               </span>
             )}
           </div>
+
+          {/* Achievement badges */}
+          <AchievementBadges profile={profile} />
         </div>
 
 

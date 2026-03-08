@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import toast from 'react-hot-toast'
-import { suggestListingCopy } from '@/lib/ai/mvp'
 
 const CATEGORIES = ['Fashion', 'Electronics', 'Books', 'Art', 'Collectibles', 'Home', 'Sports', 'Music', 'Other']
 const CONDITIONS = [
@@ -45,8 +44,36 @@ export default function ListPage() {
   const [images, setImages] = useState<File[]>([])
   const [previews, setPreviews] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
+  const [aiAssisting, setAiAssisting] = useState(false)
   const [preview, setPreview] = useState(false)  // guest preview state
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleAiAssist() {
+    if (!form.title && !form.description) {
+      toast.error('Add a title or description first')
+      return
+    }
+    setAiAssisting(true)
+    try {
+      const res = await fetch('/api/ai/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: form.title, description: form.description, category: form.category, type: 'item' }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setForm(prev => ({
+        ...prev,
+        title: data.title ?? prev.title,
+        description: data.description ?? prev.description,
+      }))
+      toast.success('Claude improved your listing copy')
+    } catch {
+      toast.error('AI assist failed — check your API key is set in Vercel')
+    } finally {
+      setAiAssisting(false)
+    }
+  }
 
   const set = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -325,14 +352,15 @@ export default function ListPage() {
               <label style={{ ...labelStyle, marginBottom: 0 }}>Description</label>
               <button
                 type="button"
-                onClick={() => {
-                  const suggestion = suggestListingCopy({ title: form.title, description: form.description, category: form.category })
-                  setForm(prev => ({ ...prev, title: prev.title || suggestion.altTitle, description: suggestion.strongerDesc }))
-                  toast.success('AI assist applied to title + description')
+                onClick={handleAiAssist}
+                disabled={aiAssisting}
+                style={{
+                  border: '1px solid var(--blubd)', background: 'var(--blubg)', color: 'var(--blu)',
+                  borderRadius: 99, padding: '4px 10px', fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                  cursor: aiAssisting ? 'not-allowed' : 'pointer', opacity: aiAssisting ? 0.6 : 1,
                 }}
-                style={{ border: '1px solid var(--blubd)', background: 'var(--blubg)', color: 'var(--blu)', borderRadius: 99, padding: '4px 8px', fontFamily: 'var(--font-dm-mono)', fontSize: 10, cursor: 'pointer' }}
               >
-                AI Assist
+                {aiAssisting ? 'Thinking…' : '✦ Improve with Claude'}
               </button>
             </div>
             <textarea
