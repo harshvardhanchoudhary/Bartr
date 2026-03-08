@@ -126,6 +126,10 @@ If you're a solo founder aiming for production quality from day one, follow:
 - `DECISIONS.md` (long-term architecture decisions)
 - `CLAUDE.md` (AI context and startup ritual)
 
+- `.github/workflows/ci.yml` (automated PR validation: lint, type-check, build)
+- `.github/pull_request_template.md` (release/risk/conflict checklist on every PR)
+- `INCIDENT_TEMPLATE.md` (standardized postmortem format)
+
 ### Handling PR conflicts quickly
 
 If a PR reports conflicts:

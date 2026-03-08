@@ -161,3 +161,15 @@ If quality drops for 2 weeks, pause feature velocity and stabilize.
 - No unresolved conflict markers in merged code
 - No hidden decisions (if it matters, log it)
 
+
+
+---
+
+## 10) Enforced automation (must-have from day one)
+
+These are now required repo assets:
+- `.github/workflows/ci.yml` — blocks regressions by running lint, type-check, build
+- `.github/pull_request_template.md` — forces consistent risk/testing/rollback notes
+- `INCIDENT_TEMPLATE.md` — keeps incident learning quality high
+
+If a check fails, treat it as a release blocker unless there is an explicit written exception.

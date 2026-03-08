@@ -92,6 +92,11 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 **Why:** Solo-founder execution needs durable process memory (planning, release safety, incidents, conflict handling) to maintain production quality while shipping fast.
 **Watch out for:** Keep `STATUS.md` concise and current each session; add only non-obvious, durable decisions to `DECISIONS.md`.
 
+### D014 — Enforce quality gates via CI and PR template
+**Decision:** Add GitHub Actions CI (`lint`, `type-check`, `build`), a PR template with risk/test/rollback sections, and a standard incident template.
+**Why:** Process docs are useful, but enforcement artifacts reduce human error and keep quality standards consistent as development speed increases.
+**Watch out for:** CI failures should block merges except for explicitly documented emergency hotfixes; keep templates lightweight so they are used consistently.
+
 ---
 
 ## Things That Need Manual Setup (Claude Code Can't Do These)
@@ -107,4 +112,4 @@ Each entry: **what** was decided, **why**, and **what to watch out for**.
 
 ---
 
-*Last updated: 2026-03-07 — v1.1 operations workflow added*
+*Last updated: 2026-03-08 — v1.2 enforcement workflows added*

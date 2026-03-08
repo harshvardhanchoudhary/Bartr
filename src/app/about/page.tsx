@@ -67,8 +67,8 @@ export default function AboutPage() {
           </p>
           <p style={{ fontSize: 15, color: 'var(--muted)', lineHeight: 1.75 }}>
             The oldest economy in the world is barter. You have something I want, I have something
-            you want — let's just swap. Bartr is that, but for the 21st century: searchable,
-            value-matched, with a community trust layer so you know who you're trading with.
+            you want — let&apos;s just swap. Bartr is that, but for the 21st century: searchable,
+            value-matched, with a community trust layer so you know who you&apos;re trading with.
           </p>
         </section>
 
