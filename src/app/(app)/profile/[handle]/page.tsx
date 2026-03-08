@@ -7,6 +7,7 @@ import { TierBadge } from '@/components/ui/TierBadge'
 import { Chip } from '@/components/ui/Chip'
 import { ListingCard } from '@/components/listings/ListingCard'
 import { formatRelativeTime } from '@/lib/utils'
+import { inferTasteTagsFromText } from '@/lib/ai/mvp'
 import type { Profile, Listing, LedgerEntry } from '@/types'
 
 interface Props {
@@ -25,7 +26,7 @@ export default async function ProfilePage({ params }: Props) {
 
   if (!profile) notFound()
 
-  const [{ data: listings }, { data: ledger }] = await Promise.all([
+  const [{ data: listings }, { data: ledger }, { data: socialPosts }] = await Promise.all([
     supabase
       .from('listings')
       .select('*, profile:profiles(id, handle, display_name, avatar_url, tier)')
@@ -39,9 +40,16 @@ export default async function ProfilePage({ params }: Props) {
       .or(`from_profile_id.eq.${profile.id},to_profile_id.eq.${profile.id}`)
       .order('created_at', { ascending: false })
       .limit(10),
+    supabase
+      .from('social_posts')
+      .select('id, content, type, created_at')
+      .eq('user_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(8),
   ])
 
   const verificationCount = [profile.verified_id, profile.verified_phone, profile.verified_photo].filter(Boolean).length
+  const tasteTags = inferTasteTagsFromText((socialPosts ?? []).map((p: { content: string }) => p.content))
 
   return (
     <>
@@ -101,6 +109,32 @@ export default async function ProfilePage({ params }: Props) {
             <div className="text-xs text-muted-2 mt-2 font-mono">{profile.location}</div>
           )}
         </div>
+
+
+        {/* Taste & interests */}
+        <section className="card p-4 mb-4">
+          <div className="text-xs font-mono uppercase tracking-wider text-muted-2 mb-2">Social taste</div>
+          {tasteTags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {tasteTags.map(tag => (
+                <Chip key={tag} variant="default">#{tag}</Chip>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted">No social taste data yet — this updates as they post and trade.</p>
+          )}
+
+          {(socialPosts ?? []).length > 0 && (
+            <div className="mt-3 space-y-2">
+              {(socialPosts ?? []).slice(0, 3).map((post: { id: string; content: string; type: string; created_at: string }) => (
+                <div key={post.id} className="p-3 rounded border border-stroke bg-surface-2">
+                  <div className="text-[10px] font-mono uppercase text-muted-2 mb-1">{post.type} · {formatRelativeTime(post.created_at)}</div>
+                  <p className="text-sm">{post.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Active listings */}
         {listings && listings.length > 0 && (

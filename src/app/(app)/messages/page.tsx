@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
@@ -32,16 +31,36 @@ const offerStatusStyle = (status: string) => {
 export default async function MessagesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login?next=/messages')
 
-  const threads = await getThreads(user.id)
+  const threads = user ? await getThreads(user.id) : []
 
   return (
     <>
       <TopBar title="Messages" />
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px' }}>
-        {threads.length > 0 ? (
+        {!user && (
+          <div style={{
+            marginBottom: 12,
+            padding: '12px 14px',
+            background: 'var(--blubg)',
+            border: '1px solid var(--blubd)',
+            borderRadius: 'var(--rl)',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--blu)', marginBottom: 6 }}>
+              Commit-time signup
+            </div>
+            <p style={{ fontSize: 13, color: 'var(--ink2)', marginBottom: 8, lineHeight: 1.6 }}>
+              Browse everything first. Messages unlock when you start or receive an offer.
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <Link href="/browse" className="btn">Back to browse</Link>
+              <Link href="/login?next=/messages" className="btn btn-primary">Sign in to open inbox</Link>
+            </div>
+          </div>
+        )}
+
+        {user && threads.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {threads.map(thread => {
               const offerStatus = thread.latest_offer?.status
@@ -58,7 +77,6 @@ export default async function MessagesPage() {
                     background: 'var(--surf)', border: '1px solid var(--brd)',
                     borderRadius: 'var(--rl)',
                   }}>
-                    {/* Icon */}
                     <div style={{
                       width: 40, height: 40, borderRadius: 'var(--r)',
                       background: 'var(--bg2)', border: '1px solid var(--brd)',
@@ -69,7 +87,6 @@ export default async function MessagesPage() {
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      {/* Title + time */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
                         <div style={{ fontWeight: 500, color: 'var(--ink)', fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {thread.listing?.title ?? 'Trade thread'}
@@ -81,7 +98,6 @@ export default async function MessagesPage() {
                         )}
                       </div>
 
-                      {/* Category + value */}
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
                         {thread.listing?.category && (
                           <span style={{
@@ -97,22 +113,22 @@ export default async function MessagesPage() {
                         </span>
                       </div>
 
-                      {/* Last message */}
                       {thread.last_message && (
                         <p style={{ fontSize: 12, color: 'var(--muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginBottom: offerStatus ? 6 : 0 }}>
                           {thread.last_message}
                         </p>
                       )}
 
-                      {/* Offer status badge */}
                       {statusStyle && offerStatus && (
                         <span style={{
-                          display: 'inline-flex', fontFamily: 'var(--font-dm-mono)', fontSize: 9,
-                          padding: '2px 8px', borderRadius: 99,
-                          background: statusStyle.bg, border: `1px solid ${statusStyle.border}`,
+                          display: 'inline-flex',
+                          fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                          padding: '3px 8px', borderRadius: 99,
+                          background: statusStyle.bg,
+                          border: `1px solid ${statusStyle.border}`,
                           color: statusStyle.color,
                         }}>
-                          Offer: {offerStatus}
+                          {offerStatus}
                         </span>
                       )}
                     </div>
@@ -121,22 +137,13 @@ export default async function MessagesPage() {
               )
             })}
           </div>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '64px 0' }}>
-            <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--faint)' }}>◻</div>
-            <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20 }}>
-              No messages yet. Browse listings and make an offer.
-            </p>
-            <Link href="/browse" style={{
-              display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
-              background: 'var(--red)', color: 'white',
-              fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #A8251F',
-            }}>
-              Browse listings
-            </Link>
+        ) : user ? (
+          <div style={{ textAlign: 'center', padding: '52px 0', color: 'var(--muted)' }}>
+            <div style={{ fontSize: 40, marginBottom: 14 }}>◻</div>
+            <p style={{ fontSize: 14, marginBottom: 16 }}>No conversations yet.</p>
+            <Link href="/browse" className="btn btn-primary">Browse listings</Link>
           </div>
-        )}
+        ) : null}
       </main>
     </>
   )
