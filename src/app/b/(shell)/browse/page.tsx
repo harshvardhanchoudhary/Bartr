@@ -40,55 +40,50 @@ export default async function BBrowsePage({ searchParams }: Props) {
     <>
       <BTopBar
         right={
-          <Link href="/b/list" style={{
-            padding: '5px 12px', borderRadius: 99,
-            background: 'var(--grn)', color: 'white',
-            fontFamily: 'var(--font-dm-sans)', fontSize: 12,
-            border: '1px solid #136038', textDecoration: 'none',
-          }}>
-            + Offer skill
-          </Link>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Link href="/b/briefs" style={{
+              padding: '5px 10px', borderRadius: 99,
+              border: '1px solid var(--gbd)', background: 'var(--gbg)',
+              color: 'var(--grn)', fontFamily: 'var(--font-dm-mono)', fontSize: 11,
+              textDecoration: 'none',
+            }}>
+              Briefs
+            </Link>
+            <Link href="/b/list" style={{
+              padding: '5px 12px', borderRadius: 99,
+              background: 'var(--grn)', color: 'white',
+              fontFamily: 'var(--font-dm-sans)', fontSize: 12,
+              border: '1px solid #136038', textDecoration: 'none',
+            }}>
+              + Offer skill
+            </Link>
+          </div>
         }
       />
 
-      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px' }}>
-
-        <section style={{
-          marginBottom: 14,
-          padding: '12px 14px',
-          background: 'var(--gbg)',
-          border: '1px solid var(--gbd)',
-          borderRadius: 'var(--rl)',
-        }}>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--grn)', marginBottom: 6 }}>
-            Why Bartr-B
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--ink2)', lineHeight: 1.6, marginBottom: 8 }}>
-            Offer services, apply to briefs, and earn Credits you can spend across the network.
-          </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link href="/b/briefs" style={{ textDecoration: 'none', fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', border: '1px solid var(--gbd)', borderRadius: 99, padding: '4px 10px', background: 'white' }}>
-              View briefs →
-            </Link>
-            <Link href="/b/list" style={{ textDecoration: 'none', fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', border: '1px solid var(--gbd)', borderRadius: 99, padding: '4px 10px', background: 'white' }}>
-              Offer a skill →
-            </Link>
-          </div>
-        </section>
-
+      <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 80px', width: '100%' }}>
 
         {/* Search */}
         <form style={{ marginBottom: 12 }}>
-          <input
-            type="search" name="q" defaultValue={q}
-            placeholder="Search skills, e.g. logo design, React dev, copywriting…"
-            style={{
-              width: '100%', padding: '11px 14px',
-              border: '1px solid var(--brd)', borderRadius: 'var(--rl)',
-              background: 'var(--surf)', color: 'var(--ink)',
-              fontSize: 14, outline: 'none', fontFamily: 'var(--font-dm-sans)',
-            }}
-          />
+          <div style={{ position: 'relative' }}>
+            <input
+              type="search" name="q" defaultValue={q}
+              placeholder="Search skills, e.g. logo design, React dev, copywriting…"
+              style={{
+                width: '100%', padding: '11px 40px 11px 14px',
+                border: '1px solid var(--brd)', borderRadius: 'var(--rl)',
+                background: 'var(--surf)', color: 'var(--ink)',
+                fontSize: 14, outline: 'none', fontFamily: 'var(--font-dm-sans)',
+              }}
+            />
+            <button type="submit" style={{
+              position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'var(--faint)', fontSize: 16,
+            }} aria-label="Search">
+              ◎
+            </button>
+          </div>
         </form>
 
         {/* Category tabs */}
@@ -106,6 +101,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
                 background: cat === c ? 'var(--grn)' : 'var(--surf)',
                 border: `1px solid ${cat === c ? '#136038' : 'var(--brd)'}`,
                 color: cat === c ? 'white' : 'var(--ink2)',
+                transition: 'all 0.12s',
               }}
             >
               {c}
@@ -113,13 +109,19 @@ export default async function BBrowsePage({ searchParams }: Props) {
           ))}
         </div>
 
-        {/* Count */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+        {/* Count + briefs link */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--faint)' }}>
-            {isDemo ? 'Sample skills — be the first to offer yours!' : `${listings.length} skill${listings.length !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}`}
+            {isDemo
+              ? 'Sample skills — be the first to offer yours!'
+              : `${listings.length} skill${listings.length !== 1 ? 's' : ''}${cat !== 'All' ? ` in ${cat}` : ''}${q ? ` for "${q}"` : ''}`}
           </span>
-          <Link href="/b/briefs" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)', textDecoration: 'none' }}>
-            View open briefs →
+          <Link href="/b/briefs" style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)',
+            textDecoration: 'none', border: '1px solid var(--gbd)',
+            background: 'var(--gbg)', borderRadius: 99, padding: '3px 10px',
+          }}>
+            Open briefs →
           </Link>
         </div>
 
