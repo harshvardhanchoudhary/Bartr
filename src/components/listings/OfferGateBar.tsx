@@ -20,7 +20,10 @@ export function OfferGateBar({ listingId, isDemo }: OfferGateBarProps) {
   function fireGate(e: React.MouseEvent) {
     if (!authed || isDemo) {
       e.preventDefault()
-      window.dispatchEvent(new Event('bartr:offer-gate'))
+      // Include the offer URL as `next` so after sign-up the user lands on the offer page
+      window.dispatchEvent(new CustomEvent('bartr:offer-gate', {
+        detail: { next: `/offer/${listingId}` },
+      }))
     }
   }
 

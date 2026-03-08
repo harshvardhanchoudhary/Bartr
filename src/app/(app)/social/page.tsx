@@ -2,13 +2,19 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { Avatar } from '@/components/ui/Avatar'
-import { Chip } from '@/components/ui/Chip'
-import { DEMO_POSTS } from '@/lib/demo-data'
 import { TierBadge } from '@/components/ui/TierBadge'
 import { SocialActions } from '@/components/social/SocialActions'
 import { SocialComposer } from '@/components/social/SocialComposer'
 import { formatRelativeTime, formatValueRange } from '@/lib/utils'
+import { DEMO_POSTS } from '@/lib/demo-data'
 import type { SocialPost } from '@/types'
+
+const POST_TYPE_STYLES: Record<string, { label: string; bg: string; brd: string; color: string }> = {
+  trade_win:        { label: 'Trade win',   bg: 'var(--gbg)',   brd: 'var(--gbd)',   color: 'var(--grn)' },
+  accepted_pattern: { label: 'Accepted',    bg: 'var(--rbg)',   brd: 'var(--rbd)',   color: 'var(--red)' },
+  looking_for:      { label: 'Looking for', bg: 'var(--blubg)', brd: 'var(--blubd)', color: 'var(--blu)' },
+  joined:           { label: 'New member',  bg: 'var(--bg2)',   brd: 'var(--brd)',   color: 'var(--muted)' },
+}
 
 async function getPosts(): Promise<SocialPost[]> {
   const supabase = await createClient()
@@ -24,13 +30,6 @@ async function getPosts(): Promise<SocialPost[]> {
   return (data ?? []) as SocialPost[]
 }
 
-const postTypeLabel: Record<string, { label: string; variant: 'red' | 'green' | 'default' }> = {
-  trade_win: { label: 'Trade win', variant: 'green' },
-  accepted_pattern: { label: 'Accepted', variant: 'red' },
-  looking_for: { label: 'Looking for', variant: 'default' },
-  joined: { label: 'New member', variant: 'default' },
-}
-
 export default async function SocialPage() {
   const dbPosts = await getPosts()
   const posts = dbPosts.length > 0 ? dbPosts : DEMO_POSTS
@@ -39,24 +38,57 @@ export default async function SocialPage() {
     <>
       <TopBar
         right={
-          <Link href="/list" className="btn btn-primary text-xs px-3 py-2">
+          <Link href="/list" style={{
+            display: 'inline-flex', alignItems: 'center',
+            padding: '6px 14px', borderRadius: 99,
+            background: 'var(--red)', color: 'white',
+            fontFamily: 'var(--font-dm-sans)', fontSize: 13, fontWeight: 500,
+            border: '1px solid #A8251F', textDecoration: 'none',
+          }}>
             + List
           </Link>
         }
       />
 
-      <main className="max-w-2xl mx-auto px-4 py-4 w-full space-y-3">
-        <SocialComposer />
+      <main style={{ maxWidth: 640, margin: '0 auto', padding: '16px 16px 100px', width: '100%' }}>
 
-        {/* Feed */}
-        {posts.length > 0 ? (
-          posts.map((post: typeof posts[0]) => {
-            const type = postTypeLabel[post.type] ?? { label: post.type, variant: 'default' as const }
+        <div style={{ marginBottom: 20 }}>
+          <SocialComposer />
+        </div>
+
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16,
+        }}>
+          <span style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em',
+            textTransform: 'uppercase', color: 'var(--muted)',
+          }}>
+            Community
+          </span>
+          {dbPosts.length === 0 && (
+            <span style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 9,
+              padding: '2px 8px', borderRadius: 99,
+              background: 'var(--gldbg)', border: '1px solid var(--gldbd)', color: 'var(--gld)',
+            }}>
+              Sample posts
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {posts.map((post: SocialPost) => {
+            const ts = POST_TYPE_STYLES[post.type] ?? POST_TYPE_STYLES.joined
             return (
-              <article key={post.id} className="card overflow-hidden">
-                {/* Header */}
-                <div className="flex items-start justify-between gap-3 p-4 pb-3">
-                  <div className="flex items-center gap-3">
+              <article key={post.id} style={{
+                background: 'var(--surf)', border: '1px solid var(--brd)',
+                borderRadius: 'var(--rl)', overflow: 'hidden',
+              }}>
+                <div style={{
+                  display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+                  gap: 12, padding: '14px 16px 10px',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     {post.profile && (
                       <Link href={`/profile/${post.profile.handle}`}>
                         <Avatar
@@ -67,62 +99,77 @@ export default async function SocialPage() {
                       </Link>
                     )}
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                         <Link
                           href={`/profile/${post.profile?.handle ?? '#'}`}
-                          className="text-sm font-semibold hover:text-muted transition-colors"
+                          style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink)', textDecoration: 'none' }}
                         >
                           {post.profile?.display_name ?? post.profile?.handle}
                         </Link>
                         {post.profile && <TierBadge tier={post.profile.tier} />}
                       </div>
-                      <div className="text-xs text-muted-2 mt-0.5">
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--faint)', marginTop: 1 }}>
                         {formatRelativeTime(post.created_at)}
                       </div>
                     </div>
                   </div>
-                  <Chip variant={type.variant as 'red' | 'green' | 'default'}>{type.label}</Chip>
+                  <span style={{
+                    fontFamily: 'var(--font-dm-mono)', fontSize: 9,
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
+                    padding: '3px 8px', borderRadius: 99, flexShrink: 0,
+                    background: ts.bg, border: `1px solid ${ts.brd}`, color: ts.color,
+                  }}>
+                    {ts.label}
+                  </span>
                 </div>
 
-                {/* Content */}
-                <div className="px-4 pb-3">
-                  <p className="text-sm leading-relaxed">{post.content}</p>
+                <div style={{ padding: '0 16px 12px' }}>
+                  <p style={{ fontSize: 14, color: 'var(--ink2)', lineHeight: 1.65 }}>{post.content}</p>
                 </div>
 
-                {/* Linked listing */}
                 {post.listing && (
-                  <Link
-                    href={`/listings/${post.listing.id}`}
-                    className="mx-4 mb-3 p-3 bg-surface-2 rounded border border-stroke flex items-center justify-between hover:border-stroke-2 transition-colors"
-                  >
-                    <div>
-                      <div className="text-xs font-mono text-muted-2 uppercase mb-0.5">
+                  <Link href={`/listings/${post.listing.id}`} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    margin: '0 16px 12px', padding: '10px 12px',
+                    background: 'var(--bg2)', border: '1px solid var(--brd)',
+                    borderRadius: 'var(--rl)', textDecoration: 'none',
+                  }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{
+                        fontFamily: 'var(--font-dm-mono)', fontSize: 9,
+                        textTransform: 'uppercase', letterSpacing: '0.06em',
+                        color: 'var(--faint)', marginBottom: 3,
+                      }}>
                         {post.listing.category}
                       </div>
-                      <div className="text-sm font-medium line-clamp-1">{post.listing.title}</div>
+                      <div style={{
+                        fontSize: 13, fontWeight: 500, color: 'var(--ink)',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {post.listing.title}
+                      </div>
                     </div>
-                    <div className="text-red-light font-mono text-sm flex-shrink-0 ml-3">
+                    <div style={{
+                      fontFamily: 'var(--font-dm-mono)', fontSize: 13,
+                      fontWeight: 500, color: 'var(--red)', flexShrink: 0, marginLeft: 12,
+                    }}>
                       {formatValueRange(post.listing.value_estimate_low, post.listing.value_estimate_high)}
                     </div>
                   </Link>
                 )}
 
-                {/* Actions */}
-                <SocialActions
-                  postId={post.id}
-                  likeCount={post.like_count}
-                  commentCount={post.comment_count}
-                  listingId={post.listing_id}
-                />
+                <div style={{ borderTop: '1px solid var(--brd)', padding: '8px 12px' }}>
+                  <SocialActions
+                    postId={post.id}
+                    likeCount={post.like_count}
+                    commentCount={post.comment_count}
+                    listingId={post.listing_id}
+                  />
+                </div>
               </article>
             )
-          })
-        ) : (
-          <div className="text-center py-16 text-muted">
-            <div className="text-4xl mb-4">◎</div>
-            <p className="text-sm">No posts yet. Make a trade and share your win!</p>
-          </div>
-        )}
+          })}
+        </div>
       </main>
     </>
   )

@@ -47,7 +47,7 @@ export function TopBar({ title, right, back }: TopBarProps) {
             {title}
           </span>
         ) : (
-          <Link href="/browse" style={{
+          <Link href="/" style={{
             fontFamily: 'var(--font-instrument-serif)',
             fontSize: 22, color: 'var(--ink)', textDecoration: 'none',
           }}>

@@ -1,16 +1,16 @@
 import Link from 'next/link'
 import { LandingGate } from '@/components/landing/LandingGate'
 
-// Sample listings for social proof — mirrors what's in the database
+// Sample listings for social proof — IDs match demo-data.ts so detail pages work
 const SAMPLE_LISTINGS = [
-  { id: '1', emoji: '👕', title: "Vintage Levi's 501 Jacket", category: 'Fashion', condition: 'Good', value: 75, user: 'jordanmc', wants: ['Photography books', 'Film camera', 'Vinyl'] },
-  { id: '2', emoji: '📷', title: 'Fujifilm X-T20 + 18-55mm', category: 'Electronics', condition: 'Great', value: 420, user: 'tessafilm', wants: ['Laptop', 'iPad', 'Camera gear'] },
-  { id: '3', emoji: '🎸', title: 'Fender Telecaster (Squier)', category: 'Music', condition: 'Good', value: 220, user: 'mikeb', wants: ['Synth', 'Effects pedals', 'Studio monitors'] },
-  { id: '4', emoji: '📚', title: 'Philosophy Books ×12', category: 'Books', condition: 'Good', value: 60, user: 'samirk', wants: ['Fiction', 'Art books', 'Journals'] },
-  { id: '5', emoji: '🧥', title: 'Arc\'teryx Beta AR Jacket', category: 'Fashion', condition: 'Great', value: 340, user: 'pablor', wants: ['Snowboard gear', 'Hiking boots', 'Camping'] },
-  { id: '6', emoji: '🖥️', title: 'iPad Pro 11" (2021)', category: 'Electronics', condition: 'Great', value: 580, user: 'lilyc', wants: ['MacBook', 'Camera', 'Audio gear'] },
-  { id: '7', emoji: '🎵', title: 'Technics SL-1200MK2', category: 'Music', condition: 'Good', value: 480, user: 'djsol', wants: ['Vinyl collection', 'Speakers', 'Amp'] },
-  { id: '8', emoji: '👟', title: 'Nike Air Max 1 OG (UK9)', category: 'Fashion', condition: 'Good', value: 140, user: 'kwamea', wants: ['Jordan 1s', 'New Balance', 'Other sneakers'] },
+  { id: 'demo-2', emoji: '👕', title: "Vintage Levi's 501 Jacket", category: 'Fashion', condition: 'Good', value: 75, user: 'jordanmc', wants: ['Photography books', 'Film camera', 'Vinyl'] },
+  { id: 'demo-1', emoji: '📷', title: 'Fujifilm X-T20 + 18-55mm', category: 'Electronics', condition: 'Good', value: 420, user: 'tessafilm', wants: ['Laptop', 'iPad', 'Camera gear'] },
+  { id: 'demo-3', emoji: '🎸', title: 'Fender Telecaster (Squier)', category: 'Music', condition: 'Good', value: 220, user: 'mikeb', wants: ['Synth', 'Effects pedals', 'Studio monitors'] },
+  { id: 'demo-7', emoji: '📚', title: 'Philosophy Books ×12', category: 'Books', condition: 'Good', value: 60, user: 'samirk', wants: ['Fiction', 'Art books', 'Journals'] },
+  { id: 'demo-4', emoji: '🧥', title: "Arc'teryx Beta AR Jacket", category: 'Fashion', condition: 'Like new', value: 340, user: 'pablor', wants: ['Snowboard gear', 'Hiking boots', 'Camping'] },
+  { id: 'demo-5', emoji: '🖥️', title: 'iPad Pro 11" (2021)', category: 'Electronics', condition: 'Like new', value: 580, user: 'lilyc', wants: ['MacBook', 'Camera', 'Audio gear'] },
+  { id: 'demo-6', emoji: '🎵', title: 'Technics SL-1200MK2', category: 'Music', condition: 'Good', value: 480, user: 'djsol', wants: ['Vinyl collection', 'Speakers', 'Amp'] },
+  { id: 'demo-8', emoji: '👟', title: 'Nike Air Max 1 OG (UK9)', category: 'Fashion', condition: 'New', value: 140, user: 'kwamea', wants: ['Jordan 1s', 'New Balance', 'Other sneakers'] },
 ]
 
 const HOW_IT_WORKS = [

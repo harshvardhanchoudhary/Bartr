@@ -129,12 +129,6 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               </>
             )}
           </span>
-          <Link href="/login" style={{
-            fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--muted)',
-            textDecoration: 'none', letterSpacing: '0.04em',
-          }}>
-            Sign in to see your matches →
-          </Link>
         </div>
 
         {/* Grid */}
