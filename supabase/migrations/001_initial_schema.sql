@@ -185,7 +185,7 @@ create table offers (
   status              text not null default 'pending'
     check (status in ('pending','accepted','declined','withdrawn','completed')),
   value_gap_state     text
-    check (value_gap_state in ('fair','under','over','big_under','big_over')),
+    check (value_gap_state in ('fair','short','over','way_short','way_over')),
   created_at          timestamptz not null default now()
 );
 

@@ -6,10 +6,11 @@ import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const NAV = [
-  { href: '/browse',   label: 'Market',   icon: '⊞' },
-  { href: '/social',   label: 'Social',   icon: '◎' },
-  { href: '/messages', label: 'Chat',     icon: '◻' },
-  { href: '/profile',  label: 'Me',       icon: '◑' },
+  { href: '/social',   label: 'Social',    icon: '◎' },
+  { href: '/browse',   label: 'Market',    icon: '⊞' },
+  { href: '/messages', label: 'Messages',  icon: '◻' },
+  { href: '/profile',  label: 'Profile',   icon: '◑' },
+  { href: '/b/browse', label: 'Bartr-B',   icon: '↗' },
 ]
 
 export function BottomNav() {

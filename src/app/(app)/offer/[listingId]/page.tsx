@@ -13,12 +13,19 @@ interface Props {
   params: { listingId: string }
 }
 
+const DRAFT_KEY = 'bartr:offer-draft'
+
 const GAP_STYLES: Record<ValueGapState, { bg: string; border: string; color: string; label: string; icon: string }> = {
   fair:      { bg: 'var(--gbg)',   border: 'var(--gbd)',   color: 'var(--grn)', label: 'Fair trade — values well matched', icon: '✓' },
   short:     { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: "You're offering less — consider adding more", icon: '↓' },
   way_short: { bg: 'var(--rbg)',   border: 'var(--rbd)',   color: 'var(--red)', label: 'Big value gap — they may not accept this', icon: '↓↓' },
   over:      { bg: 'var(--blubg)', border: 'var(--blubd)', color: 'var(--blu)', label: "You're offering more — request something extra?", icon: '↑' },
   way_over:  { bg: 'var(--gldbg)', border: 'var(--gldbd)', color: 'var(--gld)', label: "You're offering a lot more — request something extra", icon: '↑↑' },
+}
+
+function mapGapForDb(state: ValueGapState | null): string | null {
+  if (!state) return null
+  return state
 }
 
 // 3 sample items shown when user has no real listings (new users + guests)
@@ -32,11 +39,12 @@ export default function OfferPage({ params }: Props) {
   const [target, setTarget] = useState<Listing | null>(null)
   const [myListings, setMyListings] = useState<Listing[]>([])
   const [selectedItems, setSelectedItems] = useState<string[]>([])
-  const [topupAmount, setTopupAmount] = useState('')
-  const [topupCurrency, setTopupCurrency] = useState('GBP')
   const [message, setMessage] = useState('')
+  const [guestOfferDraft, setGuestOfferDraft] = useState('')
   const [sending, setSending] = useState(false)
   const [showTopup, setShowTopup] = useState(false)
+  const [topupAmount, setTopupAmount] = useState('')
+  const [topupCurrency, setTopupCurrency] = useState('GBP')
   const [isGuest, setIsGuest] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
@@ -54,6 +62,26 @@ export default function OfferPage({ params }: Props) {
           ?? DEMO_LISTINGS[0] // fallback
         setTarget(demoListing)
         setMyListings(DEMO_LISTINGS.filter(l => l.id !== params.listingId).slice(0, 3))
+
+        // Restore localStorage draft if present (additive CODEX feature)
+        const raw = localStorage.getItem(DRAFT_KEY)
+        if (raw) {
+          try {
+            const draft = JSON.parse(raw) as {
+              listingId: string
+              selectedItems: string[]
+              message: string
+              guestOfferDraft: string
+            }
+            if (draft.listingId === params.listingId) {
+              setSelectedItems(draft.selectedItems ?? [])
+              setMessage(draft.message ?? '')
+              setGuestOfferDraft(draft.guestOfferDraft ?? '')
+            }
+          } catch {
+            // ignore invalid local draft
+          }
+        }
         return
       }
 
@@ -78,6 +106,27 @@ export default function OfferPage({ params }: Props) {
       } else {
         setMyListings(realListings)
       }
+
+      // Restore localStorage draft if present (additive CODEX feature)
+      const raw = localStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        try {
+          const draft = JSON.parse(raw) as {
+            listingId: string
+            selectedItems: string[]
+            message: string
+            guestOfferDraft: string
+          }
+          if (draft.listingId === params.listingId) {
+            setSelectedItems(draft.selectedItems ?? [])
+            setMessage(draft.message ?? '')
+            setGuestOfferDraft(draft.guestOfferDraft ?? '')
+            toast.success('Draft restored — you can send when ready')
+          }
+        } catch {
+          // ignore invalid local draft
+        }
+      }
     }
     load()
   }, [params.listingId]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -86,7 +135,7 @@ export default function OfferPage({ params }: Props) {
     const l = myListings.find(x => x.id === id)
     if (!l) return sum
     return sum + ((l.value_estimate_low ?? 0) + (l.value_estimate_high ?? l.value_estimate_low ?? 0)) / 2
-  }, 0) + (parseFloat(topupAmount) || 0)
+  }, 0)
 
   const targetMid = target
     ? ((target.value_estimate_low ?? 0) + (target.value_estimate_high ?? target.value_estimate_low ?? 0)) / 2
@@ -101,6 +150,13 @@ export default function OfferPage({ params }: Props) {
   }
 
   function fireGate() {
+    // Save draft to localStorage before firing gate (additive CODEX feature)
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      listingId: params.listingId,
+      selectedItems,
+      message,
+      guestOfferDraft,
+    }))
     window.dispatchEvent(new CustomEvent('bartr:offer-gate', {
       detail: { next: `/offer/${params.listingId}` },
     }))
@@ -134,8 +190,10 @@ export default function OfferPage({ params }: Props) {
       const offeredItems = selectedItems.map(id => {
         const l = myListings.find(x => x.id === id)!
         return {
-          listing_id: id, title: l.title,
-          value_low: l.value_estimate_low, value_high: l.value_estimate_high,
+          listing_id: id,
+          title: l.title,
+          value_low: l.value_estimate_low,
+          value_high: l.value_estimate_high,
         }
       })
 
@@ -145,9 +203,8 @@ export default function OfferPage({ params }: Props) {
         to_user_id: target!.user_id,
         target_listing_id: target!.id,
         offered_items: offeredItems,
-        topup_amount: topupAmount ? parseFloat(topupAmount) : null,
-        topup_currency: topupAmount ? topupCurrency : null,
         message: message || null,
+        value_gap_state: mapGapForDb(gapState),
         status: 'pending',
       })
 
@@ -163,6 +220,7 @@ export default function OfferPage({ params }: Props) {
         content: `Offer: ${itemNames}${topupStr}${msgStr}`,
       })
 
+      localStorage.removeItem(DRAFT_KEY)
       setSent(true)
       toast.success('Offer sent!')
     } catch (err: unknown) {
@@ -224,7 +282,7 @@ export default function OfferPage({ params }: Props) {
 
   return (
     <>
-      <TopBar title="Make offer" back />
+      <TopBar title="Build offer" back />
 
       <main style={{ maxWidth: 680, margin: '0 auto', padding: '16px 16px 140px' }}>
 
@@ -501,7 +559,7 @@ export default function OfferPage({ params }: Props) {
       }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
           {isGuest || isDemo ? (
-            // Guest: two CTAs
+            // Guest: fire gate on send
             <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={fireGate}

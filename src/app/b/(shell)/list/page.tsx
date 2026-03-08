@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { BTopBar } from '@/components/b/BTopBar'
 import toast from 'react-hot-toast'
+import { suggestServiceCopy } from '@/lib/ai/mvp'
 
 const CATEGORIES = [
   'Design', 'Development', 'Writing', 'Marketing',
@@ -188,7 +189,20 @@ export default function BListPage() {
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="label">Description</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="description" className="label !mb-0">Description</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const suggestion = suggestServiceCopy({ title: form.title, description: form.description, category: form.category })
+                  setForm(prev => ({ ...prev, title: prev.title || suggestion.altTitle, description: suggestion.strongerDesc }))
+                  toast.success('AI assist applied to service copy')
+                }}
+                className="chip chip-blue"
+              >
+                AI Assist
+              </button>
+            </div>
             <textarea
               id="description"
               value={form.description}
@@ -214,7 +228,7 @@ export default function BListPage() {
               rows={4}
             />
             <p className="text-xs text-muted-2 mt-1.5">
-              Portfolio is required — it's your proof of work. No portfolio, no listing.
+              Portfolio is required — it&apos;s your proof of work. No portfolio, no listing.
             </p>
           </div>
 

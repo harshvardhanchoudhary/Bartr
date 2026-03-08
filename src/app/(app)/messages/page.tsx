@@ -202,19 +202,10 @@ export default async function MessagesPage() {
             })}
           </div>
         ) : (
-          <div style={{ textAlign: 'center', padding: '64px 0' }}>
-            <div style={{ fontSize: 40, marginBottom: 16, color: 'var(--faint)' }}>◻</div>
-            <p style={{ fontSize: 14, color: 'var(--muted)', marginBottom: 20 }}>
-              No messages yet. Browse listings and make an offer.
-            </p>
-            <Link href="/browse" style={{
-              display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
-              background: 'var(--red)', color: 'white',
-              fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #A8251F',
-            }}>
-              Browse listings
-            </Link>
+          <div style={{ textAlign: 'center', padding: '52px 0', color: 'var(--muted)' }}>
+            <div style={{ fontSize: 40, marginBottom: 14 }}>◻</div>
+            <p style={{ fontSize: 14, marginBottom: 16 }}>No conversations yet.</p>
+            <Link href="/browse" className="btn btn-primary">Browse listings</Link>
           </div>
         )}
       </main>

@@ -165,6 +165,29 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Explore both worlds */}
+      <section style={{
+        margin: '0 20px 28px',
+        padding: '20px',
+        background: 'var(--surf)',
+        border: '1px solid var(--brd)',
+        borderRadius: 'var(--rl)',
+      }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>
+          Explore both marketplaces
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <Link href="/browse" style={{ textDecoration: 'none', padding: '12px', borderRadius: 10, border: '1px solid var(--rbd)', background: 'var(--rbg)', color: 'var(--ink)' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)', marginBottom: 4 }}>BARTR</div>
+            <div style={{ fontSize: 13 }}>Physical item swaps</div>
+          </Link>
+          <Link href="/b/browse" style={{ textDecoration: 'none', padding: '12px', borderRadius: 10, border: '1px solid var(--gbd)', background: 'var(--gbg)', color: 'var(--ink)' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', marginBottom: 4 }}>BARTR-B</div>
+            <div style={{ fontSize: 13 }}>Skills, briefs, and Credits</div>
+          </Link>
+        </div>
+      </section>
+
       {/* What gets accepted — social proof */}
       <section style={{
         margin: '0 20px 40px',

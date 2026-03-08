@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { TopBar } from '@/components/layout/TopBar'
 import toast from 'react-hot-toast'
+import { suggestListingCopy } from '@/lib/ai/mvp'
 
 const CATEGORIES = ['Fashion', 'Electronics', 'Books', 'Art', 'Collectibles', 'Home', 'Sports', 'Music', 'Other']
 const CONDITIONS = [
@@ -320,7 +321,20 @@ export default function ListPage() {
 
           {/* Description */}
           <div>
-            <label style={labelStyle}>Description</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <label style={{ ...labelStyle, marginBottom: 0 }}>Description</label>
+              <button
+                type="button"
+                onClick={() => {
+                  const suggestion = suggestListingCopy({ title: form.title, description: form.description, category: form.category })
+                  setForm(prev => ({ ...prev, title: prev.title || suggestion.altTitle, description: suggestion.strongerDesc }))
+                  toast.success('AI assist applied to title + description')
+                }}
+                style={{ border: '1px solid var(--blubd)', background: 'var(--blubg)', color: 'var(--blu)', borderRadius: 99, padding: '4px 8px', fontFamily: 'var(--font-dm-mono)', fontSize: 10, cursor: 'pointer' }}
+              >
+                AI Assist
+              </button>
+            </div>
             <textarea
               value={form.description} onChange={set('description')}
               placeholder="Condition details, what's included, any defects…"

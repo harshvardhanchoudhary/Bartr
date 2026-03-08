@@ -391,12 +391,17 @@ function RealThreadView({ threadId }: { threadId: string }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [authChecked, setAuthChecked] = useState(false)
 
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) {
+        setAuthChecked(true)
+        return
+      }
       setUserId(user.id)
+      setAuthChecked(true)
 
       const [{ data: threadData }, { data: msgData }, { data: offerData }] = await Promise.all([
         supabase.from('threads')
@@ -456,6 +461,27 @@ function RealThreadView({ threadId }: { threadId: string }) {
 
   const listing = (thread as { listing?: { id: string; title: string; value_estimate_low?: number; value_estimate_high?: number } } | null)?.listing
   const targetMid = listing ? ((listing.value_estimate_low ?? 0) + (listing.value_estimate_high ?? listing.value_estimate_low ?? 0)) / 2 : 0
+
+  if (authChecked && !userId) {
+    return (
+      <div className="min-h-screen bg-bg">
+        <TopBar title="Trade thread" back="/messages" />
+        <main className="max-w-2xl mx-auto px-4 py-6">
+          <div className="card p-4">
+            <div className="text-xs font-mono uppercase tracking-wider text-muted-2 mb-2">Commit-time signup</div>
+            <h1 className="font-semibold text-base mb-2">Sign in to open this private thread</h1>
+            <p className="text-sm text-muted mb-3">
+              Profiles and listings are public. Direct conversations are private to trade participants.
+            </p>
+            <div className="flex gap-2">
+              <Link href="/browse" className="btn">Browse listings</Link>
+              <Link href={`/login?next=/messages/${threadId}`} className="btn btn-primary">Sign in</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--bg)' }}>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { PlatformSwitcher } from '@/components/layout/PlatformSwitcher'
 
 interface TopBarProps {
   title?: string
@@ -62,11 +63,23 @@ export function TopBar({ title, right, back }: TopBarProps) {
         )}
       </div>
 
-      {right && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {right}
-        </div>
-      )}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <PlatformSwitcher />
+        <Link href="/" style={{
+          fontFamily: 'var(--font-dm-mono)',
+          fontSize: 10,
+          letterSpacing: '0.04em',
+          color: 'var(--muted)',
+          textDecoration: 'none',
+          border: '1px solid var(--brd)',
+          borderRadius: 99,
+          padding: '4px 8px',
+          background: 'var(--surf)',
+        }}>
+          Hub
+        </Link>
+        {right}
+      </div>
     </header>
   )
 }

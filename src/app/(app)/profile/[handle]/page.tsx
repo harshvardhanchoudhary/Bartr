@@ -37,9 +37,9 @@ export default async function ProfilePage({ params }: Props) {
 
   if (!profile) notFound()
 
-  // For real profiles: fetch their listings + ledger
-  const [{ data: dbListings }, { data: ledger }] = isDemo
-    ? [{ data: null }, { data: null }]
+  // For real profiles: fetch their listings, ledger, and social posts
+  const [{ data: dbListings }, { data: ledger }, { data: socialPosts }] = isDemo
+    ? [{ data: null }, { data: null }, { data: null }]
     : await Promise.all([
         supabase
           .from('listings')
@@ -54,6 +54,12 @@ export default async function ProfilePage({ params }: Props) {
           .or(`from_profile_id.eq.${profile.id},to_profile_id.eq.${profile.id}`)
           .order('created_at', { ascending: false })
           .limit(10),
+        supabase
+          .from('social_posts')
+          .select('id, content, type, created_at')
+          .eq('user_id', profile.id)
+          .order('created_at', { ascending: false })
+          .limit(8),
       ])
 
   // For demo profiles: show their demo listings
@@ -63,7 +69,6 @@ export default async function ProfilePage({ params }: Props) {
 
   const ledgerEntries = (ledger ?? []) as LedgerEntry[]
   const verifications = [profile.verified_id, profile.verified_phone, profile.verified_photo].filter(Boolean)
-
   const chip = (label: string, active: boolean) => (
     <span key={label} style={{
       fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.06em',
@@ -167,6 +172,60 @@ export default async function ProfilePage({ params }: Props) {
             )}
           </div>
         </div>
+
+
+        {/* Taste & interests */}
+        {!isDemo && (
+          <div style={{
+            background: 'var(--surf)', border: '1px solid var(--brd)',
+            borderRadius: 'var(--rl)', padding: '16px', marginBottom: 16,
+          }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.08em',
+              textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10,
+            }}>
+              Social taste
+            </div>
+            {tasteTags.length > 0 ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {tasteTags.map((tag: string) => (
+                  <span key={tag} style={{
+                    fontFamily: 'var(--font-dm-mono)', fontSize: 10,
+                    padding: '4px 10px', borderRadius: 99,
+                    background: 'var(--bg2)', border: '1px solid var(--brd)',
+                    color: 'var(--ink2)',
+                  }}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p style={{ fontSize: 13, color: 'var(--faint)' }}>
+                No social taste data yet — updates as they post and trade.
+              </p>
+            )}
+
+            {(socialPosts ?? []).length > 0 && (
+              <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {(socialPosts ?? []).slice(0, 3).map((post: { id: string; content: string; type: string; created_at: string }) => (
+                  <div key={post.id} style={{
+                    padding: '10px 12px',
+                    background: 'var(--bg2)', border: '1px solid var(--brd)',
+                    borderRadius: 'var(--rl)',
+                  }}>
+                    <div style={{
+                      fontFamily: 'var(--font-dm-mono)', fontSize: 9,
+                      textTransform: 'uppercase', color: 'var(--faint)', marginBottom: 4,
+                    }}>
+                      {post.type} · {formatRelativeTime(post.created_at)}
+                    </div>
+                    <p style={{ fontSize: 13, color: 'var(--ink2)' }}>{post.content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Active listings */}
         {listings.length > 0 && (
