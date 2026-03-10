@@ -43,6 +43,8 @@ export default async function BProfilePage({ params }: Props) {
     profile = demoEntry.profile
     services = demoEntry.services
     isDemo = true
+    // Show a sample credit balance on demo profiles so the wallet card is visible
+    creditBalance = { balance: 340, lifetime_earned: 820 }
   } else {
     const supabase = await createClient()
     const { data: profileData } = await supabase
@@ -168,8 +170,8 @@ export default async function BProfilePage({ params }: Props) {
           )}
         </div>
 
-        {/* Credit wallet card (real users with balance only) */}
-        {!isDemo && creditBalance && (
+        {/* Credit wallet card — shown on demo and real users */}
+        {creditBalance && (
           <CreditWalletCard
             balance={creditBalance.balance}
             lifetimeEarned={creditBalance.lifetime_earned}
