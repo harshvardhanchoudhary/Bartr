@@ -53,7 +53,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
               padding: '5px 12px', borderRadius: 99,
               background: 'var(--grn)', color: 'white',
               fontFamily: 'var(--font-dm-sans)', fontSize: 12,
-              border: '1px solid #047857', textDecoration: 'none',
+              border: '1px solid var(--gbn)', textDecoration: 'none',
             }}>
               + Offer skill
             </Link>
@@ -140,7 +140,7 @@ export default async function BBrowsePage({ searchParams }: Props) {
               display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
               background: 'var(--grn)', color: 'white',
               fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #047857',
+              border: '1px solid var(--gbn)',
             }}>
               Offer your skill
             </Link>

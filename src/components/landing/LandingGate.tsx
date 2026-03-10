@@ -76,7 +76,7 @@ export function LandingGate() {
               padding: '14px 24px', borderRadius: 99,
               background: 'var(--red)', color: 'white',
               fontFamily: 'var(--font-dm-sans)', fontSize: 15, fontWeight: 500,
-              border: '1px solid #A8251F', textDecoration: 'none',
+              border: '1px solid var(--rbn)', textDecoration: 'none',
             }}>
               Create free account →
             </Link>

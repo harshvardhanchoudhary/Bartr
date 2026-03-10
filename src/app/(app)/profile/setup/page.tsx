@@ -183,7 +183,7 @@ export default function ProfileSetupPage() {
             type="submit"
             disabled={saving || handleAvailable === false || form.handle.length < 3}
             style={{
-              padding: '13px', borderRadius: 99, border: '1px solid #A8251F',
+              padding: '13px', borderRadius: 99, border: '1px solid var(--rbn)',
               background: saving || handleAvailable === false ? 'rgba(197,48,48,0.45)' : 'var(--red)',
               color: 'white', fontSize: 15, fontWeight: 500, cursor: 'pointer',
               fontFamily: 'var(--font-dm-sans)',

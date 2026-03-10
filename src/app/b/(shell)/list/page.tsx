@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { BTopBar } from '@/components/b/BTopBar'
 import toast from 'react-hot-toast'
-import { suggestServiceCopy } from '@/lib/ai/mvp'
 
 const CATEGORIES = [
   'Design', 'Development', 'Writing', 'Marketing',
@@ -32,6 +31,34 @@ export default function BListPage() {
     portfolioUrls: '',
   })
   const [saving, setSaving] = useState(false)
+  const [aiAssisting, setAiAssisting] = useState(false)
+
+  async function handleAiAssist() {
+    if (!form.title && !form.category) {
+      toast.error('Add a title or category first')
+      return
+    }
+    setAiAssisting(true)
+    try {
+      const res = await fetch('/api/ai/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: form.title, description: form.description, category: form.category, type: 'service' }),
+      })
+      if (!res.ok) throw new Error('AI assist failed')
+      const data = await res.json() as { altTitle?: string; strongerDesc?: string }
+      setForm(prev => ({
+        ...prev,
+        title: data.altTitle && !prev.title ? data.altTitle : prev.title,
+        description: data.strongerDesc ?? prev.description,
+      }))
+      toast.success('AI assist applied')
+    } catch {
+      toast.error('AI assist unavailable — check ANTHROPIC_API_KEY')
+    } finally {
+      setAiAssisting(false)
+    }
+  }
 
   const set = (key: keyof typeof form) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -193,14 +220,12 @@ export default function BListPage() {
               <label htmlFor="description" className="label !mb-0">Description</label>
               <button
                 type="button"
-                onClick={() => {
-                  const suggestion = suggestServiceCopy({ title: form.title, description: form.description, category: form.category })
-                  setForm(prev => ({ ...prev, title: prev.title || suggestion.altTitle, description: suggestion.strongerDesc }))
-                  toast.success('AI assist applied to service copy')
-                }}
+                onClick={handleAiAssist}
+                disabled={aiAssisting}
                 className="chip chip-blue"
+                style={{ opacity: aiAssisting ? 0.6 : 1 }}
               >
-                AI Assist
+                {aiAssisting ? 'Thinking…' : 'AI Assist'}
               </button>
             </div>
             <textarea

@@ -34,7 +34,7 @@ export default async function BriefsPage() {
             padding: '5px 14px', borderRadius: 99,
             background: 'var(--grn)', color: 'white',
             fontFamily: 'var(--font-dm-sans)', fontSize: 12, fontWeight: 500,
-            border: '1px solid #047857', textDecoration: 'none',
+            border: '1px solid var(--gbn)', textDecoration: 'none',
           }}>
             + Post brief
           </Link>
@@ -85,7 +85,7 @@ export default async function BriefsPage() {
               display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
               background: 'var(--grn)', color: 'white',
               fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #047857',
+              border: '1px solid var(--gbn)',
             }}>
               Post a brief
             </Link>

@@ -74,7 +74,7 @@ export default function BartrBLandingPage() {
             padding: '6px 16px', borderRadius: 99,
             background: 'var(--grn)', color: 'white',
             fontFamily: 'var(--font-dm-sans)', fontSize: 13, fontWeight: 500,
-            border: '1px solid #047857', textDecoration: 'none',
+            border: '1px solid var(--gbn)', textDecoration: 'none',
           }}>
             Browse skills
           </Link>

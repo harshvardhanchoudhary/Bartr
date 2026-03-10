@@ -332,7 +332,7 @@ export default async function ProfilePage({ params }: Props) {
                 padding: '9px 20px', borderRadius: 99,
                 background: 'var(--red)', color: 'white',
                 fontSize: 13, fontWeight: 500, textDecoration: 'none',
-                border: '1px solid #A8251F',
+                border: '1px solid var(--rbn)',
               }}>
                 Create free account →
               </Link>

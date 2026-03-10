@@ -250,7 +250,7 @@ export default function OfferPage({ params }: Props) {
           <Link href="/messages" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '13px 24px', borderRadius: 99, marginBottom: 12,
-            background: 'var(--red)', border: '1px solid #A8251F',
+            background: 'var(--red)', border: '1px solid var(--rbn)',
             color: 'white', fontSize: 15, fontWeight: 500, textDecoration: 'none',
           }}>
             Go to Messages →
@@ -575,7 +575,7 @@ export default function OfferPage({ params }: Props) {
                 onClick={fireGate}
                 style={{
                   flex: 2, padding: '14px', borderRadius: 99,
-                  background: 'var(--red)', border: '1px solid #A8251F',
+                  background: 'var(--red)', border: '1px solid var(--rbn)',
                   color: 'white', fontSize: 15, fontWeight: 500, cursor: 'pointer',
                 }}
               >

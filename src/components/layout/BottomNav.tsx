@@ -132,7 +132,7 @@ export function BottomNav() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   gap: 8, padding: '14px',
                   background: 'var(--red)', color: 'white',
-                  borderRadius: 99, border: '1px solid #A8251F',
+                  borderRadius: 99, border: '1px solid var(--rbn)',
                   fontFamily: 'var(--font-dm-sans)', fontSize: 15, fontWeight: 500,
                   textDecoration: 'none', marginBottom: 8,
                 }}

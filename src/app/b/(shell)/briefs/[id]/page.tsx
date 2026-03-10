@@ -173,7 +173,7 @@ export default function BriefDetailPage({ params }: Props) {
   const isMatched = brief.status === 'matched'
 
   const statusColors: Record<string, { bg: string; text: string; label: string }> = {
-    open: { bg: 'rgba(45,106,79,0.12)', text: '#1A7A4A', label: 'Open' },
+    open: { bg: 'rgba(45,106,79,0.12)', text: 'var(--grn)', label: 'Open' },
     matched: { bg: 'rgba(29,95,168,0.12)', text: '#1D5FA8', label: 'Matched' },
     in_progress: { bg: 'rgba(29,95,168,0.12)', text: '#1D5FA8', label: 'In progress' },
     completed: { bg: 'rgba(154,108,24,0.12)', text: '#9A6C18', label: 'Completed' },
@@ -213,7 +213,7 @@ export default function BriefDetailPage({ params }: Props) {
             {brief.budget_credits && (
               <div
                 className="font-mono text-lg font-medium flex-shrink-0 text-right"
-                style={{ color: '#1A7A4A' }}
+                style={{ color: 'var(--grn)' }}
               >
                 {brief.budget_credits}c
                 <div className="text-xs font-normal" style={{ color: '#52B788' }}>budget</div>
@@ -303,7 +303,7 @@ export default function BriefDetailPage({ params }: Props) {
                 className="text-xs font-mono px-2 py-0.5 rounded-full border"
                 style={
                   myApplication.status === 'accepted'
-                    ? { background: 'rgba(45,106,79,0.15)', color: '#1A7A4A', borderColor: 'rgba(45,106,79,0.40)' }
+                    ? { background: 'rgba(45,106,79,0.15)', color: 'var(--grn)', borderColor: 'rgba(45,106,79,0.40)' }
                     : myApplication.status === 'declined'
                       ? { background: 'rgba(196,49,42,0.10)', color: '#C4312A', borderColor: 'rgba(196,49,42,0.30)' }
                       : { background: 'rgba(154,108,24,0.10)', color: '#9A6C18', borderColor: 'rgba(154,108,24,0.30)' }
@@ -352,7 +352,7 @@ export default function BriefDetailPage({ params }: Props) {
                       </Link>
                     )}
                     <div className="text-right flex-shrink-0">
-                      <div className="font-mono text-sm font-medium" style={{ color: '#1A7A4A' }}>
+                      <div className="font-mono text-sm font-medium" style={{ color: 'var(--grn)' }}>
                         {app.proposed_credits}c
                       </div>
                       {app.proposed_timeline_days && (
@@ -368,7 +368,7 @@ export default function BriefDetailPage({ params }: Props) {
                       className="text-xs font-mono px-2 py-0.5 rounded-full border"
                       style={
                         app.status === 'accepted'
-                          ? { background: 'rgba(45,106,79,0.15)', color: '#1A7A4A', borderColor: 'rgba(45,106,79,0.40)' }
+                          ? { background: 'rgba(45,106,79,0.15)', color: 'var(--grn)', borderColor: 'rgba(45,106,79,0.40)' }
                           : app.status === 'declined'
                             ? { background: 'rgba(196,49,42,0.10)', color: '#C4312A', borderColor: 'rgba(196,49,42,0.30)' }
                             : { background: 'rgba(154,108,24,0.10)', color: '#9A6C18', borderColor: 'rgba(154,108,24,0.30)' }

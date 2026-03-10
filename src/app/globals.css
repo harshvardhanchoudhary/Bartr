@@ -14,9 +14,11 @@
     --muted: #78746E;
     --faint: #B4B0A8;
     --red:   #C4312A;
+    --rbn:   #A8251F;  /* red button border — darker than --red */
     --rbg:   #FDF0EF;
     --rbd:   #EACAC7;
     --grn:   #059669;
+    --gbn:   #047857;  /* green button border — darker than --grn */
     --gbg:   #ECFDF5;
     --gbd:   #6EE7B7;
     --blu:   #1D5FA8;
@@ -117,7 +119,7 @@
   .btn-primary {
     @apply btn;
     background: var(--red);
-    border-color: #A8251F;
+    border-color: var(--rbn);
     color: white;
   }
   .btn-primary:hover { background: #B02A24; }
@@ -125,10 +127,10 @@
   .btn-green {
     @apply btn;
     background: var(--grn);
-    border-color: #047857;
+    border-color: var(--gbn);
     color: white;
   }
-  .btn-green:hover { background: #047857; }
+  .btn-green:hover { background: var(--gbn); }
 
   .btn-ghost {
     @apply btn;

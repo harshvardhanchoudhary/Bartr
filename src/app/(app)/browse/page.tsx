@@ -56,7 +56,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
             padding: '6px 14px', borderRadius: 99,
             background: 'var(--red)', color: 'white',
             fontFamily: 'var(--font-dm-sans)', fontSize: 13, fontWeight: 500,
-            border: '1px solid #A8251F', textDecoration: 'none',
+            border: '1px solid var(--rbn)', textDecoration: 'none',
           }}>
             + List
           </Link>
@@ -184,7 +184,7 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               display: 'inline-flex', padding: '11px 24px', borderRadius: 99,
               background: 'var(--red)', color: 'white',
               fontSize: 14, fontWeight: 500, textDecoration: 'none',
-              border: '1px solid #A8251F',
+              border: '1px solid var(--rbn)',
             }}>
               List your first item
             </Link>

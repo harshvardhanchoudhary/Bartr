@@ -211,7 +211,7 @@ export default async function MessagesPage() {
             <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/browse" style={{
                 padding: '10px 20px', borderRadius: 99, textDecoration: 'none',
-                background: 'var(--red)', border: '1px solid #A8251F',
+                background: 'var(--red)', border: '1px solid var(--rbn)',
                 color: 'white', fontSize: 13, fontWeight: 500,
               }}>
                 Browse listings

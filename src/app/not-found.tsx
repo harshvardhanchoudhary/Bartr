@@ -46,7 +46,7 @@ export default function NotFound() {
         <Link href="/browse" style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: '13px', borderRadius: 99,
-          background: 'var(--red)', border: '1px solid #A8251F',
+          background: 'var(--red)', border: '1px solid var(--rbn)',
           color: 'white', fontSize: 15, fontWeight: 500,
           textDecoration: 'none',
         }}>

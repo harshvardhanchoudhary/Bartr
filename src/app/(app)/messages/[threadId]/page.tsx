@@ -126,7 +126,7 @@ function OfferCard({
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button onClick={onAccept} style={{
             flex: 1, padding: '10px', borderRadius: 99,
-            background: 'var(--grn)', border: '1px solid #047857',
+            background: 'var(--grn)', border: '1px solid var(--gbn)',
             color: 'white', fontSize: 13, fontWeight: 500, cursor: 'pointer',
           }}>
             Accept ✓

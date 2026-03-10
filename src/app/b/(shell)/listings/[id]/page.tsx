@@ -273,7 +273,7 @@ export default async function BListingPage({ params }: Props) {
             <Link href="/b" style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '14px', borderRadius: 99,
-              background: 'var(--grn)', border: '1px solid #047857',
+              background: 'var(--grn)', border: '1px solid var(--gbn)',
               color: 'white', fontSize: 15, fontWeight: 500, textDecoration: 'none',
             }}>
               Join free to hire →
@@ -282,7 +282,7 @@ export default async function BListingPage({ params }: Props) {
             <Link href="/b/briefs/new" style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
               padding: '14px', borderRadius: 99,
-              background: 'var(--grn)', border: '1px solid #047857',
+              background: 'var(--grn)', border: '1px solid var(--gbn)',
               color: 'white', fontSize: 15, fontWeight: 500, textDecoration: 'none',
             }}>
               Post a brief →
