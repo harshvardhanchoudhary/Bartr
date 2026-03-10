@@ -8,8 +8,31 @@ import { ServiceCard } from '@/components/b/ServiceCard'
 import { formatRelativeTime } from '@/lib/utils'
 import { DEMO_SERVICES } from '@/lib/demo-data'
 import { CreditWalletCard } from '@/components/b/CreditWalletCard'
+import { ProfileActivityFeed } from '@/components/profile/ProfileActivityFeed'
+import type { ActivityItem } from '@/components/profile/ProfileActivityFeed'
 import type { ServiceListing, CreditTransaction } from '@/types/bartr-b'
 import type { Profile } from '@/types'
+
+// Demo activity for Bartr-B providers — makes profiles feel alive
+const B_DEMO_ACTIVITY: Record<string, ActivityItem[]> = {
+  designbylena: [
+    { id: '1', type: 'listed', text: 'Listed Brand Identity Package', subtext: '120c / project · Design', time: '1d ago', emoji: '🎨' },
+    { id: '2', type: 'traded', text: 'Completed job — logo & brand kit', subtext: '+85c earned · 5★ review', time: '4d ago', emoji: '✅' },
+    { id: '3', type: 'listed', text: 'Listed UI/UX wireframing service', subtext: '60c / session · Design', time: '1w ago', emoji: '🎨' },
+    { id: '4', type: 'joined', text: 'Joined Bartr-B', subtext: 'London · Brand & UI designer', time: '3mo ago', emoji: '◎' },
+  ],
+  devbyomar: [
+    { id: '1', type: 'listed', text: 'Listed React & Next.js Development', subtext: '200c / project · Development', time: '2d ago', emoji: '💻' },
+    { id: '2', type: 'traded', text: 'Delivered API integration', subtext: '+140c earned · 5★ review', time: '5d ago', emoji: '✅' },
+    { id: '3', type: 'received_offer', text: 'New job request received', subtext: 'E-commerce build · Reviewing', time: '12h ago', emoji: '📬' },
+    { id: '4', type: 'joined', text: 'Joined Bartr-B', subtext: 'Remote · Full-stack engineer', time: '5mo ago', emoji: '◎' },
+  ],
+  writerbyjess: [
+    { id: '1', type: 'listed', text: 'Listed SEO Blog Writing', subtext: '45c / article · Writing', time: '3d ago', emoji: '✍️' },
+    { id: '2', type: 'traded', text: 'Delivered 5-article content series', subtext: '+225c earned · Writing', time: '1w ago', emoji: '✅' },
+    { id: '3', type: 'joined', text: 'Joined Bartr-B', subtext: 'Edinburgh · Content strategist', time: '4mo ago', emoji: '◎' },
+  ],
+}
 
 interface Props {
   params: { handle: string }
@@ -178,6 +201,31 @@ export default async function BProfilePage({ params }: Props) {
             handle={profile.handle}
             tier={profile.tier}
           />
+        )}
+
+        {/* Demo activity feed */}
+        {isDemo && B_DEMO_ACTIVITY[handle] && (
+          <section style={{ marginBottom: 16 }}>
+            <div style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 9, letterSpacing: '0.12em',
+              textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 12,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}>
+              <span>Recent activity</span>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%', background: '#059669',
+                boxShadow: '0 0 0 0 rgba(5,150,105,0.4)',
+                display: 'inline-block',
+                animation: 'pulse-dot 2.4s ease-in-out infinite',
+              }} />
+            </div>
+            <div style={{
+              background: 'var(--surf)', border: '1px solid var(--brd)',
+              borderRadius: 'var(--rl)', padding: '0 16px',
+            }}>
+              <ProfileActivityFeed items={B_DEMO_ACTIVITY[handle]} />
+            </div>
+          </section>
         )}
 
         {/* Services */}

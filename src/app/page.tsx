@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { LandingGate } from '@/components/landing/LandingGate'
 import { HeroListings } from '@/components/landing/HeroListings'
 import { ActivityTicker } from '@/components/landing/ActivityTicker'
+import { LiveStats } from '@/components/landing/LiveStats'
 
-// Sample listings for the hero — IDs match demo-data.ts so detail pages work
 const SAMPLE_LISTINGS = [
   { id: 'demo-2', emoji: '👕', title: "Vintage Levi's 501 Jacket", category: 'Fashion', condition: 'Good', value: 75, user: 'jordanmc', wants: ['Photography books', 'Film camera', 'Vinyl'] },
   { id: 'demo-1', emoji: '📷', title: 'Fujifilm X-T20 + 18-55mm', category: 'Electronics', condition: 'Good', value: 420, user: 'tessafilm', wants: ['Laptop', 'iPad', 'Camera gear'] },
@@ -11,14 +11,19 @@ const SAMPLE_LISTINGS = [
   { id: 'demo-7', emoji: '📚', title: 'Philosophy Books ×12', category: 'Books', condition: 'Good', value: 60, user: 'samirk', wants: ['Fiction', 'Art books', 'Journals'] },
   { id: 'demo-4', emoji: '🧥', title: "Arc'teryx Beta AR Jacket", category: 'Fashion', condition: 'Like new', value: 340, user: 'pablor', wants: ['Snowboard gear', 'Hiking boots', 'Camping'] },
   { id: 'demo-5', emoji: '🖥️', title: 'iPad Pro 11" (2021)', category: 'Electronics', condition: 'Like new', value: 580, user: 'lilyc', wants: ['MacBook', 'Camera', 'Audio gear'] },
-  { id: 'demo-6', emoji: '🎵', title: 'Technics SL-1200MK2', category: 'Music', condition: 'Good', value: 480, user: 'djsol', wants: ['Vinyl collection', 'Speakers', 'Amp'] },
-  { id: 'demo-8', emoji: '👟', title: 'Nike Air Max 1 OG (UK9)', category: 'Fashion', condition: 'New', value: 140, user: 'kwamea', wants: ['Jordan 1s', 'New Balance', 'Other sneakers'] },
 ]
 
 const HOW_IT_WORKS = [
   { step: '01', title: 'List what you have', desc: 'Add photos, set an estimated value, say what you want in return.' },
   { step: '02', title: 'Make or receive an offer', desc: 'Browse listings, pick items from your stash, see the value balance before you send.' },
   { step: '03', title: 'Meet and swap', desc: "Agree on a time and place. The trade is logged on the public ledger — that's the trust layer." },
+]
+
+const LIVE_TRADES = [
+  { emoji: '📷', item: 'Fujifilm X-T20', for: 'iPad Pro 11"', city: 'London', time: '2h ago', color: '#1D5FA8' },
+  { emoji: '👕', item: "Levi's 501 jacket", for: 'Film camera + books', city: 'Bristol', time: '5h ago', color: '#C4312A' },
+  { emoji: '🎸', item: 'Fender Telecaster', for: 'Korg Minilogue XD', city: 'Manchester', time: '1d ago', color: '#7C3AED' },
+  { emoji: '🧥', item: "Arc'teryx Beta AR", for: 'Snowboard gear', city: 'Edinburgh', time: '1d ago', color: '#059669' },
 ]
 
 export default function LandingPage() {
@@ -32,6 +37,7 @@ export default function LandingPage() {
         padding: '0 20px', height: 52,
         background: 'rgba(246,244,241,0.94)',
         backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
         borderBottom: '1px solid var(--brd)',
       }}>
         <span style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--ink)', letterSpacing: '-0.01em' }}>
@@ -62,14 +68,9 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero: split layout ── */}
-      <section style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)',
-        gap: 0,
-        minHeight: 'calc(100svh - 52px)',
-        maxHeight: 700,
-      }}
-      className="hero-grid"
+      <section
+        style={{ display: 'grid', gap: 0, minHeight: 'calc(100svh - 52px)', maxHeight: 700 }}
+        className="hero-grid"
       >
         {/* Left: pitch */}
         <div style={{
@@ -77,14 +78,19 @@ export default function LandingPage() {
           padding: '40px 32px 40px 24px',
           borderRight: '1px solid var(--brd)',
         }}>
+          {/* Live badge */}
           <div style={{
-            display: 'inline-flex', alignSelf: 'flex-start',
+            display: 'inline-flex', alignSelf: 'flex-start', alignItems: 'center', gap: 6,
             fontFamily: 'var(--font-dm-mono)', fontSize: 10,
             letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--red)',
             background: 'var(--rbg)', border: '1px solid var(--rbd)',
             padding: '4px 10px', borderRadius: 99, marginBottom: 24,
           }}>
-            No cash required
+            <span style={{
+              width: 6, height: 6, borderRadius: '50%', background: 'var(--red)',
+              animation: 'pulse-dot 2.2s ease-in-out infinite', display: 'inline-block',
+            }} />
+            Live network · No cash required
           </div>
 
           <h1 style={{
@@ -128,14 +134,13 @@ export default function LandingPage() {
 
           {/* Mini trust strip */}
           <div style={{
-            display: 'flex', gap: 20, marginTop: 40,
-            paddingTop: 24, borderTop: '1px solid var(--brd)',
-            flexWrap: 'wrap',
+            display: 'flex', gap: 20, marginTop: 36,
+            paddingTop: 24, borderTop: '1px solid var(--brd)', flexWrap: 'wrap',
           }}>
             {[
               { label: 'No cash', desc: 'Items only' },
               { label: 'No fees', desc: 'Free forever' },
-              { label: '5★ trades', desc: 'Community rated' },
+              { label: '4.9★', desc: 'Community rated' },
             ].map(t => (
               <div key={t.label}>
                 <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink)' }}>{t.label}</div>
@@ -145,92 +150,133 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Right: animated listing grid */}
+        {/* Right: animated listing bento */}
         <HeroListings listings={SAMPLE_LISTINGS} />
       </section>
+
+      {/* ── Live stats counter strip ── */}
+      <LiveStats />
 
       {/* ── Activity ticker ── */}
       <ActivityTicker />
 
-      {/* ── Marketplace switcher ── */}
-      <section style={{ padding: '36px 20px 32px' }}>
-        <div style={{
-          fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em',
-          textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16, textAlign: 'center',
-        }}>
-          One ecosystem, two ways to trade
-        </div>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr',
-          gap: 12, maxWidth: 680, margin: '0 auto',
-        }}>
-          <Link href="/browse" style={{ textDecoration: 'none' }}>
-            <div style={{
-              padding: '20px', borderRadius: 'var(--rl)',
-              border: '1px solid var(--rbd)', background: 'var(--rbg)',
-              transition: 'box-shadow 0.15s, transform 0.15s',
-            }}
-            className="hover-lift"
-            >
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)', letterSpacing: '0.08em', marginBottom: 8 }}>BARTR</div>
-              <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--ink)', marginBottom: 8 }}>Physical swaps</div>
-              <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>
-                Clothes, cameras, books, instruments. Trade like-for-like.
+      {/* ── Trades happening now ── */}
+      <section style={{ padding: '40px 20px 16px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20,
+          }}>
+            <div>
+              <div style={{
+                fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em',
+                textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4,
+              }}>
+                Happening now
               </div>
-              <div style={{ marginTop: 14, fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--red)' }}>
-                Browse items →
+              <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 22, color: 'var(--ink)' }}>
+                Trades in the wild
               </div>
             </div>
-          </Link>
-          <Link href="/b/browse" style={{ textDecoration: 'none' }}>
-            <div style={{
-              padding: '20px', borderRadius: 'var(--rl)',
-              border: '1px solid var(--gbd)', background: 'var(--gbg)',
-            }}
-            className="hover-lift"
-            >
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', letterSpacing: '0.08em', marginBottom: 8 }}>BARTR-B</div>
-              <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--ink)', marginBottom: 8 }}>Skills & services</div>
-              <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>
-                Design, dev, writing. Earn Credits, spend them across the network.
-              </div>
-              <div style={{ marginTop: 14, fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--grn)' }}>
-                Browse skills →
-              </div>
-            </div>
-          </Link>
+            <Link href="/browse" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--red)',
+              padding: '5px 12px', border: '1px solid var(--rbd)',
+              borderRadius: 99, background: 'var(--rbg)', textDecoration: 'none',
+            }}>
+              See all →
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
+            {LIVE_TRADES.map((trade, i) => (
+              <Link key={i} href="/browse" style={{ textDecoration: 'none' }}>
+                <div style={{
+                  padding: '14px',
+                  background: 'var(--surf)', border: '1px solid var(--brd)',
+                  borderRadius: 'var(--rl)',
+                  position: 'relative', overflow: 'hidden',
+                }}
+                className="hover-lift"
+                >
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: 3,
+                    background: trade.color, opacity: 0.75,
+                  }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, marginTop: 4 }}>
+                    <span style={{ fontSize: 22 }}>{trade.emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{
+                        fontSize: 12, fontWeight: 500, color: 'var(--ink)',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {trade.item}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, color: 'var(--faint)' }}>
+                        for {trade.for}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid var(--brd)', paddingTop: 8, display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, color: 'var(--muted)' }}>
+                      {trade.city}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 9, color: 'var(--faint)' }}>
+                      {trade.time}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── What gets accepted ── */}
-      <section style={{
-        margin: '0 20px 40px',
-        padding: '24px',
-        background: 'var(--surf)',
-        border: '1px solid var(--brd)',
-        borderRadius: 'var(--rl)',
-        maxWidth: 640, marginLeft: 'auto', marginRight: 'auto',
-      }}>
-        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 10 }}>
-          Community patterns
-        </div>
-        <h3 style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 20, color: 'var(--ink)', marginBottom: 8 }}>
-          What trades happen most
-        </h3>
-        <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
-          The community tends to accept trades within 20% of their listed value.
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {['Cameras ↔ Lenses', 'Jackets ↔ Jackets', 'Books ↔ Books', 'Instruments ↔ Gear', 'Tech ↔ Tech', 'Sneakers ↔ Sneakers', 'Art ↔ Art'].map(pattern => (
-            <span key={pattern} style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: 11,
-              padding: '5px 12px', borderRadius: 99,
-              background: 'var(--bg2)', border: '1px solid var(--brd)',
-              color: 'var(--ink2)',
-            }}>
-              {pattern}
-            </span>
-          ))}
+      {/* ── Marketplace switcher ── */}
+      <section style={{ padding: '24px 20px 32px' }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+          <div style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '0.1em',
+            textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16, textAlign: 'center',
+          }}>
+            One ecosystem, two ways to trade
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <Link href="/browse" style={{ textDecoration: 'none' }}>
+              <div style={{
+                padding: '20px', borderRadius: 'var(--rl)',
+                border: '1px solid var(--rbd)', background: 'var(--rbg)', height: '100%',
+              }}
+              className="hover-lift"
+              >
+                <div style={{ fontSize: 28, marginBottom: 10 }}>◻</div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--red)', letterSpacing: '0.08em', marginBottom: 6 }}>BARTR</div>
+                <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--ink)', marginBottom: 8 }}>Physical swaps</div>
+                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>
+                  Clothes, cameras, books, instruments. Trade like-for-like.
+                </div>
+                <div style={{ marginTop: 14, fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--red)' }}>
+                  Browse items →
+                </div>
+              </div>
+            </Link>
+            <Link href="/b/browse" style={{ textDecoration: 'none' }}>
+              <div style={{
+                padding: '20px', borderRadius: 'var(--rl)',
+                border: '1px solid var(--gbd)', background: 'var(--gbg)', height: '100%',
+              }}
+              className="hover-lift"
+              >
+                <div style={{ fontSize: 28, marginBottom: 10 }}>◎</div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 10, color: 'var(--grn)', letterSpacing: '0.08em', marginBottom: 6 }}>BARTR-B</div>
+                <div style={{ fontFamily: 'var(--font-instrument-serif)', fontSize: 18, color: 'var(--ink)', marginBottom: 8 }}>Skills & services</div>
+                <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>
+                  Design, dev, writing. Earn Credits, spend them across the network.
+                </div>
+                <div style={{ marginTop: 14, fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: 'var(--grn)' }}>
+                  Browse skills →
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
